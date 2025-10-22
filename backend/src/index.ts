@@ -43,11 +43,10 @@ new Elysia()
       .use(fileController)
       .use(bookController)
       .use(promotionController)
-  )
-  .group("/assets", app=>app.use(staticPlugin({
+  ).use(staticPlugin({
     assets: path.join(process.cwd(), "public/assets"),
-    prefix: "/"
-  })))
+    prefix: "/assets"
+  }))
   .get("/*", () => file(path.join(process.cwd(), "public/index.html")), {
     detail: {
       hide: true

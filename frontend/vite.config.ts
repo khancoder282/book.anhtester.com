@@ -36,7 +36,9 @@ export default defineConfig({
     ],
   },
   build: {
-    outDir: '../../public',
+    outDir: '../backend/public',
+    emptyOutDir: true,
+    manifest: true,
   },
 
   server: {
@@ -44,7 +46,7 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: `http://localhost:4544`,
+        target: `http://localhost:4566`,
         changeOrigin: true,
       },
     },
