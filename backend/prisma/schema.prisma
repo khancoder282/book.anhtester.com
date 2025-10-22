@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String             @id @default(cuid())
+  name          String
+  email         String             @unique
+  password      String
+  avatarUrl     String             @default("")
+  isActive      Boolean            @default(true)
+  phone         String             @default("")
+  address       String             @default("")
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  book          Book[]
+  refreshTokens UserRefreshToken[]
+
+  @@index([name, email])
+}
+
+model UserRefreshToken {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  userId     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  expiresAt  DateTime
+  revoked    Boolean  @default(false)
+  deviceInfo String?
+  ipAddress  String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  name  String @id
+  books Book[] @relation("BookCategories")
+}
+
+model Promotion {
+  id          String        @id @default(cuid())
+  code        String        @unique
+  name        String
+  description String        @default("")
+  type        PromotionType
+  value       Float
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  books       Book[]        @relation("PromotionBooks")
+  configFe    String        @default("{}")
+
+  @@index([code, name, description])
+}
+
+model Book {
+  id           String      @id @default(cuid())
+  name         String      @unique
+  slug         String      @unique
+  description  String      @default("")
+  picture      String      @default("")
+  viewCount    Int         @default(0)
+  price        Int
+  currentPrice Int         @default(0)
+  status       BookStatus  @default(AVAILABLE)
+  authId       String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  auth         User?       @relation(fields: [authId], references: [id])
+  categories   Category[]  @relation("BookCategories")
+  promotions   Promotion[] @relation("PromotionBooks")
+
+  @@index([name, description])
+}
+
+enum BookStatus {
+  AVAILABLE
+  UNAVAILABLE
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}

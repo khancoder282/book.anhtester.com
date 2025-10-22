@@ -1,0 +1,26 @@
+{
+  "name": "book-anhtester-com",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts --host",
+    "studio": "bunx prisma studio",
+    "fake": "bun --bun src/prisma-fake.ts"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.4.0",
+    "@elysiajs/jwt": "^1.4.0",
+    "@elysiajs/openapi": "^1.4.11",
+    "@elysiajs/static": "^1.4.4",
+    "@faker-js/faker": "^10.1.0",
+    "@prisma/client": "^6.17.1",
+    "dayjs": "^1.11.18",
+    "elysia": "^1.4.12",
+    "elysia-rate-limit": "^4.4.1"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "prisma": "^6.17.1"
+  },
+  "module": "src/index.js"
+}
