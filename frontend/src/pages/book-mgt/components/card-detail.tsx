@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useWatch, Controller } from 'react-hook-form';
 
 import {
+  Box,
   Card,
   Stack,
   Button,
@@ -118,7 +119,12 @@ export function CardDetail() {
             )}
           />
           <Stack spacing={1.5}>
-            <Typography variant="subtitle2">Picture *</Typography>
+            <Typography variant="subtitle2">
+              Picture{' '}
+              <Box component="span" sx={{ color: 'primary.main' }}>
+                *
+              </Box>
+            </Typography>
             <Controller
               control={control}
               name="picture"

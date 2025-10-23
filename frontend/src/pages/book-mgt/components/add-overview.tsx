@@ -40,7 +40,15 @@ export function AddOverview() {
   useEffect(() => {
     if (!id) {
       setLoadingPage(false);
-      reset({});
+      reset({
+        name: '',
+        description: '',
+        status: 'AVAILABLE',
+        categories: [],
+        slug: '',
+        price: 0,
+        picture: [],
+      });
     } else {
       getBook(id)
         .then((res) => {
