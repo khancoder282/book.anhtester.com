@@ -24,10 +24,10 @@ axios.interceptors.response.use(
       originalRequest._retry = true; // tránh vòng lặp vô hạn
 
       try {
-        const res = await axios.post('/refetch-token', {}, { withCredentials: true });
-
-        localStorage.setItem('accessToken', res.data.accessToken);
-        originalRequest.headers['Authorization'] = `Bearer ${res.data.accessToken}`;
+        await axios.post('/refetch-token', {}, { withCredentials: true }).then((res) => {
+          localStorage.setItem('accessToken', res.data.assessToken);
+          originalRequest.headers['Authorization'] = `Bearer ${res.data.accessToken}`
+        });
 
         // chạy lại request gốc với token mới
         return axios(originalRequest);

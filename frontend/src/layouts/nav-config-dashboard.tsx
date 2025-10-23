@@ -23,7 +23,7 @@ export const navData = [
     icon: icon('ic-book'),
   },
   {
-    title: "Promotion's Book",
+    title: 'Promotion',
     path: '/promotion-book-management',
     icon: icon('ic-sale'),
   },

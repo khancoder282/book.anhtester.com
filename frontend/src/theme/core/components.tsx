@@ -261,9 +261,23 @@ const MuiTextField: Components<Theme>['MuiTextField'] = {
   defaultProps: {
     color: 'inherit',
   },
+  styleOverrides: {
+    root: ({ theme }) => ({
+      '& .MuiFormLabel-asterisk': {
+        color: `${theme.palette.primary.main} !important`,
+      },
+    }),
+  },
 };
 
 const MuiAutocomplete: Components<Theme>['MuiAutocomplete'] = {
+  defaultProps: {
+    slotProps: {
+      popper: {
+        disablePortal: false,
+      },
+    },
+  },
   styleOverrides: {
     paper: ({ theme }) => ({
       boxShadow: theme.shadows[5],

@@ -52,6 +52,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
             top: (t) => t.spacing(3),
             boxShadow: (t) => t.customShadows.z12,
           }}
+          src={formatfilePath(book.auth?.avatarUrl)}
         />
         <Typography variant="caption" color="white" sx={{ opacity: 0.48 }}>
           {dayjs(book.createdAt).format('DD MMM YYYY')}

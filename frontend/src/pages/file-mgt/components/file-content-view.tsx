@@ -85,7 +85,7 @@ export default function FileContentView({
     getFolder('/', '*').then((r) => r.filter((f) => !f.isFile))
   );
 
-  const { data: { usedStorage, maxStorage } = { maxStorage: 0, usedStorage: 0 } } = useRequest(() =>
+  const { data: { usedStorage, maxStorage } = { maxStorage: 1, usedStorage: 0 } } = useRequest(() =>
     axios.get('/file/info').then((res) => res.data)
   );
 
@@ -199,12 +199,13 @@ export default function FileContentView({
             <CircularProgress
               size={50}
               sx={{ position: 'absolute' }}
-              color="success"
-              value={50}
+              color={percentStorage > 80 ? 'error' : percentStorage > 50 ? 'warning' : 'success'}
+              value={Math.max(percentStorage, 1)}
+              defaultValue={0}
               variant="determinate"
             />
             <Typography position="absolute" variant="caption">
-              {percentStorage.toFixed(2)}%
+              {percentStorage.toFixed(1)}%
             </Typography>
           </Box>
           <Stack

@@ -4,17 +4,16 @@ import { toast } from 'src/components/toast';
 
 import { setError } from '../stores/form-add';
 
-export function slugify(str: string) {
-  return str
-    .toString()
-    .normalize('NFKD') // tách dấu (đối với Unicode)
-    .replace(/[\u0300-\u036f]/g, '') // bỏ các dấu tách ra
+export const slugify = (s: string) =>
+  s
+    .replace(/[Đđ]/g, 'd')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '') // giữ a-z, 0-9, space, dấu -
-    .replace(/\s+/g, '-') // space -> -
-    .replace(/-+/g, '-'); // gộp nhiều dấu - thành 1
-}
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
 
 export const handleCreateBook = async (book: BookForm) => {
   const id = 'create-book';

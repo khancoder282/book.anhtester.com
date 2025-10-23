@@ -69,6 +69,7 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
             left: 24,
             top: -14,
           }}
+          src={formatfilePath(book.auth?.avatarUrl)}
         />
         {isEdit && (
           <IconButton
