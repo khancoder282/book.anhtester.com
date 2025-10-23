@@ -143,7 +143,12 @@ export function ViewUser() {
               : undefined
           }
         />
-        <TablePaginationView type="grid" total={total} config={config} />
+        <TablePaginationView
+          rowsPerPageList={[5, 10, 15, 20, 25, 50, 100]}
+          type="grid"
+          total={total}
+          config={config}
+        />
       </Card>
     </DashboardContent>
   );
