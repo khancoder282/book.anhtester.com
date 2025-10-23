@@ -101,6 +101,9 @@ export function CardProperty() {
             rules={{
               validate: {
                 minLength: (val) => val?.length > 0 || 'Please select at least one category',
+                itemMaxLength: (val) =>
+                  val?.every((c) => mapCategory[c]?.bookCount < 25) ||
+                  "Category's book count must be less than 25",
               },
             }}
             defaultValue={[]}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { DevTool } from '@hookform/devtools';
 import { useSearchParams } from 'react-router-dom';
 import { Controller, useFormState } from 'react-hook-form';
 
@@ -116,6 +117,7 @@ export function AddOverview() {
           </Box>
         </Stack>
       </Container>
+      <DevTool control={control}  />
     </DashboardContent>
   );
 }

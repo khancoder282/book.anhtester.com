@@ -1,22 +1,30 @@
 import { Elysia, file } from "elysia";
-import authController from "./routers/auth-controller";
 import { regis } from "./regis";
+import { staticPlugin } from "@elysiajs/static";
+import authController from "./routers/auth-controller";
 import userController from "./routers/user-controller";
 import fileController from "./routers/file-controller";
 import bookController from "./routers/book-controller";
 import categoryController from "./routers/category-controller";
 import promotionController from "./routers/promotion-controller";
-import { staticPlugin } from "@elysiajs/static";
 import path from "path";
-import { cors } from "@elysiajs/cors";
+import dayjs from "dayjs";
+
 
 new Elysia()
-  .use(cors({
-    origin: "*",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  }))
+  .onRequest(({ request }) => {
+    const url = new URL(request.url)
+    if (url.pathname.startsWith("/api")) {
+      console.log(`[${dayjs().format("DD/MM/YYYY HH:mm:ss")}] ${request.method.padEnd(6)}: ${url.pathname} `);
+    }
+  })
+  .onAfterResponse(({ responseValue }) => {
+    if (responseValue instanceof Response && responseValue.status > 300) {
+      console.log(responseValue)
+    }
+  })
   .onError(async ({ code, error }) => {
+    console.error(error);
     if (code === "VALIDATION") {
       return {
         msg: "Invalid data.",

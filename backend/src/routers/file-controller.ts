@@ -134,9 +134,9 @@ fileController
   )
   .get("/info", async () => {
     return {
-        usedStorage: await dirsize(file_path),
-        maxStorage: maxStorage,
-      }
+      usedStorage: await dirsize(file_path),
+      maxStorage: maxStorage,
+    }
   })
   .use(auth)
   .post(
@@ -215,57 +215,59 @@ fileController
   .delete(
     "",
     async ({ query, set }) => {
-      const { path: p } = query;
+      const { path: _p } = query;
+      let ps = Array.isArray(_p) ? _p[0] : _p;
+      const pathnames: string[] = [];
 
-      const pathname = path.join(file_path, p);
-
-      if (!pathname.startsWith(file_path)) {
-        set.status = 400;
-        return {
-          msg: "Invalid path. Paths must be inside the upload directory.",
-        };
-      }
-
-      if (!fs.existsSync(pathname)) {
-        set.status = 404;
-        return {
-          msg: "File or directory not found.",
-        };
-      }
-
-      if (!path.basename(pathname).startsWith("$")) {
-        set.status = 403;
-        return {
-          msg: "File system not allowed delete.",
-        }
-      }
-
-      if (fs.statSync(pathname).isDirectory()) {
-        try {
-          fs.rmdirSync(pathname, {
-            recursive: true,
-
-          });
-          return {
-            msg: "Deleted directory successfully.",
-          };
-        } catch (e) {
+      for (let i = 0; i < ps.length; i++) {
+        const p = ps[i];
+        const pathname = path.join(file_path, p);
+        if (!pathname.startsWith(file_path)) {
           set.status = 400;
           return {
-            msg: "Invalid data.",
+            msg: "Invalid path. Paths must be inside the upload directory.",
           };
         }
+        if (!fs.existsSync(pathname)) {
+          set.status = 404;
+          return {
+            msg: "File or directory not found.",
+          };
+        }
+        if (!path.basename(pathname).startsWith("$")) {
+          set.status = 403;
+          return {
+            msg: "File system not allowed delete.",
+          }
+        }
+        if (fs.statSync(pathname).isDirectory()) {
+          try {
+            fs.rmdirSync(pathname, {
+              recursive: true,
+
+            });
+            return {
+              msg: "Deleted directory successfully.",
+            };
+          } catch (e) {
+            set.status = 400;
+            return {
+              msg: "Invalid data.",
+            };
+          }
+        }
+        pathnames.push(pathname);
       }
-
-      Bun.file(pathname).delete();
-
+      for (let i = 0; i < pathnames.length; i++) {
+        await Bun.file(pathnames[i]).delete();
+      }
       return {
         msg: "Deleted file successfully.",
       };
     },
     {
       query: t.Object({
-        path: t.String(),
+        path: t.Union([t.String(), t.Array(t.String())]),
       }),
     }
   )

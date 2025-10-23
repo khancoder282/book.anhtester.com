@@ -28,9 +28,14 @@ userController
         return await prisma.$transaction(async () => {
           const where = filterTable(search, ["name", "email", "phone", "address"]);
           const users = await prisma.user.findMany({
-            orderBy: {
-              [sort]: sortBy,
-            },
+            orderBy: [
+              {
+                [sort]: sortBy,
+              },
+              {
+                updatedAt: 'desc'
+              }
+            ],
             skip: (page - 1) * limit,
             take: limit,
             where,
@@ -83,7 +88,7 @@ userController
           }),
           search: t.String(),
           sort: t.UnionEnum(
-            ["name", "email", "isActive", "phone", "address",  "createdAt", "updatedAt"],
+            ["name", "email", "isActive", "phone", "address", "createdAt", "updatedAt"],
             {
               default: "updatedAt",
             }
@@ -143,6 +148,8 @@ userController
         await prisma.user.create({
           data: {
             ...body,
+            avatarUrl: body.avatarUrl ?? "",
+            address: body.address ?? "",
             password: await Bun.password.hash(body.password ?? "anhtester.com"),
           },
         });

@@ -99,12 +99,12 @@ function action(
   return id;
 }
 
-function actionLoading(
+async function actionLoading(
   callback: () => Promise<any>,
   mappping: {
     loading: string;
-    success: string;
-    error: string;
+    success: string | ((p: any) => Promise<string> | string);
+    error: string | ((p: any) => Promise<string> | string);
   }
 ) {
   const id = action(mappping.loading, 'loading', {
@@ -112,9 +112,14 @@ function actionLoading(
     duration: Infinity,
   });
 
-  callback()
-    .then((res) => {
-      const { success = mappping.success, error } = res;
+  return callback()
+    .then(async (res) => {
+      const {
+        success = typeof mappping.success === 'function'
+          ? await mappping.success(res)
+          : mappping.success,
+        error,
+      } = res;
       if (error) {
         action(error, 'error', {
           id,
@@ -127,14 +132,14 @@ function actionLoading(
         duration: 3000,
       });
     })
-    .catch((e) => {
-      action(mappping.error, 'error', {
+    .catch(async (e) => {
+      const errorMessage =
+        typeof mappping.error === 'function' ? await mappping.error(e) : mappping.error;
+      action(errorMessage, 'error', {
         id,
         duration: 3000,
       });
     });
-
-  return null;
 }
 
 export const toast = {
@@ -152,8 +157,8 @@ export const toast = {
     callback: () => Promise<any>,
     mappping: {
       loading: string;
-      success: string;
-      error: string;
+      success: string | ((p: any) => Promise<string> | string);
+      error: string | ((p: any) => Promise<string> | string);
     } = {
       loading: 'Loading...',
       success: 'Success',

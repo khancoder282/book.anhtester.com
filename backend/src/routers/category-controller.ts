@@ -36,11 +36,14 @@ categoryController
     "",
     async ({ prisma, body: { name }, set }) => {
       try {
-        return await prisma.category.create({
+        await prisma.category.create({
           data: {
             name,
           },
         });
+        return {
+          msg: "Category created successfully.",
+        }
       } catch (e) {
         const err = e as PrismaClientKnownRequestError;
         if (err.code === "P2002") {
@@ -61,18 +64,23 @@ categoryController
       }),
     }
   )
-  .put(
-    ":name",
-    async ({ prisma, body, params: { name: id } }) => {
+  .put("",
+    async ({ prisma, body, set }) => {
       try {
-        return await prisma.category.update({
+        await prisma.category.update({
           where: {
-            name: id,
+            name: body.name,
           },
-          data: body,
+          data: {
+            name: body.newName,
+          },
         });
+        return {
+          msg: "Category updated successfully.",
+        }
       } catch (e) {
         const err = e as PrismaClientKnownRequestError;
+        set.status = 400;
         if (err.code === "P2002") {
           return {
             msg: "Category already exists.",
@@ -84,11 +92,10 @@ categoryController
       }
     },
     {
-      params: t.Object({
-        name: t.String(),
-      }),
+
       body: t.Object({
         name: t.String(),
+        newName: t.String(),
       }),
     }
   )
@@ -96,11 +103,14 @@ categoryController
     ":name",
     async ({ prisma, set, params }) => {
       try {
-        return await prisma.category.delete({
+        await prisma.category.delete({
           where: {
             name: params.name,
           },
         });
+        return {
+          msg: "Category deleted successfully.",
+        }
       } catch (e) {
         const err = e as PrismaClientKnownRequestError;
         if (err.code === "P2025") {

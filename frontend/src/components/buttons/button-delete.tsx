@@ -6,7 +6,7 @@ import { Iconify } from '../iconify';
 
 export const ButtonDelete = forwardRef<
   HTMLButtonElement,
-  ButtonProps & { onDelete: () => Promise<void> | void }
+  { onDelete: () => Promise<void> | void } & ButtonProps
 >((props, ref) => {
   const [isCheck, setIsCheck] = useState(false);
   const [isDel, setIsDel] = useState(false);
@@ -16,8 +16,9 @@ export const ButtonDelete = forwardRef<
         ref={ref}
         {...props}
         sx={{
-          ...props.sx,
           minWidth: 'unset',
+          minHeight: 36,
+          ...props.sx,
         }}
         color={isCheck ? 'error' : 'inherit'}
         onClick={async () => {

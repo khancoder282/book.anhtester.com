@@ -76,15 +76,20 @@ export function UploadField({
   error = false,
   helperText,
   viewMode = 'list',
+  delFiles = [],
+  setDelFiles,
 }: {
   opt?: DropzoneOptions;
   onChange?: (files: (File | FileItem)[]) => void;
   value?: (File | FileItem)[];
+  delFiles?: FileItem[];
+  setDelFiles?: (files: FileItem[]) => void;
   error?: boolean;
   helperText?: string;
   viewMode?: 'list' | 'grid';
 }) {
   const [files, setFiles] = useState<(File | FileItem)[]>(value);
+
   const flagUserHandle = useRef<boolean>(false);
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
@@ -110,9 +115,12 @@ export function UploadField({
   }, [files, onChange, value]);
 
   const handleRemove = (index: number) => {
+    const f = files[index];
+    if (!(f instanceof File)) setDelFiles?.([...delFiles, f]);
     setFiles(files.filter((_, i) => i !== index));
     flagUserHandle.current = true;
   };
+  
 
   return (
     <Stack>

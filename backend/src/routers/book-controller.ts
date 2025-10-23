@@ -77,9 +77,14 @@ bookController
           const where = filterTable(search, ["name", "description", "slug"]);
 
           const list = await prisma.book.findMany({
-            orderBy: {
-              [sort]: sortBy,
-            },
+            orderBy: [
+              {
+                [sort]: sortBy,
+              },
+              {
+                createdAt: "desc",
+              }
+            ],
             skip: (page - 1) * limit,
             take: limit,
             where,
@@ -138,9 +143,9 @@ bookController
             list: list.map((item) => ({
               ...item,
               categories: item.categories.map((item) => item.name),
-              picture: item.picture.split(",").filter(x=>{
+              picture: item.picture.split(",").filter(x => {
                 const pathname = path.join(file_path, x)
-                if(fs.existsSync(pathname) && fs.statSync(pathname).isFile() ) return true
+                if (fs.existsSync(pathname) && fs.statSync(pathname).isFile()) return true
                 return false;
               }),
               isFreeShipping: item.promotions.some(
@@ -251,33 +256,35 @@ bookController
           msg: "Book not found.",
         };
       }
-      const picture = book.picture.split(",").filter(x=>{
-          if(fs.existsSync(path.join(file_path, x))) return true
-          return false
-        }).map((item) => {
-          let fullPath = path.join(file_path, item);
-          const stat = fs.statSync(fullPath);
-          return {
-            name: path.basename(item),
-            path: item,
-            isFile: true,
-            size: stat.size,
-            type: Bun.file(fullPath).type,
-            modified: stat.mtime,
-            created: stat.birthtime,
-          }
-        })
-      
-      await prisma.book.update({
-        where: {
-          id: book.id,
-        },
-        data: {
-          viewCount: {
-            increment: 1,
-          },
-        },
+      const picture = book.picture.split(",").filter(x => {
+        if (fs.existsSync(path.join(file_path, x))) return true
+        return false
+      }).map((item) => {
+        let fullPath = path.join(file_path, item);
+        const stat = fs.statSync(fullPath);
+        return {
+          name: path.basename(item),
+          path: item,
+          isFile: true,
+          size: stat.size,
+          type: Bun.file(fullPath).type,
+          modified: stat.mtime,
+          created: stat.birthtime,
+        }
       })
+
+      if (params.view) {
+        await prisma.book.update({
+          where: {
+            id: book.id,
+          },
+          data: {
+            viewCount: {
+              increment: 1,
+            },
+          },
+        })
+      }
 
       return {
         ...book,
@@ -288,6 +295,7 @@ bookController
     {
       params: t.Object({
         id: t.String(),
+        view: t.Optional(t.BooleanString()),
       }),
       detail: {
         security: [],
@@ -297,16 +305,22 @@ bookController
   .use(auth)
   .post(
     "",
-    async ({ prisma, body: {pictures, ...body}, set, auth }) => {
+    async ({ prisma, body: { pictures, ...body }, set, auth }) => {
       try {
         await prisma.book.create({
           data: {
-            ...body,
+            name: body.name,
+            description: body.description || "",
+            status: body.status,
+            price: body.price,
             slug: body.slug || slugify(body.name),
             picture: (pictures ?? []).join(","),
-            currentPrice: handlePrice(body.price, await prisma.promotion.findMany({where: { isActive: true, 
-              id: { in: body.promotions }
-             }})),
+            currentPrice: handlePrice(body.price, await prisma.promotion.findMany({
+              where: {
+                isActive: true,
+                id: { in: body.promotions }
+              }
+            })),
             promotions: {
               connect: body.promotions?.map((p) => ({
                 id: p,
@@ -372,21 +386,24 @@ bookController
                 id: p,
               }))
             },
-            currentPrice: body.promotions && body.price ? handlePrice(body.price, await prisma.promotion.findMany({where: { isActive: true, 
-              id: { in: body.promotions }
-             }})) : undefined,
+            currentPrice: body.promotions && body.price ? handlePrice(body.price, await prisma.promotion.findMany({
+              where: {
+                isActive: true,
+                id: { in: body.promotions }
+              }
+            })) : undefined,
             picture: (body.pictures ?? []).join(","),
             categories: body?.categories
               ? {
-                  connectOrCreate: body.categories.map((c) => ({
-                    where: {
-                      name: c,
-                    },
-                    create: {
-                      name: c,
-                    },
-                  })),
-                }
+                connectOrCreate: body.categories.map((c) => ({
+                  where: {
+                    name: c,
+                  },
+                  create: {
+                    name: c,
+                  },
+                })),
+              }
               : undefined,
           },
         });
