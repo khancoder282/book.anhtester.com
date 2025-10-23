@@ -5,7 +5,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts --host",
     "studio": "bunx prisma studio",
-    "fake": "bun --bun src/prisma-fake.ts"
+    "fake": "bun --bun src/prisma-fake.ts",
+    "build": "cd ../frontend && bun i && bun run build && rm -rf node_modules"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.0",

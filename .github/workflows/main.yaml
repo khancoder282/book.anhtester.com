@@ -24,8 +24,10 @@ jobs:
       - name: SSH and Deploy
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            cd /var/www
-            git pull origin main
-            docker compose down
-            docker compose up -d --build
+            set -ex
+            cd /var/www/book.anhtester.com/backend
+            git pull origin deploy-vps
+            bun i
+            bun run build
+            pm2 restart book.anhtester.com
           EOF
