@@ -45,3 +45,4 @@ package-lock.json
 /src/prisma
 **/*.db
 upload
+src/fake.ts

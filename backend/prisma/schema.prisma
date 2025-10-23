@@ -13,10 +13,10 @@ model User {
   name          String
   email         String             @unique
   password      String
-  avatarUrl     String             @default("")
+  avatarUrl     String             @db.Text
   isActive      Boolean            @default(true)
   phone         String             @default("")
-  address       String             @default("")
+  address       String             @db.Text
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
   book          Book[]
@@ -47,7 +47,7 @@ model Promotion {
   id          String        @id @default(cuid())
   code        String        @unique
   name        String
-  description String        @default("")
+  description String        @db.Text
   type        PromotionType
   value       Float
   startDate   DateTime
@@ -58,15 +58,15 @@ model Promotion {
   books       Book[]        @relation("PromotionBooks")
   configFe    String        @default("{}")
 
-  @@index([code, name, description])
+  @@index([code, name])
 }
 
 model Book {
   id           String      @id @default(cuid())
   name         String      @unique
   slug         String      @unique
-  description  String      @default("")
-  picture      String      @default("")
+  description  String      @db.Text
+  picture      String      @db.Text
   viewCount    Int         @default(0)
   price        Int
   currentPrice Int         @default(0)
@@ -78,7 +78,7 @@ model Book {
   categories   Category[]  @relation("BookCategories")
   promotions   Promotion[] @relation("PromotionBooks")
 
-  @@index([name, description])
+  @@index([name, slug])
 }
 
 enum BookStatus {
