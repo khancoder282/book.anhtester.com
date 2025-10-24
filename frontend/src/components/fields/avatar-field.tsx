@@ -22,7 +22,7 @@ type AvatarFieldProps = {
   name?: string;
 };
 export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props, ref) => {
-  const { opt, onChange, name, onBlur, onFocus, value, error, helperText } = props;
+  const { opt, onChange, name, onBlur, onFocus, value, error } = props;
   const flagUserHandle = useRef<boolean>(false);
   const [preview, setPreview] = useState('');
 

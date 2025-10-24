@@ -259,8 +259,10 @@ fileController
             };
           }
         }
-        pathnames.push(pathname);
+        if (pathname && pathname.length > 5)
+          pathnames.push(pathname);
       }
+
       for (let i = 0; i < pathnames.length; i++) {
         await Bun.file(pathnames[i]).delete();
       }

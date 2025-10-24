@@ -448,12 +448,19 @@ bookController
     async ({ params, prisma, set }) => {
       try {
         await prisma.$transaction(async (ctx) => {
-          await ctx.book.delete({
+          const book = await ctx.book.delete({
             where: {
               id: params.id,
             },
+            select: {
+              picture: true
+            }
           });
+          book.picture.split(",").forEach((p) => {
+            p && p.length > 5 && fs.rmSync(path.join(file_path, p), { recursive: true, force: true });
+          })
         });
+
         return {
           msg: "Deleted successfully.",
         };
