@@ -25,7 +25,7 @@ export const handleRegisterUser = async (user: UserForm) => {
         return res;
       })
   } catch (err) {
-    if (user.avatar instanceof File) {
+    if (user.avatar instanceof File && user.avatarUrl) {
       await axios.delete('/file', { params: { path: user.avatarUrl } })
     }
     if (err instanceof AxiosError) {

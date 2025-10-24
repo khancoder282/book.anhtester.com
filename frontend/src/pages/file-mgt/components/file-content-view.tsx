@@ -76,17 +76,23 @@ export default function FileContentView({
   }, [root, rootPath, setPath, setRootPath]);
 
   const {
-    data: list = [],
+    data: { list, info: { maxStorage, usedStorage } } = {
+      list: [],
+      info: { maxStorage: 1, usedStorage: 0 },
+    },
     request,
-    setData,
-  } = useRequest(useCallback(() => getFolder(path, _search), [path, _search]));
+  } = useRequest(
+    useCallback(
+      async () => ({
+        list: await getFolder(path, _search),
+        info: await axios.get('/file/info').then((res) => res.data),
+      }),
+      [path, _search]
+    )
+  );
 
   const { data: allFolder = [] } = useRequest(() =>
     getFolder('/', '*').then((r) => r.filter((f) => !f.isFile))
-  );
-
-  const { data: { usedStorage, maxStorage } = { maxStorage: 1, usedStorage: 0 } } = useRequest(() =>
-    axios.get('/file/info').then((res) => res.data)
   );
 
   const percentStorage = (usedStorage / maxStorage) * 100;
@@ -373,11 +379,7 @@ export default function FileContentView({
           {!value && !onChange && auth && (
             <ButtonDelete
               sx={{ mr: 'auto' }}
-              onDelete={() =>
-                deleteFile(file?.path ?? '').then(() => {
-                  setData(_dataList.filter((f) => f.path !== file?.path));
-                })
-              }
+              onDelete={() => deleteFile(file?.path ?? '').then(() => request())}
             />
           )}
           <Button color="inherit" onClick={() => setOpen(false)}>
