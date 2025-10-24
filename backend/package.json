@@ -7,7 +7,9 @@
     "start": "bun run src/index.ts",
     "studio": "bunx prisma studio",
     "fake": "bun --bun src/fake.ts",
-    "build": "cd ../frontend && bun i && bun run build && rm -rf node_modules && cd ../backend && bun i && bunx prisma generate"
+    "build:client": "cd ../frontend && bun i && bun run build && rm -rf node_modules",
+    "build:server": "cd ../backend && bun i && bunx prisma generate",
+    "build": "bun run build:client && bun run build:server"
   },
   "dependencies": {
     "@bogeychan/elysia-logger": "^0.1.10",
