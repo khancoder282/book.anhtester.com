@@ -7,7 +7,7 @@
     "start": "bun run src/index.ts",
     "studio": "bunx prisma studio",
     "fake": "bun --bun src/fake.ts",
-    "build": "cd ../frontend && bun i && bun run build && rm -rf node_modules"
+    "build": "cd ../frontend && bun i && bun run build && rm -rf node_modules && cd ../backend && bun i && bunx prisma generate"
   },
   "dependencies": {
     "@bogeychan/elysia-logger": "^0.1.10",
@@ -16,7 +16,7 @@
     "@elysiajs/openapi": "^1.4.11",
     "@elysiajs/static": "^1.4.4",
     "@faker-js/faker": "^10.1.0",
-    "@prisma/client": "^6.17.1",
+    "@prisma/client": "^6.18.0",
     "dayjs": "^1.11.18",
     "elysia": "^1.4.12",
     "elysia-rate-limit": "^4.4.1",
