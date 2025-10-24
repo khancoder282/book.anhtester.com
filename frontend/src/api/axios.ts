@@ -1,3 +1,4 @@
+import qs from 'qs';
 import rootAxios from 'axios';
 
 const axios = rootAxios.create({
@@ -10,6 +11,10 @@ axios.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    config.paramsSerializer = {
+      serialize: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
+    }
+
     return config;
   },
   (error) => Promise.reject(error)

@@ -102,7 +102,7 @@ export function CardProperty() {
               validate: {
                 minLength: (val) => val?.length > 0 || 'Please select at least one category',
                 itemMaxLength: (val) =>
-                  val?.every((c) => mapCategory[c]?.bookCount < 25) ||
+                  val?.every((c) => mapCategory[c]?.name.length < 25) ||
                   "Category's book count must be less than 25",
               },
             }}
@@ -117,6 +117,7 @@ export function CardProperty() {
                 options={sortedCategoryNames}
                 getOptionLabel={(option) => (typeof option === 'string' ? option : '')}
                 isOptionEqualToValue={(option, value) => option === value}
+                {...field}
                 value={Array.isArray(field.value) ? field.value : []}
                 onChange={(_, newValue) => field.onChange(newValue)}
                 renderInput={(params) => (

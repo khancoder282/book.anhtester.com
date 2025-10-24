@@ -230,6 +230,7 @@ const MuiSwitch: Components<Theme>['MuiSwitch'] = {
 import '@mui/material/Checkbox';
 import '@mui/material/TextField';
 import '@mui/material/InputBase';
+import { toggleButtonGroupClasses } from '@mui/material';
 
 declare module '@mui/material/TextField' {
   interface TextFieldPropsColorOverrides {
@@ -294,6 +295,26 @@ const MuiAutocomplete: Components<Theme>['MuiAutocomplete'] = {
   },
 };
 
+const MuiToggleButtonGroup: Components<Theme>['MuiToggleButtonGroup'] = {
+  styleOverrides: {
+    root: ({ theme }) => ({
+      background: theme.vars.palette.background.paper,
+      [`& .${toggleButtonGroupClasses.grouped}`]: {
+        margin: theme.spacing(0.5),
+        border: 0,
+        borderRadius: theme.shape.borderRadius,
+        [`&.${toggleButtonGroupClasses.disabled}`]: {
+          border: 0,
+        },
+      },
+      [`& .${toggleButtonGroupClasses.middleButton},& .${toggleButtonGroupClasses.lastButton}`]: {
+        marginLeft: -1,
+        borderLeft: '1px solid transparent',
+      },
+    }),
+  },
+};
+
 // ----------------------------------------------------------------------
 
 export const components = {
@@ -315,4 +336,5 @@ export const components = {
   MuiTextField,
   MuiAutocomplete,
   MuiInputBase,
+  MuiToggleButtonGroup,
 };

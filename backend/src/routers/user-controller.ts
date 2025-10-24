@@ -162,8 +162,12 @@ userController
         const err = e as PrismaClientKnownRequestError;
         set.status = 400;
         if (err.code === "P2002") {
+          set.status = 422;
           return {
             msg: "Email already exists.",
+            fields: {
+              email: ["Email already exists."],
+            }
           };
         }
         return {
@@ -222,9 +226,12 @@ userController
         const e = err as PrismaClientKnownRequestError;
 
         if (e.code === "P2002") {
-          set.status = 400;
+          set.status = 422;
           return {
             msg: "Email already exists.",
+            fields: {
+              email: ["Email already exists."],
+            }
           };
         }
         if (e.code === "P2025") {

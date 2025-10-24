@@ -39,7 +39,9 @@ export function AddUserDialog({ callback }: AddUserDialogProps) {
         </Button>
         <Button
           loading={isLoading}
-          onClick={formControl.handleSubmit(id ? handleUpdateUser : handleCreateUser)}
+          onClick={formControl.handleSubmit((d) =>
+            id ? handleUpdateUser(id, d) : handleCreateUser(d)
+          )}
           variant="contained"
           color="inherit"
           startIcon={<Iconify icon="solar:diskette-bold" />}

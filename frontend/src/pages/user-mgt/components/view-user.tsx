@@ -78,7 +78,7 @@ export function ViewUser() {
               formControl.reset({
                 id: '',
               });
-              dialog.custom(() => <AddUserDialog callback={loadUsers} />);
+              dialog.custom(() => <AddUserDialog callback={loadUsers} />, { maxWidth: 'md' });
             }}
           >
             New user
@@ -114,8 +114,15 @@ export function ViewUser() {
                       <MenuItem
                         disabled={row?.id === auth?.id}
                         onClick={() => {
-                          formControl.reset(row);
-                          dialog.custom(() => <AddUserDialog callback={loadUsers} />);
+                          formControl.reset({
+                            ...row,
+                            avatar: {
+                              path: row.avatarUrl,
+                            } as FileItem,
+                          });
+                          dialog.custom(() => <AddUserDialog callback={loadUsers} />, {
+                            maxWidth: 'md',
+                          });
                         }}
                       >
                         <Iconify icon="solar:pen-bold" />

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 
 import { Box, Card, Link, Stack, Avatar, CardMedia, Typography, IconButton } from '@mui/material';
 
@@ -14,6 +15,7 @@ import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
 
 export function CardBookView({ book, isEdit }: CardBookViewProps) {
+  const navigate = useNavigate();
   return (
     <Card>
       <Box position="relative">
@@ -73,8 +75,17 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
         />
         {isEdit && (
           <IconButton
-            LinkComponent={RouterLink}
-            href={`/book-management/handle?name=Modify-book&id=${book.id}`}
+            onClick={() => {
+              const path = '/book-management/handle';
+              const query = new URLSearchParams();
+              query.set('name', 'Modify-book');
+              query.set('id', book.id);
+              const queryCurrent = new URLSearchParams(window.location.search).toString();
+              if (queryCurrent) {
+                query.set('query', queryCurrent);
+              }
+              navigate(path + '?' + query.toString());
+            }}
             sx={{
               position: 'absolute',
               right: (t) => t.spacing(1),

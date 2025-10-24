@@ -102,6 +102,8 @@ export function DialogUpload({ reload }: { reload: () => void }) {
                 helperText={error?.message}
                 onChange={field.onChange}
                 value={field.value}
+                viewMode="list"
+                showMode
               />
             )}
           />

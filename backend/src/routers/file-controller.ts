@@ -18,6 +18,10 @@ if (!fs.existsSync(file_path)) {
   fs.mkdirSync(file_path);
   fs.mkdirSync(path.join(file_path, "$book-image"));
   fs.mkdirSync(path.join(file_path, "$avatar-image"));
+  fs.copyFileSync(
+    path.join(process.cwd(), '$image-404.svg'),
+    path.join(file_path, '$image-404.svg')
+  )
 }
 
 async function dirsize(pathDir: string = "."): Promise<number> {
@@ -216,9 +220,8 @@ fileController
     "",
     async ({ query, set }) => {
       const { path: _p } = query;
-      let ps = Array.isArray(_p) ? _p[0] : _p;
+      let ps = Array.isArray(_p) ? _p : [_p];
       const pathnames: string[] = [];
-
       for (let i = 0; i < ps.length; i++) {
         const p = ps[i];
         const pathname = path.join(file_path, p);
@@ -234,7 +237,7 @@ fileController
             msg: "File or directory not found.",
           };
         }
-        if (!path.basename(pathname).startsWith("$")) {
+        if (path.basename(pathname).startsWith("$")) {
           set.status = 403;
           return {
             msg: "File system not allowed delete.",

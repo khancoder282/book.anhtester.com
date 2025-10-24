@@ -86,6 +86,18 @@ export function BookView() {
       window.removeEventListener('scroll', onScroll);
     };
   }, [handleScroll]);
+
+  const renderLinkNew = (() => {
+    const path = '/book-management/handle';
+    const query = new URLSearchParams();
+    query.set('name', 'Create-new-book');
+    const queryCurrent = config.searchParams.toString();
+    if (queryCurrent) {
+      query.set('query', queryCurrent);
+    }
+    return path + '?' + query.toString();
+  })();
+
   return (
     <DashboardContent>
       <Box
@@ -104,7 +116,7 @@ export function BookView() {
             color="inherit"
             startIcon={<Iconify icon="mingcute:add-line" />}
             LinkComponent={RouterLink}
-            href="/book-management/handle?name=Create-new-book"
+            href={renderLinkNew}
           >
             New book
           </Button>

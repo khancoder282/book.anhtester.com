@@ -105,20 +105,30 @@ authController
         await prisma.user.create({
           data: {
             ...body,
+            address: body.address ?? "",
+            avatarUrl: body.avatarUrl ?? "",
             password: await Bun.password.hash(body.password),
           },
         });
+        set.status = 201;
         return {
           msg: "Register successfully.",
         };
       } catch (err) {
         if (err instanceof PrismaClientKnownRequestError) {
           if (err.code === "P2002") {
-            set.status = 400;
+            set.status = 422;
             return {
               msg: "Email already exists.",
+              fields: {
+                email: ["Email already exists."],
+              }
             };
           }
+        }
+        set.status = 400
+        return {
+          msg: "Invalid data."
         }
       }
     },
@@ -190,67 +200,75 @@ authController
   .use(auth)
   .patch(
     "/profile",
-    async ({ prisma, body, set, cookie: { refetchToken }, auth: user }) => {
+    async ({ prisma, body, set, cookie: { refetchToken, accessToken }, auth: user }) => {
+      // Kiểm tra xem user có tồn tại không
+      if (!user || !user.id) {
+        set.status = 401;
+        return { msg: 'Unauthorized. User not authenticated.' };
+      }
+
       try {
-        await prisma.$transaction(async (ctx) => {
-
-          if (body.email || body.password) {
-            await ctx.userRefreshToken.updateMany({
-              where: {
-                userId: user?.id,
-                revoked: false,
-              },
-              data: {
-                revoked: true,
-              },
-            });
+        // Kiểm tra mật khẩu cũ nếu cập nhật mật khẩu mới
+        if (body.password) {
+          if (!body.password_old) {
+            set.status = 400;
+            return { msg: 'Old password is required when updating password.' };
           }
-
-          if (body.password) {
-            if (await Bun.password.verify(body.password_old ?? "", user!.password!)) {
-              set.status = 400;
-              return {
-                msg: "Old password is incorrect.",
-              }
-            }
-            body.password = await Bun.password.hash(body.password);
+          if (!user.password || !(await Bun.password.verify(body.password_old, user.password))) {
+            set.status = 400;
+            return { msg: 'Old password is incorrect.' };
           }
-          await ctx.user.update({
+          // Băm mật khẩu mới
+          body.password = await Bun.password.hash(body.password);
+        }
+
+        // Thu hồi token chỉ khi email hoặc password thay đổi
+        const shouldRevokeTokens = body.email && user.email !== body.email || body.password;
+        if (shouldRevokeTokens) {
+          await prisma.userRefreshToken.updateMany({
             where: {
-              id: user?.id,
-            },
-            data: body,
-          });
-          await ctx.userRefreshToken.updateMany({
-            where: {
-              userId: user?.id,
+              userId: user.id,
               revoked: false,
             },
             data: {
               revoked: true,
             },
           });
-        });
-        refetchToken.remove();
-        set.status = 200;
-        return {
-          msg: `Updated ${Object.keys(body)
-            .map((key) => `'${key}'`)
-            .join(", ")} successfully.`,
-        };
-      } catch (err) {
-        const e = err as PrismaClientKnownRequestError;
-        set.status = 400;
-        if (e.code === "P2005") {
-          set.status = 404;
-          refetchToken.remove();
-          return {
-            msg: "User not found.",
-          };
+          // Xóa token nếu tồn tại
+          refetchToken?.remove();
+          accessToken?.remove();
         }
-        return {
-          msg: "Invalid data.",
-        };
+
+        // Cập nhật thông tin người dùng
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            email: body.email ?? user.email,
+            name: body.name ?? user.name,
+            password: body.password ?? user.password,
+            avatarUrl: body.avatarUrl ?? user.avatarUrl,
+            phone: body.phone ?? user.phone,
+            address: body.address ?? user.address,
+          },
+        });
+
+        set.status = 200;
+        return { msg: 'Updated profile successfully.' };
+      } catch (err) {
+        // Xử lý lỗi Prisma
+        if (err instanceof PrismaClientKnownRequestError) {
+          if (err.code === 'P2002') {
+            set.status = 400;
+            return { msg: 'Email is already in use.' };
+          }
+          if (err.code === 'P2005') {
+            set.status = 404;
+            return { msg: 'User not found.' };
+          }
+        }
+        // Xử lý lỗi chung
+        set.status = 400;
+        return { msg: 'Invalid data.' };
       }
     },
     {

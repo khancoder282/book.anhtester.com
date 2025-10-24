@@ -2,11 +2,14 @@ type BookForm = {
   name: string;
   slug: string;
   description: string;
-  picture: File[];
+  picture: (FileItem | File)[];
   status: 'AVAILABLE' | 'UNAVAILABLE';
   price: number | '';
   categories: Categories['name'][];
   promotions: PromotionType[];
+  // for edit
+  pictureDel?: FileItem[];
+  id?: string;
 };
 
 type Categories = {

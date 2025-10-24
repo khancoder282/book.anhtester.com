@@ -20,7 +20,14 @@ export const handleCreateBook = async (book: BookForm) => {
   try {
     toast.custom('Uploading image...', 'loading', { hiddenCloseButton: true, id });
     const form = new FormData();
-    book.picture?.forEach((f) => form.append('files', f));
+    book.picture?.forEach((f) => {
+      if (f instanceof File) {
+        const randomId = Math.random().toString(36).substring(2, 6);
+        const newFileName = `${f.name.split('.').slice(0, -1).join('.')}_${randomId}.${f.name.split('.').pop()}`;
+        const newFile = new File([f], newFileName, { type: f.type });
+        form.append('files', newFile);
+      }
+    });
     form.append('path', `/$book-image/${book.slug}`);
     const paths = await axios.post('/file', form).then((res) => res.data.paths);
     // upload book

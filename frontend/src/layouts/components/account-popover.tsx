@@ -14,10 +14,10 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
 import { useRouter, usePathname } from 'src/routes/hooks';
 
+import { formatfilePath } from 'src/utils/format-filepath';
+
 import { useAuth } from 'src/store/auth';
 import { hanldeLogout } from 'src/api/logout';
-
-import { toast } from 'src/components/toast';
 
 // ----------------------------------------------------------------------
 
@@ -75,7 +75,10 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
         }}
         {...other}
       >
-        <Avatar src={auth?.avatarUrl} alt={auth?.name} sx={{ width: 1, height: 1 }}>
+        <Avatar
+          src={auth?.avatarUrl ? formatfilePath(auth?.avatarUrl) : undefined}
+          sx={{ width: 1, height: 1 }}
+        >
           {auth?.name?.charAt(0).toUpperCase()}
         </Avatar>
       </IconButton>
@@ -148,9 +151,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
             onClick={() => {
               router.push('/sign-in');
               setAuth(null);
-              hanldeLogout().then(() => {
-                toast.success('Logout successfully');
-              });
+              hanldeLogout();
             }}
           >
             Logout

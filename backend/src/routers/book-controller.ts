@@ -380,7 +380,11 @@ bookController
             id: params.id,
           },
           data: {
-            ...body,
+            name: body.name,
+            description: body.description || "",
+            status: body.status,
+            price: body.price,
+            slug: body.slug,
             promotions: {
               connect: body.promotions?.map((p) => ({
                 id: p,

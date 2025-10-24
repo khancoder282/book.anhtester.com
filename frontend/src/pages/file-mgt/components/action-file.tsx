@@ -2,7 +2,7 @@ import { Stack, Divider, MenuItem, TextField, Autocomplete } from '@mui/material
 
 import { Iconify } from 'src/components/iconify';
 import { dialog } from 'src/components/dialog-confirm/confirm';
-import { PreviewFile } from 'src/components/fields/upload-field';
+import { PreviewFile } from 'src/components/fields/components/preview-file';
 
 import { copyFile } from '../api/copy-file';
 import { moveFile } from '../api/move-file';

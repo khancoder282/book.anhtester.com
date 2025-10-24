@@ -2,7 +2,8 @@ import dayjs from 'dayjs';
 
 import { Box, Stack, Typography } from '@mui/material';
 
-import { formatSize, ImgPreview } from 'src/components/fields/upload-field';
+import { formatSize } from 'src/components/fields/upload-field';
+import { ImgPreview } from 'src/components/fields/components/Img-preview';
 
 export const columns: (isPreview: boolean) => Columns<FileItem>[] = (isPreview) => [
   {

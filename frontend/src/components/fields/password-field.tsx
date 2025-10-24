@@ -1,4 +1,5 @@
-import { useState, forwardRef } from 'react';
+import { create } from 'zustand';
+import { useEffect, forwardRef } from 'react';
 
 import { TextField, IconButton, InputAdornment, type TextFieldProps } from '@mui/material';
 
@@ -6,9 +7,19 @@ import { Iconify } from '../iconify';
 
 type PasswordFieldProps = TextFieldProps;
 
+const usePassword = create<{
+  showPassword: boolean;
+  setShowPassword: (showPassword: boolean) => void;
+}>((set) => ({
+  showPassword: false,
+  setShowPassword: (showPassword: boolean) => set({ showPassword }),
+}));
 export const PasswordField = forwardRef<HTMLDivElement, PasswordFieldProps>(
   function PasswordField(props, ref) {
-    const [showPassword, setShowPassword] = useState(false);
+    const { showPassword, setShowPassword } = usePassword();
+    useEffect(() => () => {
+      if (showPassword) setShowPassword(false);
+    });
     return (
       <TextField
         ref={ref}

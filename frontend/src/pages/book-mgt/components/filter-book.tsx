@@ -70,6 +70,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
     price,
     category,
   } = config;
+
   const { auth } = useAuth();
   const { setId, id } = useEdit();
   const { data = [], request, setData } = useRequest(() => Category.get());

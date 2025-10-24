@@ -32,7 +32,7 @@ export function ContentFieldsLogin() {
       router.replace(redirect ?? '/');
     }
   }, [isSubmitSuccessful, redirect, router, setAuth]);
-  
+
   return (
     <AuthLayout>
       <Box
@@ -126,8 +126,9 @@ export function ContentFieldsLogin() {
           type="submit"
           color="inherit"
           variant="contained"
+          sx={{ mb: -2 }}
         >
-          Sign in
+          Login account
         </Button>
       </Box>
     </AuthLayout>

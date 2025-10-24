@@ -31,6 +31,10 @@ export const routesSection: RouteObject[] = [
         Component: lazy(() => import('src/pages/user-mgt')),
       },
       {
+        path: 'user-management/my-profile',
+        Component: lazy(() => import('src/pages/user-mgt/profile')),
+      },
+      {
         path: 'file-management',
         Component: lazy(() => import('src/pages/file-mgt')),
       },
@@ -50,7 +54,7 @@ export const routesSection: RouteObject[] = [
   },
   {
     path: 'sign-up',
-    Component: lazy(() => import('src/pages/sign-up')),
+    Component: lazy(() => import('src/pages/user-mgt/sign-up')),
   },
   {
     path: 'sign-in',

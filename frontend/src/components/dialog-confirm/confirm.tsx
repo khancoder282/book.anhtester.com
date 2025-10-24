@@ -1,3 +1,5 @@
+import type { DialogProps as MuiDialogProps } from '@mui/material';
+
 import { DialogDelete } from './dialog-delete';
 import { DialogConfirm } from './dialog-confim';
 import { DialogMessage } from './dialog-message';
@@ -5,8 +7,11 @@ import { DialogConfirmForm, type DialogConfirmFormProps } from './dialog-confim-
 
 export const confirmEvent = new EventTarget();
 
+export type DialogProps = Omit<MuiDialogProps, 'children' | 'onClose' | 'open'>;
+
 export type ContentConfirm = {
   content: () => React.ReactNode;
+  props?: DialogProps;
 };
 
 export const dialog = {
@@ -37,7 +42,7 @@ export const dialog = {
       })
     );
   },
-  delete: (message: string, onDelete: () => Promise<void>) => {
+  delete: (message: string | React.ReactNode, onDelete: () => Promise<any>) => {
     confirmEvent.dispatchEvent(
       new CustomEvent<ContentConfirm>('show', {
         detail: {
@@ -46,11 +51,12 @@ export const dialog = {
       })
     );
   },
-  custom: (content: () => React.ReactNode) => {
+  custom: (content: () => React.ReactNode, props?: DialogProps) => {
     confirmEvent.dispatchEvent(
       new CustomEvent<ContentConfirm>('show', {
         detail: {
           content,
+          props,
         },
       })
     );

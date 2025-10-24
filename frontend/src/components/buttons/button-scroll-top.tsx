@@ -3,8 +3,6 @@ import { Fab, Zoom } from '@mui/material';
 import { Iconify } from '../iconify';
 
 export function ButtonScrollTop({ in: show }: { in: boolean }) {
-  console.log(123);
-
   return (
     <Zoom in={show}>
       <Fab

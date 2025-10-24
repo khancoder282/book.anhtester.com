@@ -13,10 +13,11 @@ import {
   CardHeader,
   IconButton,
   Typography,
+  InputAdornment,
 } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
-import { UploadField } from 'src/components/fields/upload-field';
+import { accepImg, UploadField } from 'src/components/fields/upload-field';
 
 import { slugify } from '../api/create-book';
 import { control, setValue } from '../stores/form-add';
@@ -25,6 +26,8 @@ export function CardDetail() {
   const [expen, setExpen] = useState(true);
   const [isChangeSlug, setIsChangeSlug] = useState(false);
   const [name] = useWatch({ control, name: ['name'] });
+  const [pictureDel = []] = useWatch({ control, name: ['pictureDel', 'picture'] });
+  const setPictureDel = (value: FileItem[]) => setValue('pictureDel', value);
 
   useEffect(() => {
     setValue('slug', slugify(name || ''));
@@ -59,6 +62,7 @@ export function CardDetail() {
                 value: 100,
                 message: 'Name must be less than 100 characters.',
               },
+              deps: ['slug'],
             }}
             render={({ field, fieldState: { invalid, error } }) => (
               <TextField
@@ -75,24 +79,41 @@ export function CardDetail() {
             name="slug"
             control={control}
             defaultValue=""
-            render={({ field }) => (
-              <Stack direction="row" spacing={2}>
-                <TextField
-                  disabled={!isChangeSlug}
-                  size="small"
-                  sx={{ flex: 1 }}
-                  label="Slug name book"
-                  {...field}
-                />
-                <Button
-                  variant="outlined"
-                  color="inherit"
-                  onClick={() => setIsChangeSlug(!isChangeSlug)}
-                  startIcon={<Checkbox checked={isChangeSlug} color="inherit" sx={{ p: 0 }} />}
-                >
-                  Change slug
-                </Button>
-              </Stack>
+            rules={{
+              required: 'Name is required.',
+              maxLength: {
+                value: 100,
+                message: 'Name must be less than 100 characters.',
+              },
+            }}
+            render={({ field, fieldState: { invalid, error } }) => (
+              <TextField
+                disabled={!isChangeSlug}
+                sx={{ flex: 1 }}
+                label="Slug name book"
+                error={invalid}
+                helperText={error?.message}
+                {...field}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Button
+                          variant="outlined"
+                          color="inherit"
+                          size="small"
+                          onClick={() => setIsChangeSlug(!isChangeSlug)}
+                          startIcon={
+                            <Checkbox checked={isChangeSlug} color="inherit" sx={{ p: 0 }} />
+                          }
+                        >
+                          Change
+                        </Button>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
             )}
           />
           <Controller
@@ -102,8 +123,8 @@ export function CardDetail() {
             rules={{
               required: 'Description is required.',
               maxLength: {
-                value: 250,
-                message: 'Description must be less than 250 characters.',
+                value: 500,
+                message: 'Description must be less than 500 characters.',
               },
             }}
             render={({ field, fieldState: { invalid, error } }) => (
@@ -138,22 +159,19 @@ export function CardDetail() {
                   minLength: (files) => files.length >= 1 || 'You must upload at least 1 file',
                 },
               }}
-              render={({ field }) => (
+              render={({ field, fieldState: { invalid, error } }) => (
                 <>
                   <UploadField
                     viewMode="grid"
-                    value={field.value}
-                    onChange={field.onChange}
+                    showMode
+                    {...field}
+                    delFiles={pictureDel}
+                    setDelFiles={setPictureDel}
+                    error={invalid}
+                    helperText={error?.message}
                     opt={{
                       multiple: true,
-                      accept: {
-                        'image/jpeg': ['.jpeg', '.jpg'],
-                        'image/png': ['.png'],
-                        'image/gif': ['.gif'],
-                        'image/webp': ['.webp'],
-                        'image/bmp': ['.bmp'],
-                        'image/svg+xml': ['.svg'],
-                      },
+                      accept: accepImg,
                     }}
                   />
                   {field.value.length > 0 && (

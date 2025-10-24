@@ -13,7 +13,7 @@ import { Iconify } from '../iconify';
 
 type DialogConfirm = {
   onDelete: () => Promise<void>;
-  message: string;
+  message: string | React.ReactNode;
 };
 
 export function DialogDelete({ onDelete, message }: DialogConfirm) {

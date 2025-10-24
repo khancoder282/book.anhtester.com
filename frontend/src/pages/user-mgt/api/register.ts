@@ -8,30 +8,14 @@ import { formControl } from '../store/form';
 
 import type { UserForm } from '../store/form';
 
-export const handleUpdateUser = async (id: string, user: UserForm) => {
+export const handleRegisterUser = async (user: UserForm) => {
   try {
-    // upload Avatar
-    if (user.avatar && user.avatar instanceof File) {
-      toast.custom("Upload avatar...", "loading", { id: "upload-user", duration: Infinity });
-      const form = new FormData();
-      const f = user.avatar;
-      const randomId = Math.random().toString(36).substring(2, 6);
-      const newFileName = `${f.name.split('.').slice(0, -1).join('.')}_${randomId}.${f.name.split('.').pop()}`;
-      const newFile = new File([f], newFileName, { type: f.type });
-      form.append('files', newFile);
-      form.append('path', `/$avatar-image/${user.email}`);
-
-      await axios.post('/file', form).then((res) => {
-        user.avatarUrl = res.data.paths[0];
-      })
-    }
     toast.custom("Upload user...", "loading", { id: "upload-user", duration: Infinity });
     await axios
-      .patch(`/user/${id}`, {
+      .post('/register', {
         name: user.name,
         email: user.email,
         password: user.password,
-        avatarUrl: user.avatarUrl,
         phone: user.phone,
         address: user.address,
         isActive: user.isActive,
@@ -56,6 +40,5 @@ export const handleUpdateUser = async (id: string, user: UserForm) => {
       }
       throw err;
     }
-
   }
 }
