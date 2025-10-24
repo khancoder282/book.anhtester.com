@@ -1,4 +1,3 @@
-import { DevTool } from '@hookform/devtools';
 import { useSearchParams } from 'react-router-dom';
 import { useMemo, useState, useEffect } from 'react';
 import { Controller, useFormState } from 'react-hook-form';
@@ -110,7 +109,7 @@ export function AddOverview() {
           <Typography variant="body2">Create a new book</Typography>
         </Breadcrumbs>
       </Stack>
-      
+
       <Container maxWidth="md">
         <Stack spacing={4} component="form" noValidate>
           <CardDetail />
@@ -182,7 +181,6 @@ export function AddOverview() {
           )}
         </Stack>
       </Container>
-      <DevTool control={control} />
     </DashboardContent>
   );
 }

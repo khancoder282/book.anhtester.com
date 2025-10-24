@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { DevTool } from '@hookform/devtools';
 import { useForm, useFormState } from 'react-hook-form';
 
 import { Box, Link, Button, useTheme, Typography } from '@mui/material';
@@ -73,7 +72,6 @@ export default function SignUp() {
       >
         Register
       </Button>
-      <DevTool control={formControl.control} />
     </AuthLayout>
   );
 }
