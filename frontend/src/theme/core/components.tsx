@@ -52,7 +52,7 @@ const MuiCard: Components<Theme>['MuiCard'] = {
       zIndex: 0,
       position: 'relative',
       boxShadow: theme.vars.customShadows.card,
-      borderRadius: theme.shape.borderRadius * 2,
+      borderRadius: Number(theme.shape.borderRadius) * 2,
     }),
   },
 };
@@ -306,7 +306,7 @@ const MuiToggleButtonGroup: Components<Theme>['MuiToggleButtonGroup'] = {
       [`& .${toggleButtonGroupClasses.grouped}`]: {
         margin: theme.spacing(0.5),
         border: 0,
-        borderRadius: theme.shape.borderRadius,
+        borderRadius: Number(theme.shape.borderRadius),
         [`&.${toggleButtonGroupClasses.disabled}`]: {
           border: 0,
         },
