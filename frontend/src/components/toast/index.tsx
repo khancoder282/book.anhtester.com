@@ -27,74 +27,77 @@ function action(
   type: 'success' | 'error' | 'warning' | 'info' | 'loading',
   props?: ExternalToast & { hiddenCloseButton?: boolean }
 ) {
-  const { hiddenCloseButton, ...data } = props || {};
-  const id = toaster.custom(() => {
-    const icon = (
-      <Box
-        sx={{
-          borderRadius: 0.75,
-          height: 48,
-          width: 48,
-          display: 'grid',
-          placeItems: 'center',
-          ...(type === 'loading'
-            ? {
-                bgcolor: (t) => t.vars.palette.grey[200],
-                color: (t) => t.vars.palette.grey[600],
-              }
-            : {
-                bgcolor: (t) => t.vars.palette.Alert[`${type}StandardBg`],
-                color: (t) => t.vars.palette.Alert[`${type}IconColor`],
-              }),
-        }}
-      >
-        {iconMapping[type]}
-      </Box>
-    );
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          bgcolor: 'background.paper',
-          zIndex: 10,
-          borderRadius: 1,
-          p: 0.5,
-          gap: 1,
-          boxShadow: (t) => t.customShadows.z24,
-          minWidth: 300,
-        }}
-      >
-        {type !== 'loading' ? <Zoom in>{icon}</Zoom> : icon}
-        <Typography
-          flex={1}
-          variant="body2"
+  const { hiddenCloseButton, duration = 3000, ...data } = props || {};
+  const id = toaster.custom(
+    () => {
+      const icon = (
+        <Box
           sx={{
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
+            borderRadius: 0.75,
+            height: 48,
+            width: 48,
+            display: 'grid',
+            placeItems: 'center',
+            ...(type === 'loading'
+              ? {
+                  bgcolor: (t) => t.vars.palette.grey[200],
+                  color: (t) => t.vars.palette.grey[600],
+                }
+              : {
+                  bgcolor: (t) => t.vars.palette.Alert[`${type}StandardBg`],
+                  color: (t) => t.vars.palette.Alert[`${type}IconColor`],
+                }),
           }}
         >
-          {message}
-        </Typography>
-        {!hiddenCloseButton && (
-          <IconButton
-            size="small"
+          {iconMapping[type]}
+        </Box>
+      );
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: 'background.paper',
+            zIndex: 10,
+            borderRadius: 1,
+            p: 0.5,
+            gap: 1,
+            boxShadow: (t) => t.customShadows.z24,
+            minWidth: 300,
+          }}
+        >
+          {type !== 'loading' ? <Zoom in>{icon}</Zoom> : icon}
+          <Typography
+            flex={1}
+            variant="body2"
             sx={{
-              border: 1,
-              borderColor: 'divider',
-              alignSelf: 'start',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
-            onClick={() => toaster.dismiss(id)}
           >
-            <Iconify width={12} icon="mingcute:close-line" />
-          </IconButton>
-        )}
-      </Box>
-    );
-  }, data);
+            {message}
+          </Typography>
+          {!hiddenCloseButton && (
+            <IconButton
+              size="small"
+              sx={{
+                border: 1,
+                borderColor: 'divider',
+                alignSelf: 'start',
+              }}
+              onClick={() => toaster.dismiss(id)}
+            >
+              <Iconify width={12} icon="mingcute:close-line" />
+            </IconButton>
+          )}
+        </Box>
+      );
+    },
+    { duration, ...data }
+  );
 
   return id;
 }

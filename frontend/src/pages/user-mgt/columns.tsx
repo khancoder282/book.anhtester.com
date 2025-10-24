@@ -38,7 +38,7 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
           <Avatar src={formatfilePath(avatarUrl)} />
         </Badge>
         <Stack flex={1} overflow="hidden">
-          <Typography variant="subtitle2">
+          <Typography variant="subtitle2" noWrap>
             {name} {id === user?.id && <Label>You</Label>}
           </Typography>
           <Typography noWrap color="textSecondary" variant="caption">

@@ -18,8 +18,8 @@ const decodeAddress = (address: string) => {
   if (d.length >= 3) {
     return {
       address: d.slice(0, -2).join(', ') ?? '',
-      div: d.at(-2) ?? '',
-      ward: d.at(-1) ?? '',
+      div: d.at(-1) ?? '',
+      ward: d.at(-2) ?? '',
     };
   }
   return {
@@ -29,7 +29,7 @@ const decodeAddress = (address: string) => {
   };
 };
 
-const encodeAddress = (address: string, div: string, ward: string) => `${address}, ${div}, ${ward}`;
+const encodeAddress = (address: string, div: string, ward: string) => `${address}, ${ward}, ${div}`;
 
 export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
   ({ value, onChange, disabled, error, helperText }, ref) => {

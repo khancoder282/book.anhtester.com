@@ -36,7 +36,7 @@ export const handleCreateUser = async (user: UserForm) => {
         isActive: user.isActive,
       })
       .then((res) => {
-        toast.success(res.data.msg, { id: "upload-user" });
+        toast.success(res.data.msg, { id: "upload-user", duration: 3000 });
         return res;
       })
   } catch (err) {
@@ -44,7 +44,7 @@ export const handleCreateUser = async (user: UserForm) => {
       await axios.delete('/file', { params: { path: user.avatarUrl } })
     }
     if (err instanceof AxiosError) {
-      toast.error(err.response?.data.msg, { id: "upload-user" });
+      toast.error(err.response?.data.msg, { id: "upload-user", });
       if (err.response?.status === 422) {
         for (const [key, value] of Object.entries(err.response.data.fields)) {
           formControl.setError(key as keyof SignInForm, {
