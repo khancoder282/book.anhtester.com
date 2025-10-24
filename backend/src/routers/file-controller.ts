@@ -276,14 +276,17 @@ fileController
     },
     {
       query: t.Object({
-        path: t.Union([t.String({
-          pattern: "^[^/]+(\/[^/]+)*$",
-          error: validationDetail("Path is required.")
-        }), t.Array(t.String({
-          pattern: "^[^/]+(\/[^/]+)*$",
-          error: validationDetail("Path is required.")
-        }))]),
-      }),
+        path: t.Union([
+          t.String({
+            pattern: "^\/[^/]+(\/[^/]+)*$",
+            error: validationDetail("Invalid path format. Path must start with '/' and follow valid directory or file path structure.")
+          }),
+          t.Array(t.String({
+            pattern: "^\/[^/]+(\/[^/]+)*$",
+            error: validationDetail("Invalid path format. Path must start with '/' and follow valid directory or file path structure.")
+          }))
+        ])
+      })
     }
   )
   .put(
