@@ -3,14 +3,15 @@ import type { RouteObject } from 'react-router';
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 
-import { DashboardLayout } from 'src/layouts/dashboard';
-
 import { CheckAuth } from './components/check-auth';
 import { renderFallback } from './components/fallback';
 
 // ----------------------------------------------------------------------
 
-export const routesSection: RouteObject[] = [
+const DashboardLayout = lazy(() => import('src/layouts/dashboard'));
+// ----------------------------------------------------------------------
+
+const routesSection: RouteObject[] = [
   {
     element: (
       <CheckAuth fallback={renderFallback()}>
@@ -62,3 +63,5 @@ export const routesSection: RouteObject[] = [
   },
   { path: '*', Component: lazy(() => import('src/pages/not-found-view/index')) },
 ];
+
+export default routesSection;

@@ -7,7 +7,7 @@ import { confirmEvent } from './confirm';
 
 import type { DialogProps, ContentConfirm } from './confirm';
 
-export function ConfigDialog() {
+export default function ConfigDialog() {
   const [content, setContent] = useState<ContentConfirm>();
   const [config, setConfig] = useState<DialogProps>();
   const { open, setOpen } = useDialog();

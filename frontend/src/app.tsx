@@ -1,13 +1,13 @@
 import 'src/global.css';
 
 import { Toaster } from 'sonner';
-import { useEffect } from 'react';
+import { lazy, useEffect } from 'react';
 
 import { usePathname } from 'src/routes/hooks';
 
-import { ThemeProvider } from 'src/theme/theme-provider';
+const ThemeProvider = lazy(() => import('src/theme/theme-provider'));
 
-import { ConfigDialog } from './components/dialog-confirm/confirm-dialog';
+const ConfigDialog = lazy(() => import('./components/dialog-confirm/confirm-dialog'));
 
 // ----------------------------------------------------------------------
 
