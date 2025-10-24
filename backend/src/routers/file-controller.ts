@@ -220,7 +220,11 @@ fileController
     "",
     async ({ query, set }) => {
       const { path: _p } = query;
-      let ps = Array.isArray(_p) ? _p : [_p];
+      let ps = (Array.isArray(_p) ? _p : [_p]).filter(Boolean);
+      if (ps.length === 0) {
+        set.status = 422;
+        throw validationDetail("Path is required.");
+      }
       const pathnames: string[] = [];
       for (let i = 0; i < ps.length; i++) {
         const p = ps[i];
@@ -272,7 +276,13 @@ fileController
     },
     {
       query: t.Object({
-        path: t.Union([t.String(), t.Array(t.String())]),
+        path: t.Union([t.String({
+          pattern: "^[^/]+(\/[^/]+)*$",
+          error: validationDetail("Path is required.")
+        }), t.Array(t.String({
+          pattern: "^[^/]+(\/[^/]+)*$",
+          error: validationDetail("Path is required.")
+        }))]),
       }),
     }
   )

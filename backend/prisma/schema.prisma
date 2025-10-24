@@ -33,7 +33,7 @@ model UserRefreshToken {
   updatedAt  DateTime @updatedAt
   expiresAt  DateTime
   revoked    Boolean  @default(false)
-  deviceInfo String?
+  deviceInfo String?  @db.Text
   ipAddress  String?
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
