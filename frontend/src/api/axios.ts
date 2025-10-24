@@ -20,10 +20,6 @@ const processQueue = <T>(error: T, token = null) => {
 const axios = rootAxios.create({
   baseURL: '/api',
   timeout: 10000, // Timeout 10 giây
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  },
 });
 
 // Interceptor cho request
