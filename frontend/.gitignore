@@ -36,3 +36,5 @@ build
 tsconfig.tsbuildinfo
 .ncurc.js
 knip.jsonc
+bun.lock
+package-lock.json

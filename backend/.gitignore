@@ -46,3 +46,4 @@ package-lock.json
 **/*.db
 upload
 src/fake.ts
+bun.lock
