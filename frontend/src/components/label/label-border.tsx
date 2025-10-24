@@ -1,6 +1,10 @@
 import { Box } from '@mui/material';
 
-export function LabelBorder({ children, sx }: React.PropsWithChildren & { sx?: Sx }) {
+export function LabelBorder({
+  children,
+  error,
+  sx,
+}: React.PropsWithChildren & { sx?: Sx; error?: boolean }) {
   return (
     <Box
       component="span"
@@ -21,6 +25,10 @@ export function LabelBorder({ children, sx }: React.PropsWithChildren & { sx?: S
         fontWeight: 600,
         border: 'solid 1px',
         borderColor: 'divider',
+        ...(error && {
+          color: 'error.main',
+          borderColor: 'error.main',
+        }),
         ...sx,
       }}
     >

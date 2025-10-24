@@ -80,7 +80,25 @@ const MuiOutlinedInput: Components<Theme>['MuiOutlinedInput'] = {
 const MuiPaper: Components<Theme>['MuiPaper'] = {
   defaultProps: { elevation: 0 },
   styleOverrides: {
-    root: { backgroundImage: 'none' },
+    root: ({ theme }) => ({
+      backgroundImage: 'none',
+      boxShadow: theme.shadows[5],
+      '& ul': {
+        padding: theme.spacing(0.5),
+        overflowY: 'auto',
+        scrollbarWidth: 'none', // Firefox
+        '-ms-overflow-style': 'none', // IE/Edge
+        '&::-webkit-scrollbar': {
+          display: 'none', // Chrome, Safari
+        },
+        '& li + li': {
+          marginTop: theme.spacing(0.5),
+        },
+        '& li': {
+          borderRadius: theme.spacing(1),
+        },
+      },
+    }),
     outlined: ({ theme }) => ({
       borderColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.16),
     }),
@@ -278,20 +296,6 @@ const MuiAutocomplete: Components<Theme>['MuiAutocomplete'] = {
         disablePortal: false,
       },
     },
-  },
-  styleOverrides: {
-    paper: ({ theme }) => ({
-      boxShadow: theme.shadows[5],
-      '& ul': {
-        padding: theme.spacing(0.5),
-        '& li + li': {
-          marginTop: theme.spacing(0.5),
-        },
-        '& li': {
-          borderRadius: theme.spacing(1),
-        },
-      },
-    }),
   },
 };
 

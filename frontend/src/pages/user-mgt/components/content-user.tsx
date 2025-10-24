@@ -4,6 +4,7 @@ import { Stack, Switch, TextField, useMediaQuery, FormControlLabel } from '@mui/
 
 import { LabelBorder } from 'src/components/label/label-border';
 import { AvatarField } from 'src/components/fields/avatar-field';
+import { AddressField } from 'src/components/fields/address-field';
 import { PasswordField } from 'src/components/fields/password-field';
 import { accepImg, checkType } from 'src/components/fields/upload-field';
 
@@ -119,7 +120,7 @@ export function ContentUser({
             },
           }}
           render={({ field, fieldState: { invalid, error } }) => (
-            <TextField error={invalid} helperText={error?.message} label="Address" {...field} />
+            <AddressField error={invalid} helperText={error?.message} {...field} />
           )}
         />
       </Stack>

@@ -81,6 +81,12 @@ model Book {
   @@index([name, slug])
 }
 
+model Address {
+  id    BigInt @id @default(autoincrement())
+  wards String
+  div   String
+}
+
 enum BookStatus {
   AVAILABLE
   UNAVAILABLE

@@ -9,6 +9,7 @@ import categoryController from "./routers/category-controller";
 import promotionController from "./routers/promotion-controller";
 import path from "path";
 import dayjs from "dayjs";
+import { addressController } from "./routers/address-controller";
 
 
 new Elysia()
@@ -51,6 +52,7 @@ new Elysia()
       .use(fileController)
       .use(bookController)
       .use(promotionController)
+      .use(addressController)
   ).use(staticPlugin({
     assets: path.join(process.cwd(), "public/assets"),
     prefix: "/assets"

@@ -1,18 +1,10 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
 /**
- * Hook to handle a request to an API.
- * @param {Function} callback - A function that returns a Promise.
- * @param {boolean} auto - If true, the request will be called automatically when the hook is mounted.
- * @returns {Object} An object containing the following properties:
- *   loading: boolean - If true, the request is currently being made.
- *   error: unknown - Any error that occurred during the request.
- *   data: T - The data returned from the request.
- *   request: Function - A function that can be called to manually make the request.
- * @example
- * const { loading, error, data, request } = useRequest(() => axios.get('/api/data'));
- * // or
- * const { loading, error, data, request } = useRequest(useCallback(() => axios.get('/api/data'), []), false);
+ * Hook to handle request to API with loading, error and data state management
+ * @param callback - function to call API
+ * @param auto - boolean to indicate whether to call API automatically or not
+ * @returns an object containing loading, error, data, setData, request and setError
  */
 export function useRequest<T>(callback: () => Promise<T>, auto = true) {
   const [loading, setLoading] = useState(false);

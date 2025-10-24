@@ -96,7 +96,7 @@ export function BookView() {
       query.set('query', queryCurrent);
     }
     return path + '?' + query.toString();
-  })();
+  })()
 
   return (
     <DashboardContent>

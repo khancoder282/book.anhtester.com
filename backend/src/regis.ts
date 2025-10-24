@@ -35,6 +35,10 @@ export const regis = new Elysia()
             name: "Category management",
             description: "Quản lý danh sách danh mục",
           },
+          {
+            name: "Address management",
+            description: "Quản lý địa chỉ việt nam"
+          }
         ],
         info: {
           title: "Book management API",
