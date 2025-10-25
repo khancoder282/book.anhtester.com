@@ -395,7 +395,7 @@ bookController
                 isActive: true,
                 id: { in: body.promotions }
               }
-            })) : undefined,
+            })) : body.price,
             picture: (body.pictures ?? []).join(","),
             categories: body?.categories
               ? {
