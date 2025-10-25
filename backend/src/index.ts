@@ -1,4 +1,4 @@
-import { Elysia, file } from "elysia";
+import { Elysia, file, t } from "elysia";
 import { regis } from "./regis";
 import { staticPlugin } from "@elysiajs/static";
 import authController from "./routers/auth-controller";
@@ -53,16 +53,32 @@ new Elysia()
       .use(bookController)
       .use(promotionController)
       .use(addressController)
-  ).use(staticPlugin({
-    assets: path.join(process.cwd(), "public/assets"),
-    prefix: "/assets"
-  }))
+  )
+  .get("/view-file/*", ({ params }) => {
+    return file(path.join(process.cwd(), Bun.env.FILEDIR || "upload", params["*"]))
+  }, {
+    params: t.Object({
+      "*": t.String()
+    }),
+    detail: {
+      hide: true
+    }
+  })
+  .get("/assets/*", ({ params }) => {
+    return file(path.join(process.cwd(), "public", "assets", params["*"]))
+  }, {
+    params: t.Object({
+      "*": t.String()
+    }),
+    detail: {
+      hide: true
+    }
+  })
   .get("/*", () => file(path.join(process.cwd(), "public/index.html")), {
     detail: {
       hide: true
     }
   })
-
   .listen(Bun.env.PORT || 4544, () => {
     console.log(
       `🦕 Elysia is running at http://localhost:${Bun.env.PORT || 4544}`
