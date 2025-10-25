@@ -13,7 +13,7 @@ import { CarouselDefault } from 'src/components/carousel/default';
 
 export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?: boolean }) {
   return (
-    <Card sx={{ height: 1, position: 'relative' }}>
+    <Card sx={{ height: 390, position: 'relative' }}>
       <CarouselDefault
         plugin={[Autoplay({ delay: 5000, playOnInit: true })]}
         sx={{ height: 1, minHeight: 320 }}

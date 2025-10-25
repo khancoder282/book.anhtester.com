@@ -42,10 +42,11 @@ export default function Profile() {
     if (isSubmitSuccessful) {
       const value = formControl.getValues();
       if (auth?.email !== value.email || value.password) {
-        hanldeLogout();
-        setAuth(null);
         formControl.reset();
-        router.push('/sign-in');
+        hanldeLogout().then(()=>{
+          setAuth(null);
+          router.push('/sign-in');
+        })
       } else {
         axios.get('/me').then((res) => {
           setAuth(res.data);
