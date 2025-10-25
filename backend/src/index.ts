@@ -10,7 +10,7 @@ import promotionController from "./routers/promotion-controller";
 import path from "path";
 import dayjs from "dayjs";
 import { addressController } from "./routers/address-controller";
-
+import fs from "fs";
 
 new Elysia()
   .onRequest(({ request }) => {
@@ -54,31 +54,48 @@ new Elysia()
       .use(promotionController)
       .use(addressController)
   )
-  .get("/view-file/*", ({ params }) => {
-    return file(path.join(process.cwd(), Bun.env.FILEDIR || "upload", params["*"]))
-  }, {
-    params: t.Object({
-      "*": t.String()
-    }),
-    detail: {
-      hide: true
+  .get("/view-file/*", ({ params, set }) => {
+    const p = (path.join(process.cwd(), Bun.env.FILEDIR || "upload", decodeURIComponent(params["*"])))
+    if (fs.existsSync(p)) {
+      return file(p)
+    } else {
+      set.status = 404;
+      return {
+        msg: "File not found."
+      }
+    }
+  }
+    , {
+      params: t.Object({
+        "*": t.String()
+      }),
+      detail: {
+        hide: true
+      }
+    })
+  .get("/assets/*", ({ params, set }) => {
+    const p = path.join(process.cwd(), "public", "assets", decodeURIComponent(params["*"]))
+    if (fs.existsSync(p)) {
+      return file(p)
+    }
+    set.status = 404
+    return {
+      msg: "File not found."
     }
   })
-  .get("/assets/*", ({ params }) => {
-    return file(path.join(process.cwd(), "public", "assets", params["*"]))
-  }, {
-    params: t.Object({
-      "*": t.String()
-    }),
-    detail: {
-      hide: true
-    }
-  })
+  , {
+  params: t.Object({
+    "*": t.String()
+  }),
+  detail: {
+    hide: true
+  }
+})
   .get("/*", () => file(path.join(process.cwd(), "public/index.html")), {
-    detail: {
-      hide: true
-    }
-  })
+  detail: {
+    hide: true
+  }
+})
   .listen(Bun.env.PORT || 4544, () => {
     console.log(
       `🦕 Elysia is running at http://localhost:${Bun.env.PORT || 4544}`
