@@ -8,6 +8,9 @@ import { RouterLink } from 'src/routes/components';
 import { fShortenNumber } from 'src/utils/format-number';
 import { formatFilePath } from 'src/utils/format-filepath';
 
+import { MappingType } from 'src/pages/promotions-mgt/const-type';
+
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { CarouselDefault } from 'src/components/carousel/default';
 
@@ -33,6 +36,35 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
           />
         ))}
       </CarouselDefault>
+      <Box
+        sx={{
+          top: (t) => t.spacing(1),
+          right: (t) => t.spacing(1),
+          width: 1,
+          p: 1,
+          gap: 1,
+          display: 'flex',
+          position: 'absolute',
+          justifyContent: 'flex-end',
+          flexWrap: 'wrap',
+        }}
+      >
+        {book.promotions?.map((p) => (
+          <Label
+            key={p.id}
+            variant="filled"
+            color={MappingType[p.type].color}
+            startIcon={<Iconify icon={MappingType[p.type].icon} />}
+          >
+            Sale
+          </Label>
+        ))}
+        {book.createdAt && dayjs(book.createdAt) > dayjs().add(-7, 'day') && (
+          <Label variant="filled" color="info" sx={{}}>
+            New
+          </Label>
+        )}
+      </Box>
       <Stack
         sx={{
           position: 'absolute',
