@@ -98,6 +98,7 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
         >
           <LabelBorder error={error}>Address</LabelBorder>
           <Autocomplete
+            id="address-division"
             value={div}
             onChange={(_, e) => {
               setDiv(e || '');
@@ -114,6 +115,7 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
 
           <Autocomplete
             value={ward}
+            id="address-ward"
             onChange={(_, e) => {
               setWard(e || '');
               setAddress('');
@@ -126,6 +128,7 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
           />
 
           <TextField
+            id="address"
             disabled={!ward || !div}
             value={address}
             onChange={(e) => {
