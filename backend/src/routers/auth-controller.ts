@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { AppMain } from "../regis";
 import { PrismaClientKnownRequestError } from "../prisma/runtime/library";
 import { auth } from "../plugins/auth";
+import { User } from "../prisma";
 
 const authController = new Elysia({
   tags: ["Auth management"],
@@ -207,7 +208,16 @@ authController
         return { msg: 'Unauthorized. User not authenticated.' };
       }
 
+
+
       try {
+        const data: Partial<User> = {
+          email: body.email,
+          name: body.name,
+          avatarUrl: body.avatarUrl,
+          phone: body.phone,
+          address: body.address,
+        }
         // Kiểm tra mật khẩu cũ nếu cập nhật mật khẩu mới
         if (body.password) {
           if (!body.password_old) {
@@ -219,7 +229,7 @@ authController
             return { msg: 'Old password is incorrect.' };
           }
           // Băm mật khẩu mới
-          body.password = await Bun.password.hash(body.password);
+          data.password = await Bun.password.hash(body.password);
         }
 
         // Thu hồi token chỉ khi email hoặc password thay đổi
@@ -238,18 +248,12 @@ authController
           refetchToken?.remove();
           accessToken?.remove();
         }
+        
 
         // Cập nhật thông tin người dùng
         await prisma.user.update({
           where: { id: user.id },
-          data: {
-            email: body.email ?? user.email,
-            name: body.name ?? user.name,
-            password: body.password ?? user.password,
-            avatarUrl: body.avatarUrl ?? user.avatarUrl,
-            phone: body.phone ?? user.phone,
-            address: body.address ?? user.address,
-          },
+          data 
         });
 
         set.status = 200;
