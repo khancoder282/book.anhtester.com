@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 
 import { Stack, Badge, Avatar, Typography } from '@mui/material';
 
-import { formatfilePath } from 'src/utils/format-filepath';
+import { formatFilePath } from 'src/utils/format-filepath';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -35,7 +35,7 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
             </Avatar>
           }
         >
-          <Avatar src={formatfilePath(avatarUrl)} />
+          <Avatar src={formatFilePath(avatarUrl)} />
         </Badge>
         <Stack flex={1} overflow="hidden">
           <Typography variant="subtitle2" noWrap>

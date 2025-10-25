@@ -14,7 +14,7 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
 import { useRouter, usePathname } from 'src/routes/hooks';
 
-import { formatfilePath } from 'src/utils/format-filepath';
+import { formatFilePath } from 'src/utils/format-filepath';
 
 import { useAuth } from 'src/store/auth';
 import { hanldeLogout } from 'src/api/logout';
@@ -77,7 +77,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
         {...other}
       >
         <Avatar
-          src={auth?.avatarUrl ? formatfilePath(auth?.avatarUrl) : undefined}
+          src={auth?.avatarUrl ? formatFilePath(auth?.avatarUrl) : undefined}
           sx={{ width: 1, height: 1 }}
         >
           {auth?.name?.charAt(0).toUpperCase()}
@@ -155,7 +155,8 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
               hanldeLogout()
                 .then(() => {
                   setAuth(null);
-                  router.push('/sign-in')
+                  router.push('/sign-in');
+                  return null;
                 })
                 .finally(() => setIsLogout(false));
             }}

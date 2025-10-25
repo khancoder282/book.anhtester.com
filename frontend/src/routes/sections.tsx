@@ -49,6 +49,7 @@ const routesSection: RouteObject[] = [
       },
       {
         path: 'book-management/detail/:slug',
+        Component: lazy(() => import('src/pages/book-mgt/detail')),
       }
     ],
   },

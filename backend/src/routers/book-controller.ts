@@ -199,10 +199,10 @@ bookController
   )
   .get(
     ":id",
-    async ({ params, prisma, set }) => {
-      const book = await prisma.book.findUnique({
+    async ({ params, prisma, set, query: { view } }) => {
+      const book = await prisma.book.findFirst({
         where: {
-          id: params.id,
+          OR: [{ id: params.id }, { slug: params.id }],
         },
         select: {
           id: true,
@@ -256,6 +256,20 @@ bookController
           msg: "Book not found.",
         };
       }
+
+      if (view === true) {
+        await prisma.book.update({
+          where: {
+            id: book.id
+          },
+          data: {
+            viewCount: {
+              increment: 1
+            }
+          }
+        })
+      }
+
       const picture = book.picture.split(",").filter(x => {
         if (fs.existsSync(path.join(file_path, x))) return true
         return false
@@ -273,21 +287,9 @@ bookController
         }
       })
 
-      if (params.view) {
-        await prisma.book.update({
-          where: {
-            id: book.id,
-          },
-          data: {
-            viewCount: {
-              increment: 1,
-            },
-          },
-        })
-      }
-
       return {
         ...book,
+        viewCount: view === true ? book.viewCount + 1 : book.viewCount,
         categories: book.categories.map((item) => item.name),
         picture
       }
@@ -295,7 +297,9 @@ bookController
     {
       params: t.Object({
         id: t.String(),
-        view: t.Optional(t.BooleanString()),
+      }),
+      query: t.Object({
+        view: t.Optional(t.BooleanString({ examples: ["true", "false"] }))
       }),
       detail: {
         security: [],

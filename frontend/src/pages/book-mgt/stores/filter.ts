@@ -3,6 +3,8 @@ import { useSearchParams } from "react-router-dom";
 
 import { useDebounce } from "src/hooks/use-debound";
 
+import { useAuth } from "src/store/auth";
+
 export const mappingSort = {
     Feature: {
         orderBy: 'desc',
@@ -27,6 +29,7 @@ export const mappingSort = {
 
 
 export function useFilterBook() {
+    const { auth } = useAuth();
     const [sParams, setSParams] = useSearchParams();
     // const [sort, setSort] = useState<keyof typeof mappingSort>('Feature');
     const sort = (sParams.get('sort') || 'Feature') as keyof typeof mappingSort;
@@ -109,9 +112,12 @@ export function useFilterBook() {
                         lte: _price.to,
                     },
                 }),
+                ...(!auth && {
+                    status: 'AVAILABLE',
+                })
             }),
         }),
-        [category, _price.from, _price.to, searchName]
+        [category, searchName, _price.from, _price.to, auth]
     );
 
 

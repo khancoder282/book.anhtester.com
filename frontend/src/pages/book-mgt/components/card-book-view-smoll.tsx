@@ -6,7 +6,7 @@ import { Box, Card, Link, Stack, Avatar, Typography } from '@mui/material';
 import { RouterLink } from 'src/routes/components';
 
 import { fShortenNumber } from 'src/utils/format-number';
-import { formatfilePath } from 'src/utils/format-filepath';
+import { formatFilePath } from 'src/utils/format-filepath';
 
 import { Iconify } from 'src/components/iconify';
 import { CarouselDefault } from 'src/components/carousel/default';
@@ -28,7 +28,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
             }}
             component="img"
             key={img}
-            src={formatfilePath(img)}
+            src={formatFilePath(img)}
             alt={book.name}
           />
         ))}
@@ -52,7 +52,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
             top: (t) => t.spacing(3),
             boxShadow: (t) => t.customShadows.z12,
           }}
-          src={formatfilePath(book.auth?.avatarUrl)}
+          src={formatFilePath(book.auth?.avatarUrl)}
         />
         <Typography variant="caption" color="white" sx={{ opacity: 0.48 }}>
           {dayjs(book.createdAt).format('DD MMM YYYY')}

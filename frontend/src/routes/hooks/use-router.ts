@@ -8,7 +8,7 @@ export function useRouter() {
 
   const router = useMemo(
     () => ({
-      back: () => navigate(-1),
+      back: (href?: string) => window.history.length > 1 ? navigate(-1) : navigate(href ?? "/", { viewTransition: true }),
       forward: () => navigate(1),
       refresh: () => navigate(0),
       push: (href: string) => navigate(href, { viewTransition: true }),

@@ -121,7 +121,6 @@ export function CardDetail() {
             name="description"
             defaultValue=""
             rules={{
-              required: 'Description is required.',
               maxLength: {
                 value: 500,
                 message: 'Description must be less than 500 characters.',

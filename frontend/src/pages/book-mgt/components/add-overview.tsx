@@ -171,7 +171,10 @@ export function AddOverview() {
                     <>
                       Do you want delete <b>{rootName}</b>, after delete you can&apos;t undo
                     </>,
-                    () => deleteBook(id)
+                    () =>
+                      deleteBook(id).then(() => {
+                        router.back('/book-management');
+                      })
                   )
                 }
               >

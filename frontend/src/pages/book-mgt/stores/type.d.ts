@@ -10,6 +10,16 @@ type BookForm = {
   // for edit
   pictureDel?: FileItem[];
   id?: string;
+  // for view;;
+  createdAt?: string;
+  updatedAt?: string;
+  currentPrice?: number | '';
+  viewCount?: number;
+  auth: {
+    name: string;
+    avatarUrl: string;
+    email: string;
+  };
 };
 
 type Categories = {

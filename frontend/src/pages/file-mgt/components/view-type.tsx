@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 
 import { Box, Stack, Divider, Tooltip, Typography } from '@mui/material';
 
-import { formatfilePath } from 'src/utils/format-filepath';
+import { formatFilePath } from 'src/utils/format-filepath';
 
 import { formatSize } from 'src/components/fields/upload-field';
 
@@ -14,7 +14,7 @@ export function ViewType({ file }: { file?: FileItem }) {
         <Box
           component="img"
           loading="lazy"
-          src={formatfilePath(file?.path)}
+          src={formatFilePath(file?.path)}
           sx={{
             width: '100%',
             maxHeight: 350,

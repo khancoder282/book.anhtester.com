@@ -2,7 +2,7 @@ import { useState, useEffect, forwardRef } from 'react';
 
 import { Box } from '@mui/material';
 
-import { formatfilePath } from 'src/utils/format-filepath';
+import { formatFilePath } from 'src/utils/format-filepath';
 
 import { getIcon } from '../upload-field';
 
@@ -23,7 +23,7 @@ export const ImgPreview = forwardRef<
         reader.onload = () => setSrc(reader.result as string);
         reader.readAsDataURL(file);
       } else {
-        setSrc(formatfilePath(file.path));
+        setSrc(formatFilePath(file.path));
       }
     } else {
       setSrc(getIcon(file.type));

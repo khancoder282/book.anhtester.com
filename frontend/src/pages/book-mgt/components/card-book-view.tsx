@@ -6,7 +6,7 @@ import { Box, Card, Link, Stack, Avatar, CardMedia, Typography, IconButton } fro
 import { RouterLink } from 'src/routes/components';
 
 import { fShortenNumber } from 'src/utils/format-number';
-import { formatfilePath } from 'src/utils/format-filepath';
+import { formatFilePath } from 'src/utils/format-filepath';
 
 import { MappingType } from 'src/pages/promotions-mgt/const-type';
 
@@ -27,7 +27,7 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
             objectFit: 'cover',
             bgcolor: 'background.neutral',
           }}
-          src={formatfilePath(book.picture[0] ?? '/$image-404.svg')}
+          src={formatFilePath(book.picture[0] ?? '/$image-404.svg')}
         />
         <Box
           sx={{
@@ -45,12 +45,18 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
           {book.promotions?.map((p) => (
             <Label
               key={p.id}
+              variant="filled"
               color={MappingType[p.type].color}
               startIcon={<Iconify icon={MappingType[p.type].icon} />}
             >
               Sale
             </Label>
           ))}
+          {book.createdAt && dayjs(book.createdAt) > dayjs().add(-7, 'day') && (
+            <Label variant="filled" color="info" sx={{}}>
+              New
+            </Label>
+          )}
         </Box>
       </Box>
       <Box sx={{ position: 'relative', p: 2, pt: 3 }}>
@@ -71,7 +77,7 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
             left: 24,
             top: -14,
           }}
-          src={formatfilePath(book.auth?.avatarUrl)}
+          src={formatFilePath(book.auth?.avatarUrl)}
         />
         {isEdit && (
           <IconButton

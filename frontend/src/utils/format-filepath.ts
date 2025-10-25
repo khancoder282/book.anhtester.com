@@ -1,3 +1,3 @@
-export function formatfilePath(path?: string) {
-  return path ? `/view-file${path}` : '';
+export function formatFilePath(path?: string) {
+  return path ? `/api/file?path=${path}` : '';
 }

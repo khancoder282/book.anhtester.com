@@ -26,7 +26,7 @@ import {
 
 import { useRequest } from 'src/hooks/use-request';
 
-import { formatfilePath } from 'src/utils/format-filepath';
+import { formatFilePath } from 'src/utils/format-filepath';
 
 import { axios } from 'src/api/axios';
 import { useAuth } from 'src/store/auth';
@@ -151,6 +151,14 @@ export default function FileContentView({
       setOpen(false);
     }
   }, [file, open]);
+
+  useEffect(
+    () => () => {
+      setPath('/');
+      setRootPath('/');
+    },
+    [setPath, setRootPath]
+  );
 
   return (
     <>
@@ -387,7 +395,7 @@ export default function FileContentView({
           </Button>
           {!value && !onChange && (
             <Button
-              href={formatfilePath(file?.path)}
+              href={formatFilePath(file?.path)}
               download={file?.name}
               startIcon={<Iconify icon="solar:cloud-download-bold" />}
               color="inherit"

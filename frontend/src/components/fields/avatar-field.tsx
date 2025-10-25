@@ -6,7 +6,7 @@ import { useRef, useState, useEffect, forwardRef, useCallback } from 'react';
 
 import { Box, Stack, Typography } from '@mui/material';
 
-import { formatfilePath } from 'src/utils/format-filepath';
+import { formatFilePath } from 'src/utils/format-filepath';
 
 import { Iconify } from '../iconify';
 import { accepImg, formatSize } from './upload-field';
@@ -49,7 +49,7 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
         reader.onload = () => setPreview(reader.result as string);
         reader.readAsDataURL(value);
       } else {
-        setPreview(formatfilePath(value.path));
+        setPreview(formatFilePath(value.path));
       }
     } else {
       setPreview('');
@@ -89,7 +89,7 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
                 bgcolor: error ? 'error.lighter' : 'divider',
               }}
               onError={(e) => {
-                e.currentTarget.setAttribute('src', formatfilePath('/$image-404.svg'));
+                e.currentTarget.setAttribute('src', formatFilePath('/$image-404.svg'));
               }}
             />
           </Box>
@@ -131,8 +131,7 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
         Allowed {Object.values(opt?.accept || accepImg).flatMap((i) => `*${i}`)}
         {opt?.maxSize && (
           <>
-            <br /> max size of{' '}
-            {formatSize(opt.maxSize)}
+            <br /> max size of {formatSize(opt.maxSize)}
           </>
         )}
       </Typography>
