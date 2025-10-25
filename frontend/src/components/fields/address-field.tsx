@@ -18,18 +18,26 @@ const decodeAddress = (address: string) => {
   if (d.length >= 3) {
     return {
       address: d.slice(0, -2).join(', ') ?? '',
-      div: d.at(-1) ?? '',
       ward: d.at(-2) ?? '',
+      div: d.at(-1) ?? '',
+    };
+  }
+  if (d.length === 2) {
+    return {
+      address: '',
+      ward: d[0] ?? '',
+      div: d[1] ?? '',
     };
   }
   return {
-    address,
-    div: '',
+    address: '',
     ward: '',
+    div: d[0],
   };
 };
 
-const encodeAddress = (address: string, div: string, ward: string) => `${address}, ${ward}, ${div}`;
+const encodeAddress = (address: string, ward: string, div: string) =>
+  [address, ward, div].filter(Boolean).join(', ');
 
 export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
   ({ value, onChange, disabled, error, helperText }, ref) => {
@@ -55,7 +63,7 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
     useEffect(() => {
       if (encodeAddress(address, div, ward) !== value) {
         if (flagUserHandle.current) {
-          onChange(encodeAddress(address, div, ward));
+          onChange(encodeAddress(address, ward, div));
           flagUserHandle.current = false;
         } else {
           const { address: a, div: d, ward: w } = decodeAddress(value || '');
