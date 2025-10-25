@@ -390,7 +390,7 @@ bookController
                 id: p,
               }))
             },
-            currentPrice: body.promotions && body.price ? handlePrice(body.price, await prisma.promotion.findMany({
+            currentPrice: (body.promotions && body.price) ? handlePrice(body.price, await prisma.promotion.findMany({
               where: {
                 isActive: true,
                 id: { in: body.promotions }
