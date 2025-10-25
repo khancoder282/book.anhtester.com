@@ -82,20 +82,18 @@ new Elysia()
     return {
       msg: "File not found."
     }
-  })
-  , {
-  params: t.Object({
-    "*": t.String()
-  }),
-  detail: {
-    hide: true
-  }
-})
-  .get("/*", () => file(path.join(process.cwd(), "public/index.html")), {
-  detail: {
-    hide: true
-  }
-})
+  },{
+      params: t.Object({
+        "*": t.String()
+      }),
+      detail: {
+        hide: true
+      }
+    }).get("/*", () => file(path.join(process.cwd(), "public/index.html")), {
+      detail: {
+        hide: true
+      }
+    })
   .listen(Bun.env.PORT || 4544, () => {
     console.log(
       `🦕 Elysia is running at http://localhost:${Bun.env.PORT || 4544}`
