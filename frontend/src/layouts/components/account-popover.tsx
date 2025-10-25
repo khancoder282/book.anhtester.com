@@ -33,6 +33,7 @@ export type AccountPopoverProps = IconButtonProps & {
 export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps) {
   const router = useRouter();
   const { auth, setAuth } = useAuth();
+  const [isLogout, setIsLogout] = useState(false);
 
   const pathname = usePathname();
 
@@ -148,10 +149,15 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
             color="error"
             size="medium"
             variant="text"
+            loading={isLogout}
             onClick={() => {
-              router.push('/sign-in');
-              setAuth(null);
-              hanldeLogout();
+              setIsLogout(true);
+              hanldeLogout()
+                .then(() => {
+                  setAuth(null);
+                  router.push('/sign-in');
+                })
+                .finally(() => setIsLogout(false));
             }}
           >
             Logout
