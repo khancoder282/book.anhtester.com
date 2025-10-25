@@ -26,6 +26,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { LabelBorder } from 'src/components/label/label-border';
+import { NoData } from 'src/components/grid-view/components/not-data';
 import { CarouselThumb } from 'src/components/carousel/carousel-thumb';
 
 import { getDetailBook } from './api/detail-book';
@@ -36,6 +37,7 @@ export default function BookDetail() {
     useCallback(() => getDetailBook(slug!), [slug])
   );
   const router = useRouter();
+  console.log(data.picture);
 
   return (
     <DashboardContent>
@@ -50,7 +52,13 @@ export default function BookDetail() {
       </Box>
       <Grid container spacing={8}>
         <Grid size={{ xs: 12, md: 6, lg: 7 }}>
-          <CarouselThumb listSrc={data.picture?.map((item) => (item as FileItem).path) ?? []} />
+          {(data.picture?.length || 0) > 0 ? (
+            <CarouselThumb listSrc={data.picture?.map((item) => (item as FileItem).path) ?? []} />
+          ) : (
+            <Box p={3} width={1} sx={{ aspectRatio: '1 / 1' }}>
+              <NoData />
+            </Box>
+          )}
         </Grid>
         <Grid size={{ xs: 12, md: 6, lg: 5 }}>
           <Stack gap={2} alignItems="flex-start">
