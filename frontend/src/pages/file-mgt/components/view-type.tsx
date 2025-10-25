@@ -9,7 +9,7 @@ import { formatSize } from 'src/components/fields/upload-field';
 
 export function ViewType({ file }: { file?: FileItem }) {
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} overflow="hidden">
       {file?.type.startsWith('image') && (
         <Box
           component="img"
@@ -26,11 +26,22 @@ export function ViewType({ file }: { file?: FileItem }) {
           }}
         />
       )}
-      <Typography variant="h6">{file?.name}</Typography>
+      <Typography
+        variant="h6"
+        sx={{
+          cursor: 'pointer',
+          overflow: 'hidden',
+          overflowWrap: 'anywhere',
+          wordBreak: 'break-all',
+          whiteSpace: 'normal',
+        }}
+      >
+        {file?.name}
+      </Typography>
 
       <Divider style={{ borderStyle: 'dashed' }} />
 
-      <Stack sx={{ typography: 'caption' }}>
+      <Stack sx={{ typography: 'caption', overflow: 'hidden' }}>
         <Typography variant="subtitle2">Properties</Typography>
         <Box>
           <Typography display="inline-block" width={80} variant="caption" color="textSecondary">
@@ -58,7 +69,13 @@ export function ViewType({ file }: { file?: FileItem }) {
           <Typography
             variant="caption"
             color="primary"
-            sx={{ cursor: 'pointer' }}
+            sx={{
+              cursor: 'pointer',
+              overflow: 'hidden',
+              overflowWrap: 'anywhere',
+              wordBreak: 'break-all',
+              whiteSpace: 'normal',
+            }}
             onClick={async () => {
               if (file?.path) {
                 navigator.clipboard.writeText(file?.path);
