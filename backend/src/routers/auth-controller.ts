@@ -176,7 +176,7 @@ authController
       });
 
       if (!user) {
-        set.status = 401;
+        set.status = 404;
         return {
           msg: "Invalid token.",
         };
@@ -210,7 +210,7 @@ authController
     async ({ prisma, body, set, cookie: { refetchToken, accessToken }, auth: user }) => {
       // Kiểm tra xem user có tồn tại không
       if (!user || !user.id) {
-        set.status = 401;
+        set.status = 400;
         return { msg: 'Unauthorized. User not authenticated.' };
       }
 
