@@ -36,6 +36,9 @@ authController
         set.status = 404;
         return {
           msg: "User not found.",
+          fields: {
+            email: ["Email not found, please register."],
+          }
         };
       }
 
@@ -80,9 +83,12 @@ authController
         };
       }
 
-      set.status = 401;
+      set.status = 400;
       return {
         msg: "Invalid password.",
+        fields: {
+          password: ["Invalid password, please try again."],
+        }
       };
     },
     {
@@ -248,12 +254,12 @@ authController
           refetchToken?.remove();
           accessToken?.remove();
         }
-        
+
 
         // Cập nhật thông tin người dùng
         await prisma.user.update({
           where: { id: user.id },
-          data 
+          data
         });
 
         set.status = 200;
