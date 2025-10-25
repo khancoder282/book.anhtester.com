@@ -60,7 +60,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
         <Link
           id={`book-${book.id}`}
           component={RouterLink}
-          href={`/book-management/detail/${book.slug}/${book.id}`}
+          href={`/book-management/detail/${book.slug}`}
           color="white"
         >
           <Typography

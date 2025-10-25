@@ -47,6 +47,9 @@ const routesSection: RouteObject[] = [
         path: 'book-management/handle',
         Component: lazy(() => import('src/pages/book-mgt/add-page')),
       },
+      {
+        path: 'book-management/detail/:slug',
+      }
     ],
   },
   {

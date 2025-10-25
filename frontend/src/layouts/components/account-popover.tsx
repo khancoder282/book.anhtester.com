@@ -155,7 +155,6 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
               hanldeLogout()
                 .then(() => {
                   setAuth(null);
-                  router.push('/sign-in');
                 })
                 .finally(() => setIsLogout(false));
             }}

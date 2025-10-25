@@ -102,7 +102,7 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
           color="textPrimary"
           component={RouterLink}
           id={`book-${book.id}`}
-          href={`/book-management/detail/${book.slug}/${book.id}`}
+          href={`/book-management/detail/${book.slug}`}
         >
           <Typography variant="subtitle2" noWrap>
             {book.name}
