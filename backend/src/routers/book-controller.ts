@@ -22,7 +22,7 @@ function slugify(str: string) {
 }
 
 const bookController = new Elysia({
-  tags: ["Book management"],
+  tags: ["Quản lý Sách"],
   prefix: "book",
 }) as unknown as AppMain;
 
@@ -68,22 +68,19 @@ bookController
       const {
         limit = 10,
         page = 1,
-        search,
+        search = "",
         sort = "updatedAt",
         sortBy = "desc",
       } = query;
-      try {
-        return await prisma.$transaction(async () => {
-          const where = filterTable(search, ["name", "description", "slug"]);
 
-          const list = await prisma.book.findMany({
+      try {
+        const where = filterTable(search, ["name", "description", "slug"]);
+
+        const [list, total] = await prisma.$transaction([
+          prisma.book.findMany({
             orderBy: [
-              {
-                [sort]: sortBy,
-              },
-              {
-                createdAt: "desc",
-              }
+              { [sort]: sortBy },
+              { createdAt: "desc" }
             ],
             skip: (page - 1) * limit,
             take: limit,
@@ -93,11 +90,7 @@ bookController
               name: true,
               description: true,
               slug: true,
-              categories: {
-                select: {
-                  name: true,
-                },
-              },
+              categories: { select: { name: true } },
               auth: {
                 select: {
                   name: true,
@@ -113,14 +106,10 @@ bookController
               createdAt: true,
               updatedAt: true,
               promotions: {
-                orderBy: {
-                  startDate: "desc",
-                },
+                orderBy: { startDate: "desc" },
                 where: {
                   isActive: true,
-                  endDate: {
-                    gte: new Date(),
-                  },
+                  endDate: { gte: new Date() },
                 },
                 select: {
                   type: true,
@@ -130,73 +119,144 @@ bookController
                   name: true,
                   description: true,
                   code: true,
-                }
+                },
               },
             },
-          });
+          }),
+          prisma.book.count({ where }),
+        ]);
 
-          const total = await prisma.book.count({
-            where,
-          });
+        const mappedList = list.map((item) => {
+          const pictures = (item.picture || "")
+            .split(",")
+            .map((x) => x.trim())
+            .filter((x) => {
+              try {
+                const pathname = path.join(file_path, x);
+                return fs.existsSync(pathname) && fs.statSync(pathname).isFile();
+              } catch {
+                return false;
+              }
+            });
+
+          const hasFreeShipping = item.promotions?.some(
+            (x) => x.type === $Enums.PromotionType.FREE_SHIPPING
+          );
 
           return {
-            list: list.map((item) => ({
-              ...item,
-              categories: item.categories.map((item) => item.name),
-              picture: item.picture.split(",").filter(x => {
-                const pathname = path.join(file_path, x)
-                if (fs.existsSync(pathname) && fs.statSync(pathname).isFile()) return true
-                return false;
-              }),
-              isFreeShipping: item.promotions.some(
-                (x) => x.type === $Enums.PromotionType.FREE_SHIPPING
-              ),
-            })),
-            pagination: {
-              total,
-              totalPage: Math.ceil(total / limit),
-              currentPage: page,
-              lengthData: limit,
-            },
+            ...item,
+            categories: item.categories.map((c) => c.name),
+            picture: pictures,
+            isFreeShipping: !!hasFreeShipping,
           };
         });
+
+        return {
+          list: mappedList,
+          pagination: {
+            total,
+            totalPage: Math.ceil(total / limit),
+            currentPage: page,
+            lengthData: mappedList.length,
+          },
+        };
       } catch (error) {
+        console.error("Error fetching books:", error);
         set.status = 400;
         return {
           msg: "Invalid filter or query syntax",
-          error: error instanceof Error ? error.message : error,
+          error: error instanceof Error ? error.message : String(error),
         };
       }
     },
     {
       query: t.Partial(
         t.Object({
-          limit: t.Number({
-            default: 10,
-            minimum: 1,
-            maximum: 10_000,
-          }),
-          page: t.Number({
-            default: 1,
-            minimum: 1,
-          }),
-          search: t.String(),
+          limit: t.Number({ default: 10, minimum: 1, maximum: 10_000 }),
+          page: t.Number({ default: 1, minimum: 1 }),
+          search: t.String({ default: "" }),
           sort: t.UnionEnum(
-            ["name", "description", "status", "createdAt", "updatedAt", "slug", "price", "currentPrice", "viewCount"],
-            {
-              default: "updatedAt",
-            }
+            [
+              "name",
+              "description",
+              "status",
+              "createdAt",
+              "updatedAt",
+              "slug",
+              "price",
+              "currentPrice",
+              "viewCount",
+            ],
+            { default: "updatedAt" }
           ),
-          sortBy: t.UnionEnum(["asc", "desc"], {
-            default: "desc",
-          }),
+          sortBy: t.UnionEnum(["asc", "desc"], { default: "desc" }),
         })
       ),
+      response: {
+        200: t.Object({
+          list: t.Array(
+            t.Object({
+              id: t.String(),
+              name: t.String(),
+              description: t.String(),
+              slug: t.String(),
+              categories: t.Array(t.String()),
+              picture: t.Array(t.String()),
+              isFreeShipping: t.Boolean(),
+              auth: t.Nullable(
+                t.Object({
+                  name: t.String(),
+                  email: t.String(),
+                  avatarUrl: t.String(),
+                })
+              ),
+              status: t.UnionEnum(["AVAILABLE", "UNAVAILABLE"]),
+              createdAt: t.Date({ format: "date-time" }),
+              updatedAt: t.Date({ format: "date-time" }),
+              price: t.Number(),
+              currentPrice: t.Number(),
+              viewCount: t.Number(),
+              promotions: t.Array(
+                t.Object({
+                  name: t.String(),
+                  description: t.String(),
+                  type: t.UnionEnum([
+                    "PERCENTAGE",
+                    "FIXED_AMOUNT",
+                    "FREE_SHIPPING",
+                  ]),
+                  startDate: t.Date({ format: "date-time" }),
+                  endDate: t.Date({ format: "date-time" }),
+                  code: t.String(),
+                  value: t.Number(),
+                })
+              ),
+            })
+          ),
+          pagination: t.Object({
+            total: t.Number(),
+            totalPage: t.Number(),
+            currentPage: t.Number(),
+            lengthData: t.Number(),
+          }),
+        }),
+        400: t.Object({
+          msg: t.String(),
+          error: t.Optional(t.String()),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       detail: {
+        summary: "Truy vấn danh sách sách (phân trang, lọc, sắp xếp)",
+        tags: ["Quản lý Sách"],
         security: [],
       },
     }
   )
+
   .get(
     ":id",
     async ({ params, prisma, set, query: { view } }) => {
@@ -298,6 +358,65 @@ bookController
       params: t.Object({
         id: t.String(),
       }),
+      response: {
+        200: t.Object({
+          id: t.String(),
+          name: t.String(),
+          description: t.String(),
+          price: t.Number(),
+          currentPrice: t.Number(),
+          viewCount: t.Number(),
+          status: t.Union([
+            t.Literal('AVAILABLE'),
+            t.Literal('UNAVAILABLE'),
+          ]), // tương ứng $Enums.BookStatus
+          createdAt: t.Date({ format: 'date-time' }), // Date → string ISO
+          updatedAt: t.Date({ format: 'date-time' }),
+          picture: t.Array(
+            t.Object({
+              name: t.String(),
+              path: t.String(),
+              isFile: t.Boolean(),
+              size: t.Number(),
+              type: t.String(),
+              modified: t.Date({ format: 'date-time' }), // Date → string ISO
+              created: t.Date({ format: 'date-time' }),  // Date → string ISO
+            })
+          ),
+          auth: t.Union([
+            t.Object({
+              name: t.String(),
+              email: t.String(),
+              avatarUrl: t.String(),
+            }),
+            t.Null(),
+          ]),
+
+          categories: t.Array(t.String()),
+
+          promotions: t.Array(
+            t.Object({
+              name: t.String(),
+              description: t.String(),
+              type: t.Union([
+                t.Literal('PERCENTAGE'),
+                t.Literal('FIXED_AMOUNT'),
+                t.Literal('FREE_SHIPPING'),
+              ]), // tương ứng $Enums.PromotionType
+              startDate: t.Date({ format: 'date-time' }),
+              endDate: t.Date({ format: 'date-time' }),
+              code: t.String(),
+              value: t.Number(),
+            })
+          ),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        })
+      },
       query: t.Object({
         view: t.Optional(t.BooleanString({ examples: ["true", "false"] }))
       }),
@@ -373,6 +492,27 @@ bookController
     },
     {
       body: bodyBook,
+      response: {
+        201: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        401: t.Object({
+          msg: t.String(),
+        }),
+        403: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
+      detail: {
+        description: "Tạo mới sách"
+      }
     }
   )
   .patch(
@@ -444,7 +584,31 @@ bookController
       params: t.Object({
         id: t.String(),
       }),
+      response: {
+        201: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        401: t.Object({
+          msg: t.String(),
+        }),
+        403: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       body: t.Partial(bodyBook),
+      detail: {
+        description: "Cập nhật sách"
+      }
     }
   )
   .delete(
@@ -487,5 +651,20 @@ bookController
       params: t.Object({
         id: t.String(),
       }),
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        })
+      },
     }
   );

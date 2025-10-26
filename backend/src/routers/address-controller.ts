@@ -3,8 +3,8 @@ import { AppMain } from '../regis';
 
 export const addressController = (new Elysia({
     prefix: '/address',
-    tags: ['Address management'],
-}) as unknown as AppMain).get('', async ({ prisma }) => {
+    tags: ['Quản lý Địa chỉ'],
+}) as unknown as AppMain).get('', async ({ prisma, set }) => {
     try {
         const addresses = await prisma.address.groupBy({
             by: ['div']
@@ -12,15 +12,27 @@ export const addressController = (new Elysia({
 
         return addresses.map((group) => group.div)
     } catch (error) {
-        // Xử lý lỗi
-        console.error('Error fetching addresses:', error);
-        throw new Error('Failed to fetch address divisions');
+        set.status = 400
+        if (error instanceof Error) {
+            return {
+                msg: error.message
+            }
+        }
+        return {
+            msg: 'Failed to fetch address divisions'
+        }
     }
 }, {
+    response: {
+        200: t.Array(t.String()),
+        400: t.Object({
+            msg: t.String()
+        })
+    },
     detail: {
         security: []
     }
-}).get('/:divname', async ({ prisma, params }) => {
+}).get('/:divname', async ({ prisma, params, set }) => {
     try {
         const addresses = await prisma.address.findMany({
             where: {
@@ -33,14 +45,30 @@ export const addressController = (new Elysia({
 
         return addresses.map((group) => group.wards)
     } catch (error) {
-        // Xử lý lỗi
-        console.error('Error fetching addresses:', error);
-        throw new Error('Failed to fetch address divisions');
+        set.status = 400
+        if (error instanceof Error) {
+            return {
+                msg: error.message
+            }
+        }
+        return {
+            msg: 'Failed to fetch address divisions'
+        }
     }
 }, {
     params: t.Object({
         divname: t.String(),
     }),
+    response: {
+        200: t.Array(t.String()),
+        422: t.Object({
+            msg: t.String(),
+            fields: t.Record(t.String(), t.Array(t.String()))
+        }),
+        400: t.Object({
+            msg: t.String()
+        })
+    },
     detail: {
         security: []
     }

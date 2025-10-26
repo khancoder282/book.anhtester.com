@@ -6,7 +6,7 @@ import { auth } from "../plugins/auth";
 import { User } from "../prisma";
 
 const authController = new Elysia({
-  tags: ["Auth management"],
+  tags: ["Quản lý Xác thực"],
 }) as AppMain;
 
 export default authController;
@@ -96,6 +96,28 @@ authController
         email: t.String({ format: "email" }),
         password: t.String(),
       }),
+      response: {
+        200: t.Object({
+          msg: t.String(),
+          accessToken: t.String(),
+          exp: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+        403: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       detail: {
         security: [],
       },
@@ -148,6 +170,19 @@ authController
         phone: t.Optional(t.String()),
         address: t.Optional(t.String()),
       }),
+      response: {
+        201: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       detail: {
         security: [],
       },
@@ -189,6 +224,23 @@ authController
       };
     },
     {
+      response: {
+        200: t.Object({
+          msg: t.String(),
+          accessToken: t.String(),
+          exp: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       cookie: t.Cookie(
         {
           refetchToken: t.String(),
@@ -213,8 +265,6 @@ authController
         set.status = 400;
         return { msg: 'Unauthorized. User not authenticated.' };
       }
-
-
 
       try {
         const data: Partial<User> = {
@@ -293,16 +343,62 @@ authController
           address: t.Optional(t.String()),
         })
       ),
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+        401: t.Object({
+          msg: t.String(),
+        }),
+        403: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      }
     }
   )
   .get("/me", async ({ auth: user }) => ({
-    id: user?.id,
-    name: user?.name,
-    email: user?.email,
-    avatarUrl: user?.avatarUrl,
-    phone: user?.phone,
-    address: user?.address,
-  }))
+    id: user!.id,
+    name: user!.name,
+    email: user!.email,
+    avatarUrl: user!.avatarUrl,
+    phone: user!.phone,
+    address: user!.address,
+  }), {
+    response: {
+      200: t.Object({
+        id: t.String(),
+        name: t.String(),
+        email: t.String(),
+        avatarUrl: t.String(),
+        phone: t.String(),
+        address: t.String(),
+      }),
+      401: t.Object({
+        msg: t.String(),
+      }),
+      403: t.Object({
+        msg: t.String(),
+      }),
+      404: t.Object({
+        msg: t.String(),
+      }),
+      422: t.Object({
+        msg: t.String(),
+        fields: t.Record(t.String(), t.Array(t.String())),
+      }),
+    }
+  })
   .delete(
     "/logout",
     async ({ cookie: { refetchToken, accessToken }, prisma, set }) => {
@@ -334,5 +430,32 @@ authController
           msg: "Invalid data.",
         };
       }
+    },
+    {
+      cookie: t.Cookie({
+        refetchToken: t.Optional(t.String()),
+        accessToken: t.Optional(t.String()),
+      }),
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        401: t.Object({
+
+        }),
+        403: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
     }
   );

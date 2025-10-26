@@ -5,7 +5,7 @@ import { auth } from "../plugins/auth";
 
 const categoryController = new Elysia({
   prefix: "category-book",
-  tags: ["Category management"],
+  tags: ["Quản lý Danh mục"],
 }) as unknown as AppMain;
 
 export default categoryController;
@@ -30,6 +30,18 @@ categoryController
         bookCount: c._count.books,
       })),
     };
+  }, {
+    response: {
+      200: t.Object({
+        list: t.Array(t.Object({
+          name: t.String(),
+          bookCount: t.Number(),
+        })),
+      })
+    },
+    detail: {
+      description: "Lấy danh sách danh mục"
+    }
   })
   .use(auth)
   .post(
@@ -41,6 +53,7 @@ categoryController
             name,
           },
         });
+        set.status = 201;
         return {
           msg: "Category created successfully.",
         }
@@ -62,6 +75,18 @@ categoryController
       body: t.Object({
         name: t.String(),
       }),
+      response: {
+        201: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      }
     }
   )
   .put("",
@@ -97,6 +122,18 @@ categoryController
         name: t.String(),
         newName: t.String(),
       }),
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      }
     }
   )
   .delete(
@@ -129,5 +166,20 @@ categoryController
       params: t.Object({
         name: t.String(),
       }),
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      }
     }
   );

@@ -1,4 +1,4 @@
-import Elysia, { t, validationDetail } from "elysia";
+import Elysia, { file, t, validationDetail } from "elysia";
 import fs from "fs";
 import path from "path";
 import { auth } from "../plugins/auth";
@@ -6,7 +6,7 @@ import { AppMain } from "../regis";
 
 const fileController = new Elysia({
   prefix: "file",
-  tags: ["File management"],
+  tags: ["Quản lý Tệp"],
 }) as unknown as AppMain;
 
 export default fileController;
@@ -121,7 +121,7 @@ fileController
         return { list };
       }
       if (stat.isFile()) {
-        return Bun.file(pathname);
+        return file(pathname);
       }
       set.status = 400;
       return { msg: "Invalid path." };
@@ -131,6 +131,30 @@ fileController
         path: t.Optional(t.String({ default: "/" })),
         search: t.Optional(t.String({ default: "" })),
       }),
+      response: {
+        200: t.Union([
+          t.Object({
+            list: t.Array(
+              t.Object({
+                name: t.String(),
+                path: t.String(),
+                isFile: t.Boolean(),
+                size: t.Number(),
+                type: t.String(),
+                modified: t.Date(),
+                created: t.Date(),
+              })
+            ),
+          }),
+          t.File(),
+        ]),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        })
+      },
       detail: {
         security: [],
       },
@@ -213,6 +237,20 @@ fileController
           })
         ),
       }),
+      response: {
+        200: t.Object({
+          msg: t.String(),
+          paths: t.Array(t.String()),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+
+      },
       parse: ["multipart/form-data"],
     }
   )
@@ -275,6 +313,24 @@ fileController
       };
     },
     {
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        403: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       query: t.Object({
         path: t.Union([
           t.String({
@@ -324,6 +380,21 @@ fileController
       };
     },
     {
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       body: t.Object({
         path: t.String(),
         name: t.String(),
@@ -373,6 +444,21 @@ fileController
       };
     },
     {
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       body: t.Object({
         oldPath: t.String(),
         newPath: t.String(),
@@ -426,6 +512,21 @@ fileController
       }
     },
     {
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       body: t.Object({
         oldPath: t.String(),
         newPath: t.String(),

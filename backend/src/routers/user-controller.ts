@@ -5,7 +5,7 @@ import { PrismaClientKnownRequestError } from "../prisma/runtime/library";
 import { auth } from "../plugins/auth";
 
 const userController = new Elysia({
-  tags: ["User management"],
+  tags: ["Quản lý Người dùng"],
   prefix: "user",
 }) as unknown as AppMain;
 
@@ -75,6 +75,41 @@ userController
       }
     },
     {
+      response: {
+        200: t.Object({
+          list: t.Array(
+            t.Object({
+              id: t.String(),
+              name: t.String(),
+              email: t.String(),
+              avatarUrl: t.String(),
+              phone: t.String(),
+              address: t.String(),
+              isActive: t.Boolean(),
+              createdAt: t.Date(),
+              updatedAt: t.Date(),
+            })
+          ),
+          pagination: t.Object({
+            total: t.Number(),
+            totalPage: t.Number(),
+            currentPage: t.Number(),
+            lengthData: t.Number(),
+          }),
+        }),
+        400: t.Object({
+          msg: t.String(),
+          error: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+        500: t.Object({
+          msg: t.String(),
+        }),
+
+      },
       query: t.Partial(
         t.Object({
           limit: t.Number({
@@ -135,6 +170,22 @@ userController
       params: t.Object({
         id: t.String(),
       }),
+      response: {
+        200: t.Object({
+          id: t.String(),
+          name: t.String(),
+          email: t.String(),
+          avatarUrl: t.String(),
+          phone: t.String(),
+          address: t.String(),
+          isActive: t.Boolean(),
+          createdAt: t.Date(),
+          updatedAt: t.Date(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+      },
       detail: {
         security: [],
       },
@@ -176,6 +227,18 @@ userController
       }
     },
     {
+      response: {
+        201: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       body: t.Object({
         name: t.String(),
         email: t.String({ format: "email" }),
@@ -250,6 +313,21 @@ userController
       params: t.Object({
         id: t.String(),
       }),
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+      },
       body: t.Partial(
         t.Object({
           name: t.String(),
@@ -299,6 +377,21 @@ userController
       }
     },
     {
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        })
+      },
       params: t.Object({
         id: t.String(),
       }),

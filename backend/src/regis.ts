@@ -9,58 +9,73 @@ const prisma = new PrismaClient();
 export const regis = new Elysia()
   .use(
     openapi({
-      path: "swagger",
+      path: "/swagger",
       documentation: {
         openapi: "3.0.0",
+        info: {
+          title: "API Quản lý Sách",
+          description:
+            "API toàn diện để quản lý sách, người dùng, tệp, danh mục và địa chỉ, được cung cấp bởi AnhTester[](https://anhtester.com).",
+          version: "1.0.0",
+          contact: {
+            name: "Hỗ trợ AnhTester",
+            url: "https://anhtester.com",
+            email: "thaian.it15@gmail.com"
+          },
+        },
         tags: [
           {
-            name: "Auth management",
+            name: "Quản lý Xác thực",
             description:
-              "Quản lý cơ chế đăng nhập với jwt token, hỗ trợ refetch token",
+              "Quản lý đăng nhập người dùng, bao gồm tạo và làm mới JWT token."
           },
           {
-            name: "User management",
+            name: "Quản lý Người dùng",
             description:
-              "Quản lý danh sách người dùng, quản lý tài khoản người dùng",
+              "Quản lý tài khoản người dùng, bao gồm tạo, cập nhật và xóa thông tin người dùng."
           },
           {
-            name: "File management",
-            description: "Quản lý tập tin, upload, download",
+            name: "Quản lý Tệp",
+            description:
+              "Hỗ trợ các thao tác với tệp như tải lên, tải xuống và quản lý tệp."
           },
           {
-            name: "Book management",
-            description: "Quản lý danh sách quản lý",
+            name: "Quản lý Sách",
+            description:
+              "Quản lý thông tin sách, bao gồm tạo, cập nhật và truy xuất danh sách sách."
           },
           {
-            name: "Category management",
-            description: "Quản lý danh sách danh mục",
+            name: "Quản lý Danh mục",
+            description:
+              "Quản lý danh mục sách, bao gồm tạo và cập nhật danh sách danh mục."
           },
           {
-            name: "Address management",
-            description: "Quản lý địa chỉ việt nam"
+            name: "Quản lý Địa chỉ",
+            description:
+              "Quản lý thông tin địa chỉ tại Việt Nam, bao gồm tạo, truy xuất và cập nhật."
           }
         ],
-        info: {
-          title: "Book management API",
-          description:
-            "This is a book management API free by https://anhtester.com",
-          version: "1.0.0",
-        },
         components: {
           securitySchemes: {
-            bearerAuth: {
+            BearerAuth: {
               type: "http",
               scheme: "bearer",
-              bearerFormat: "JWT",
-            },
-          },
+              bearerFormat: "JWT"
+            }
+          }
         },
         security: [
           {
-            bearerAuth: [],
-          },
+            BearerAuth: []
+          }
         ],
-      },
+        servers: [
+          {
+            url: "https://book.anhtester.com",
+            description: "Máy chủ sản xuất"
+          }
+        ]
+      }
     })
   )
   .decorate("prisma", prisma)
