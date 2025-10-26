@@ -8,7 +8,7 @@ import { formControl } from '../store/form';
 
 import type { UserForm } from '../store/form';
 
-export const handleUpdateProfileUser = async (user: UserForm) => {
+export const handleUpdateProfileUser = async (user: Partial<UserForm>) => {
     try {
         // upload Avatar
         if (user.avatar && user.avatar instanceof File) {
@@ -25,7 +25,7 @@ export const handleUpdateProfileUser = async (user: UserForm) => {
                 user.avatarUrl = res.data.paths[0];
             })
         }
-        toast.custom("Upload profile...", "loading", { id: "msg" , duration: Infinity});
+        toast.custom("Upload profile...", "loading", { id: "msg", duration: Infinity });
         await axios
             .patch(`/profile`, {
                 name: user.name,

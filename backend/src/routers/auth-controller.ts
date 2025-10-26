@@ -309,7 +309,10 @@ authController
         // Cập nhật thông tin người dùng
         await prisma.user.update({
           where: { id: user.id },
-          data
+          data: {
+            ...data,
+            config: body.config
+          }
         });
 
         set.status = 200;
@@ -341,6 +344,7 @@ authController
           avatarUrl: t.String(),
           phone: t.Optional(t.String()),
           address: t.Optional(t.String()),
+          config: t.Optional(t.Any()),
         })
       ),
       response: {
@@ -374,6 +378,7 @@ authController
     avatarUrl: user!.avatarUrl,
     phone: user!.phone,
     address: user!.address,
+    config: user!.config,
   }), {
     response: {
       200: t.Object({
@@ -383,6 +388,7 @@ authController
         avatarUrl: t.String(),
         phone: t.String(),
         address: t.String(),
+        config: t.Optional(t.Any()),
       }),
       401: t.Object({
         msg: t.String(),

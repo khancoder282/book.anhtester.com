@@ -8,8 +8,10 @@ import { useRequest } from 'src/hooks/use-request';
 import { useDebounce } from 'src/hooks/use-debound';
 
 import { useAuth } from 'src/store/auth';
+import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import Title from 'src/components/title';
 import { Iconify } from 'src/components/iconify';
 import { useTable } from 'src/components/grid-view/hook/use-table';
 import { TableView } from 'src/components/grid-view/components/table-view';
@@ -53,6 +55,7 @@ export default function Page() {
 
   return (
     <DashboardContent>
+      <Title>Promotion Management - {CONFIG.appName}</Title>
       <Box
         sx={{
           mb: 5,

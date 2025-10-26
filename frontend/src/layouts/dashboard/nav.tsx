@@ -153,8 +153,9 @@ export function NavContent({ data, slots, sx }: NavContentProps) {
                           fontWeight: 'fontWeightSemiBold',
                           color: theme.vars.palette.primary.main,
                           bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
+                          // bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
                           '&:hover': {
-                            bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.16),
+                            // bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.16),
                           },
                         }),
                       }),

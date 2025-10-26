@@ -37,6 +37,7 @@
     "@mui/material": "^7.0.1",
     "@mui/x-date-pickers": "^8.15.0",
     "axios": "^1.12.2",
+    "color": "^5.0.2",
     "dayjs": "^1.11.13",
     "embla-carousel": "^8.6.0",
     "embla-carousel-autoplay": "^8.6.0",

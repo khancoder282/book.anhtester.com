@@ -20,6 +20,7 @@ model User {
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
   book          Book[]
+  config        Json?
   refreshTokens UserRefreshToken[]
 
   @@index([name, email])
@@ -57,6 +58,7 @@ model Promotion {
   updatedAt   DateTime      @updatedAt
   books       Book[]        @relation("PromotionBooks")
   configFe    String        @default("{}")
+
   @@index([code, name])
 }
 

@@ -18,6 +18,7 @@ import {
 
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
+import { useAuthCheck } from 'src/routes/hooks/use-auth-check';
 
 import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -39,7 +40,8 @@ export default function Handle() {
   const rootName = getValues('name');
   const router = useRouter();
   const [endDate] = useWatch({ control, name: ['endDate'] });
-  const { isSubmitted, errors } = useFormState({ control });
+  const { isSubmitted, errors, isSubmitSuccessful } = useFormState({ control });
+  useAuthCheck();
   useEffect(() => {
     if (isSubmitted) {
       const err = Object.keys(errors)[0];
@@ -57,10 +59,17 @@ export default function Handle() {
     }
   }, [errors, isSubmitted]);
 
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      reset();
+      router.back('/promotion-book-management');
+    }
+  }, [isSubmitSuccessful, router]);
+
   return (
     <DashboardContent>
       <Title>
-        {id ? `Modify book - ${CONFIG.appName}` : `Create a new book - ${CONFIG.appName}`}
+        {id ? `Modify promotion - ${CONFIG.appName}` : `Create a new promotion - ${CONFIG.appName}`}
       </Title>
       <Stack spacing={2} mb={5}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
@@ -79,12 +88,7 @@ export default function Handle() {
         </Breadcrumbs>
       </Stack>
       <Container maxWidth="md">
-        <Stack
-          spacing={4}
-          component="form"
-          noValidate
-          onSubmit={handleSubmit(createPromotion)}
-        >
+        <Stack spacing={4} component="form" noValidate onSubmit={handleSubmit(createPromotion)}>
           <CardDetail />
           <CardStatus />
           <CardBook />

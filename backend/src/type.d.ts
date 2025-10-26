@@ -6,4 +6,5 @@ interface Auth {
   password: string;
   phone: string;
   address: string;
+  config?: any
 }

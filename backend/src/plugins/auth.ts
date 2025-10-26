@@ -41,6 +41,7 @@ export const auth = (app: AppMain) => {
         password: auth.password,
         phone: auth.phone,
         address: auth.address,
+        config: auth.config ?? {}
       } as Auth;
     } catch (err) {
       set.status = 401;

@@ -58,11 +58,13 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
           )}
         </Box>
       </Box>
-      <Box sx={{ position: 'relative', p: 2, pt: 3 }}>
+      <Box
+        sx={{ position: 'relative', p: 2, pt: 3, bgcolor: (t) => t.vars.palette.background.paper }}
+      >
         <SvgColor
           src="/assets/icons/shape-avatar.svg"
           sx={{
-            color: (t) => t.vars.palette.primary.contrastText,
+            color: (t) => t.vars.palette.background.paper,
             width: 88,
             height: 36,
             position: 'absolute',

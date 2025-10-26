@@ -36,10 +36,10 @@ const MuiButton: Components<Theme>['MuiButton'] = {
       minHeight: 48,
     },
     outlinedInherit: ({ theme }) => ({
-      color: theme.vars.palette.grey[800],
+      color: theme.vars.palette.text.primary,
       border: `1px solid ${theme.palette.divider}`,
       '&:hover': {
-        color: theme.vars.palette.grey[800],
+        color: theme.vars.palette.text.primary,
         border: `1px solid ${theme.vars.palette.grey[800]}`,
       },
     }),
@@ -82,7 +82,7 @@ const MuiPaper: Components<Theme>['MuiPaper'] = {
   styleOverrides: {
     root: ({ theme }) => ({
       backgroundImage: 'none',
-      boxShadow: theme.shadows[5],
+      boxShadow: theme.vars.customShadows.z4,
       '& ul': {
         padding: theme.spacing(0.5),
         overflowY: 'auto',
@@ -245,9 +245,17 @@ const MuiSwitch: Components<Theme>['MuiSwitch'] = {
   },
 };
 
+import '@mui/material/Tabs';
 import '@mui/material/Checkbox';
 import '@mui/material/TextField';
 import '@mui/material/InputBase';
+
+declare module '@mui/material/Tabs' {
+  interface TabsOwnProps {
+    type?: 'button' | 'default';
+  }
+}
+
 import { toggleButtonGroupClasses } from '@mui/material';
 
 declare module '@mui/material/TextField' {
@@ -299,6 +307,46 @@ const MuiAutocomplete: Components<Theme>['MuiAutocomplete'] = {
   },
 };
 
+const MuiTabs: Components<Theme>['MuiTabs'] = {
+  styleOverrides: {
+    root: ({ theme, ownerState: { type } }) =>
+      type === 'button' && {
+        backgroundColor: theme.vars.palette.background.neutral,
+        minHeight: 52,
+        '& .MuiTabs-list': {
+          color: 'inherit',
+          zIndex: 2,
+          position: 'relative',
+          padding: theme.spacing(0, 1),
+          '& .MuiTouchRipple-root': {
+            display: 'none',
+          },
+          '& button': {
+            minHeight: 52,
+          },
+          '& button.Mui-selected ': {
+            color: theme.vars.palette.text.primary,
+          },
+        },
+        '& .MuiTabs-indicator': {
+          background: 'transparent',
+          display: 'flex',
+          height: '100%',
+          zIndex: 1,
+          padding: theme.spacing(1, 0),
+          '&::before': {
+            backgroundColor: theme.vars.palette.background.paper,
+            display: 'block',
+            height: '100%',
+            width: '100%',
+            content: '""',
+            borderRadius: theme.spacing(1),
+          },
+        } as React.CSSProperties,
+      },
+  },
+};
+
 const MuiToggleButtonGroup: Components<Theme>['MuiToggleButtonGroup'] = {
   styleOverrides: {
     root: ({ theme }) => ({
@@ -341,4 +389,5 @@ export const components = {
   MuiAutocomplete,
   MuiInputBase,
   MuiToggleButtonGroup,
+  MuiTabs,
 };

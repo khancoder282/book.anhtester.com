@@ -1,5 +1,10 @@
 import { useEffect } from 'react';
 
+import { useColorScheme } from '@mui/material';
+
+// eslint-disable-next-line import/no-unresolved
+import { useThemeData } from 'src/hooks/use-theme-data';
+
 import { axios } from 'src/api/axios';
 import { useAuth } from 'src/store/auth';
 
@@ -13,16 +18,16 @@ export function CheckAuth({
 }) {
   const { setAuth } = useAuth();
   const router = useRouter();
+  const { setMode } = useColorScheme();
+  const { setPrimary } = useThemeData();
 
   useEffect(() => {
     axios.get('/me').then((res) => {
       setAuth(res.data);
+      setMode(res.data.config?.theme || 'system');
+      setPrimary(res.data.config?.mainColor || '#42BC40');
     });
-    // .catch(() => {
-    //   router.replace('/sign-in');
-    // });
-  }, [router, setAuth]);
+  }, [router, setAuth, setMode, setPrimary]);
 
-  // return auth ? children : fallback;
   return children;
 }

@@ -16,7 +16,12 @@ const ThemeProvider = lazy(() => import('src/theme/theme-provider'));
 
 const ConfigDialog = lazy(() => import('./components/dialog-confirm/confirm-dialog'));
 
+import { createPaletteChannel } from 'minimal-shared/utils';
+
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+import { useThemeData, generateColorPalette } from './hooks/use-theme-data';
+
 // ----------------------------------------------------------------------
 
 type AppProps = {
@@ -25,9 +30,25 @@ type AppProps = {
 
 export default function App({ children }: AppProps) {
   useScrollToTop();
+  const { primary = '#42BC40' } = useThemeData();
 
   return (
-    <ThemeProvider>
+    <ThemeProvider
+      themeOverrides={{
+        colorSchemes: {
+          dark: {
+            palette: {
+              primary: createPaletteChannel(generateColorPalette(primary)),
+            },
+          },
+          light: {
+            palette: {
+              primary: createPaletteChannel(generateColorPalette(primary)),
+            },
+          },
+        },
+      }}
+    >
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
         {children}
       </LocalizationProvider>

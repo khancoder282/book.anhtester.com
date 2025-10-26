@@ -59,6 +59,10 @@ const routesSection: RouteObject[] = [
         path: 'promotion-book-management/handle',
         Component: lazy(() => import('src/pages/promotions-mgt/handle')),
       },
+      {
+        path: 'user-management/setting-account',
+        Component: lazy(()=> import('src/pages/user-mgt/setting'))
+      }
     ],
   },
   {
