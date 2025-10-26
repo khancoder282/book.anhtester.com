@@ -37,7 +37,7 @@ const decodeAddress = (address: string) => {
 };
 
 const encodeAddress = (address: string, ward: string, div: string) =>
-  [address, ward, div].filter(Boolean).join(', ');
+  [address, ward, div].filter(x=>x.trim()).join(', ');
 
 export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
   ({ value, onChange, disabled, error, helperText }, ref) => {
