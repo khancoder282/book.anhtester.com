@@ -53,7 +53,7 @@ export function TableView<T>({
   onClickRow,
   select,
   size = 'medium',
-  keyName,
+  keyName = 'id' as keyof T,
   sticky,
   filter = [],
 }: GridViewTableProps<T>) {
@@ -71,6 +71,7 @@ export function TableView<T>({
               config={config}
               select={select}
               allRow={data}
+              keyName={keyName}
               isStickyAction={sticky?.isStickyAction}
             />
             <TableBody>
@@ -81,6 +82,7 @@ export function TableView<T>({
                       isAction={!!renderAction}
                       key={(keyName ? row[keyName] : i) as any}
                       row={row}
+                      keyName={keyName}
                       columns={columns}
                       height={minRowHeight || size === 'small' ? 48 : 76}
                       onClickRow={() => onClickRow?.(row, i)}

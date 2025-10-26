@@ -57,7 +57,6 @@ model Promotion {
   updatedAt   DateTime      @updatedAt
   books       Book[]        @relation("PromotionBooks")
   configFe    String        @default("{}")
-
   @@index([code, name])
 }
 

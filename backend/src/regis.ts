@@ -53,6 +53,10 @@ export const regis = new Elysia()
             name: "Quản lý Địa chỉ",
             description:
               "Quản lý thông tin địa chỉ tại Việt Nam, bao gồm tạo, truy xuất và cập nhật."
+          },
+          {
+            name: "Quản lý giảm giá sản",
+            description: "Quản lý giảm giá sản phẩm, cập nhật thông tin và cho biết nội dung của giảm giá"
           }
         ],
         components: {

@@ -41,6 +41,7 @@ export const handleCreateBook = async (book: BookForm) => {
         slug: book.slug,
         price: Number(book.price),
         pictures: paths,
+        promotions: book.promotions.map(x => x.id),
       })
       .then((res) => {
         toast.success(res.data.msg, { id, duration: 3000 });

@@ -1,7 +1,14 @@
 import 'src/global.css';
+import 'dayjs/locale/vi';
+
+import dayjs from 'dayjs';
+
+dayjs.locale('vi');
 
 import { Toaster } from 'sonner';
 import { lazy, useEffect } from 'react';
+
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import { usePathname } from 'src/routes/hooks';
 
@@ -9,6 +16,7 @@ const ThemeProvider = lazy(() => import('src/theme/theme-provider'));
 
 const ConfigDialog = lazy(() => import('./components/dialog-confirm/confirm-dialog'));
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // ----------------------------------------------------------------------
 
 type AppProps = {
@@ -20,7 +28,9 @@ export default function App({ children }: AppProps) {
 
   return (
     <ThemeProvider>
-      {children}
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+        {children}
+      </LocalizationProvider>
       <ConfigDialog />
       <Toaster position="top-right" />
     </ThemeProvider>

@@ -12,7 +12,7 @@ export const columns: () => Columns<PromotionType>[] = () => [
     label: 'CODE',
     sort: 'code',
     render: (row) => (
-      <Typography variant="body2" textTransform="uppercase">
+      <Typography variant="body2" textTransform="uppercase" fontWeight="bold">
         {row?.code}
       </Typography>
     ),
@@ -45,6 +45,15 @@ export const columns: () => Columns<PromotionType>[] = () => [
     ),
   },
   {
+    label: 'Active',
+    sort: 'isActive',
+    render: (row) => (
+      <Label color={row?.isActive ? 'success' : 'error'}>
+        {row?.isActive ? 'Active' : 'Inactive'}
+      </Label>
+    ),
+  },
+  {
     label: 'Value',
     sort: 'value',
     render: (row) => <Label>{row?.value}</Label>,
@@ -56,7 +65,13 @@ export const columns: () => Columns<PromotionType>[] = () => [
       const day = dayjs(row?.startDate);
       return (
         <Stack>
-          <Typography variant="body2" noWrap>
+          <Typography
+            color={
+              day.isBefore(dayjs()) ? 'primary' : day.isAfter(dayjs()) ? 'error' : 'textSecondary'
+            }
+            variant="body2"
+            noWrap
+          >
             {day.format('DD MMM YYYY')}
           </Typography>
           <Typography color="textSecondary" variant="caption">
@@ -69,6 +84,29 @@ export const columns: () => Columns<PromotionType>[] = () => [
   {
     label: 'End',
     sort: 'endDate',
+    render: (row) => {
+      const day = dayjs(row?.endDate);
+      return (
+        <Stack>
+          <Typography
+            color={
+              day.isBefore(dayjs()) ? 'error' : day.isAfter(dayjs()) ? 'primary' : 'textSecondary'
+            }
+            variant="body2"
+            noWrap
+          >
+            {day.format('DD MMM YYYY')}
+          </Typography>
+          <Typography color="textSecondary" variant="caption">
+            {day.format('hh:mm A')}
+          </Typography>
+        </Stack>
+      );
+    },
+  },
+  {
+    label: 'Created',
+    sort: 'createdAt',
     render: (row) => {
       const day = dayjs(row?.endDate);
       return (

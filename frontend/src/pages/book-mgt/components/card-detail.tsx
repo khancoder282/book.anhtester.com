@@ -94,6 +94,7 @@ export function CardDetail() {
                 error={invalid}
                 helperText={error?.message}
                 {...field}
+                required
                 slotProps={{
                   input: {
                     endAdornment: (

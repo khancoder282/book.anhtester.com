@@ -48,7 +48,7 @@ const bodyBook = t.Object({
   promotions: t.Optional(t.Array(t.String()))
 });
 
-function handlePrice(price: number, promotions: Promotion[]) {
+export function handlePrice(price: number, promotions: Promotion[]) {
   let pricePromotion = 0;
   promotions.forEach((p) => {
     if (p.type === $Enums.PromotionType.PERCENTAGE) {
@@ -139,15 +139,10 @@ bookController
               }
             });
 
-          const hasFreeShipping = item.promotions?.some(
-            (x) => x.type === $Enums.PromotionType.FREE_SHIPPING
-          );
-
           return {
             ...item,
             categories: item.categories.map((c) => c.name),
             picture: pictures,
-            isFreeShipping: !!hasFreeShipping,
           };
         });
 
@@ -202,7 +197,6 @@ bookController
               slug: t.String(),
               categories: t.Array(t.String()),
               picture: t.Array(t.String()),
-              isFreeShipping: t.Boolean(),
               auth: t.Nullable(
                 t.Object({
                   name: t.String(),
@@ -210,6 +204,7 @@ bookController
                   avatarUrl: t.String(),
                 })
               ),
+
               status: t.UnionEnum(["AVAILABLE", "UNAVAILABLE"]),
               createdAt: t.Date({ format: "date-time" }),
               updatedAt: t.Date({ format: "date-time" }),
@@ -250,7 +245,7 @@ bookController
         }),
       },
       detail: {
-        summary: "Truy vấn danh sách sách (phân trang, lọc, sắp xếp)",
+        description: "Truy vấn danh sách sách (phân trang, lọc, sắp xếp)",
         tags: ["Quản lý Sách"],
         security: [],
       },
@@ -298,6 +293,7 @@ bookController
               },
             },
             select: {
+              id: true,
               type: true,
               value: true,
               startDate: true,
@@ -396,6 +392,7 @@ bookController
 
           promotions: t.Array(
             t.Object({
+              id: t.String(),
               name: t.String(),
               description: t.String(),
               type: t.Union([
@@ -441,7 +438,13 @@ bookController
             currentPrice: handlePrice(body.price, await prisma.promotion.findMany({
               where: {
                 isActive: true,
-                id: { in: body.promotions }
+                id: { in: body.promotions },
+                endDate: {
+                  gte: new Date()
+                },
+                startDate: {
+                  lte: new Date()
+                }
               }
             })),
             promotions: {
@@ -519,6 +522,19 @@ bookController
     "/:id",
     async ({ body, prisma, set, params }) => {
       try {
+        const BookOld = await prisma.book.findFirst({
+          where: {
+            id: params.id,
+          },
+          select: {
+            price: true
+          }
+        })
+        if (!BookOld) {
+          set.status = 404;
+          return { msg: "Not found book" };
+        }
+        const price = body.price ?? BookOld.price
         const book = await prisma.book.update({
           where: {
             id: params.id,
@@ -527,19 +543,25 @@ bookController
             name: body.name,
             description: body.description || "",
             status: body.status,
-            price: body.price,
+            price: price,
             slug: body.slug,
             promotions: {
               connect: body.promotions?.map((p) => ({
                 id: p,
               }))
             },
-            currentPrice: (body.promotions && body.price) ? handlePrice(body.price, await prisma.promotion.findMany({
+            currentPrice: (body.promotions) ? handlePrice(price, await prisma.promotion.findMany({
               where: {
                 isActive: true,
-                id: { in: body.promotions }
+                id: { in: body.promotions },
+                endDate: {
+                  gte: new Date()
+                },
+                startDate: {
+                  lte: new Date()
+                }
               }
-            })) : body.price,
+            })) : undefined,
             picture: (body.pictures ?? []).join(","),
             categories: body?.categories
               ? {

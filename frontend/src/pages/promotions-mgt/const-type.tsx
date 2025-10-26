@@ -18,6 +18,6 @@ export const MappingType: Record<
   },
   FREE_SHIPPING: {
     icon: 'streamline-ultimate:shipping-logistic-free-shipping-delivery-truck-bold',
-    color: 'primary',
+    color: 'error',
   },
 };

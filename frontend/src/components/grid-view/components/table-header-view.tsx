@@ -30,12 +30,14 @@ export function TableHeaderView<T>({
   isStickyAction = false,
   select,
   allRow,
+  keyName
 }: {
   columns: Columns<T>[];
   config: UseTableReturn<T>;
   filter?: FieldType<T>[];
   isAction: boolean;
   isStickyAction?: boolean;
+  keyName: keyof T
   select?: {
     selected: T[];
     setSelected: (row: T[]) => void;
@@ -48,31 +50,31 @@ export function TableHeaderView<T>({
   });
   const isSelectAll = useMemo(() => {
     if (!select?.selected?.length || !allRow?.length) return false;
-    const selectedStrings = new Set(select.selected.map((r) => JSON.stringify(r)));
-    return allRow.length > 0 && allRow.every((r) => selectedStrings.has(JSON.stringify(r)));
-  }, [allRow, select?.selected]);
+    const selectedStrings = new Set(select.selected.map((r) => r[keyName]));
+    return allRow.length > 0 && allRow.every((r) => selectedStrings.has(r[keyName]));
+  }, [allRow, keyName, select?.selected]);
 
   const isSelect = useMemo(() => {
     if (!select?.selected?.length || !allRow?.length) return false;
-    const selectedStrings = new Set(select.selected.map((r) => JSON.stringify(r)));
-    return allRow.some((r) => selectedStrings.has(JSON.stringify(r)));
-  }, [allRow, select?.selected]);
+    const selectedStrings = new Set(select.selected.map((r) => r[keyName]));
+    return allRow.some((r) => selectedStrings.has(r[keyName]));
+  }, [allRow, keyName, select?.selected]);
 
   const handleSelect = () => {
     if (!select) return;
 
-    const selectedStrings = new Set(select.selected.map((r) => JSON.stringify(r)));
+    const selectedStrings = new Set(select.selected.map((r) => r[keyName]));
 
     if (isSelectAll) {
       select.setSelected(
         select.selected.filter(
-          (r) => !allRow.some((rr) => JSON.stringify(rr) === JSON.stringify(r))
+          (r) => !allRow.some((rr) => rr[keyName] === r[keyName])
         )
       );
     } else {
       const newSelected = [
         ...select.selected,
-        ...allRow.filter((r) => !selectedStrings.has(JSON.stringify(r))),
+        ...allRow.filter((r) => !selectedStrings.has(r[keyName])),
       ];
       select.setSelected(newSelected);
     }

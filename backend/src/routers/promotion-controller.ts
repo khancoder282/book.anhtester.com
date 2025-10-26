@@ -4,10 +4,12 @@ import { filterTable } from "../plugins/filterTable";
 import { auth } from "../plugins/auth";
 import { PrismaClientKnownRequestError } from "../prisma/runtime/library";
 import dayjs from "dayjs";
+import { $Enums } from "../prisma";
+import { handlePrice } from "./book-controller";
 
 const promotionController = new Elysia({
   prefix: "promotion-book",
-  tags: ["Promotion management"],
+  tags: ["Quản lý giảm giá sản"],
 }) as unknown as AppMain;
 
 export default promotionController;
@@ -34,6 +36,8 @@ const bodyPromotion = t.Object({
   }),
   configFe: t.Optional(t.Object({})),
 });
+
+
 
 promotionController
   .get(
@@ -118,7 +122,7 @@ promotionController
       }
     },
     {
-      query: t.Partial(
+      query: (
         t.Object({
           limit: t.Number({
             default: 10,
@@ -152,6 +156,44 @@ promotionController
           }),
         })
       ),
+      response: {
+        200: t.Object({
+          list: t.Array(
+            t.Object({
+              id: t.String(),
+              code: t.String(),
+              name: t.String(),
+              description: t.String(),
+              type: t.Enum($Enums.PromotionType), // hoặc t.Enum($Enums.PromotionType) nếu có import enum
+              value: t.Number(),
+              startDate: t.Date(),
+              endDate: t.Date(),
+              isActive: t.Boolean(),
+              createdAt: t.Date(),
+              updatedAt: t.Date(),
+              countBooks: t.Number(),
+            })
+          ),
+          pagination: t.Object({
+            total: t.Number(),
+            totalPage: t.Number(),
+            currentPage: t.Number(),
+            lengthData: t.Number(),
+          }),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        500: t.Object({
+          msg: t.String(),
+          error: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String()))
+        })
+      },
+
       detail: {
         security: [],
       },
@@ -163,9 +205,37 @@ promotionController
         where: {
           id: params.id,
         },
-        include: {
-          books: true,
-        }
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          description: true,
+          type: true,
+          value: true,
+          isActive: true,
+          startDate: true,
+          endDate: true,
+          createdAt: true,
+          updatedAt: true,
+          configFe: true,
+          books: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              picture: true,
+              viewCount: true,
+              description: true,
+              auth: {
+                select: {
+                  email: true,
+                  name: true,
+                  avatarUrl: true,
+                },
+              },
+            },
+          },
+        },
       });
       if (!promotion) {
         set.status = 404;
@@ -183,6 +253,44 @@ promotionController
     detail: {
       security: [],
     },
+    response: {
+      200: t.Object({
+        id: t.String(),
+        code: t.String(),
+        name: t.String(),
+        description: t.String(),
+        type: t.Enum($Enums.PromotionType),
+        value: t.Number(),
+        startDate: t.Date(),
+        endDate: t.Date(),
+        isActive: t.Boolean(),
+        createdAt: t.Date(),
+        updatedAt: t.Date(),
+        books: t.Array(
+          t.Object({
+            id: t.String(),
+            name: t.String(),
+            slug: t.String(),
+            description: t.String(),
+            viewCount: t.Number(),
+            picture: t.String(),
+            auth: t.Nullable(
+              t.Object({
+                email: t.String(),
+                name: t.String(),
+                avatarUrl: t.String(),
+              })
+            ),
+          })
+        ),
+      }),
+      404: t.Object({
+        msg: t.String(),
+      }),
+      400: t.Object({
+        msg: t.String(),
+      }),
+    },
   })
   .use(auth)
   .post(
@@ -198,6 +306,40 @@ promotionController
             },
           },
         });
+        // update book 
+        await prisma.$transaction(async (ctx) => {
+          for (const bookId of body.books) {
+            const book = await ctx.book.findUnique({
+              where: {
+                id: bookId,
+              },
+              select: {
+                price: true,
+                promotions: {
+                  where: {
+                    isActive: true,
+                    endDate: {
+                      gte: new Date()
+                    },
+                    startDate: {
+                      lte: new Date()
+                    }
+                  }
+                }
+              }
+            })
+            await ctx.book.update({
+              where: {
+                id: bookId,
+              },
+              data: {
+                currentPrice: handlePrice(book?.price ?? 0, book?.promotions ?? [])
+              },
+            });
+          }
+        })
+
+        set.status = 201;
         return {
           msg: "Created promotion successfully.",
         };
@@ -206,8 +348,12 @@ promotionController
         const err = e as PrismaClientKnownRequestError;
         set.status = 400;
         if (err.code === "P2002") {
+          set.status = 422;
           return {
             msg: "Promotion code already exists.",
+            fields: {
+              code: ["Promotion code already exists."],
+            }
           };
         }
 
@@ -223,6 +369,25 @@ promotionController
     },
     {
       body: bodyPromotion,
+      response: {
+        201: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+        500: t.Object({
+          msg: t.String(),
+          error: t.String(),
+        }),
+      }
     }
   )
   .patch(
@@ -243,6 +408,44 @@ promotionController
               : undefined,
           },
         });
+        if (body.books !== undefined && body.books.length > 0) {
+          await prisma.$transaction(async (ctx) => {
+            for (const bookId of body.books ?? []) {
+              const book = await ctx.book.findUnique({
+                where: {
+                  id: bookId,
+                },
+                select: {
+                  price: true,
+                  promotions: true
+                }
+              })
+              await ctx.book.update({
+                where: {
+                  id: bookId,
+                },
+                data: {
+                  currentPrice: handlePrice(book?.price ?? 0, await ctx.promotion.findMany({
+                    where: {
+                      isActive: true,
+                      books: {
+                        some: {
+                          id: bookId
+                        }
+                      },
+                      endDate: {
+                        gte: new Date()
+                      },
+                      startDate: {
+                        lte: new Date()
+                      }
+                    }
+                  }))
+                },
+              });
+            }
+          })
+        }
         return {
           msg: "Updated promotion successfully.",
         };
@@ -264,17 +467,77 @@ promotionController
       params: t.Object({
         id: t.String(),
       }),
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+        500: t.Object({
+          msg: t.String(),
+          error: t.String(),
+        }),
+      },
     }
   )
   .delete(
     ":id",
     async ({ params, prisma, set }) => {
       try {
-        await prisma.promotion.delete({
+        const book = await prisma.promotion.delete({
           where: {
             id: params.id,
           },
+          select: {
+            books: {
+              select: {
+                id: true,
+                price: true
+              }
+            }
+          }
         });
+
+        await prisma.$transaction(async (ctx) => {
+          for (let i = 0; i < book.books.length; i++) {
+            const { id: bookId, price } = book.books[i];
+
+
+            await ctx.book.update({
+              where: {
+                id: bookId,
+              },
+              data: {
+                currentPrice: handlePrice(price, await ctx.promotion.findMany({
+                  where: {
+                    isActive: true,
+                    books: {
+                      some: {
+                        id: bookId
+                      }
+                    },
+                    endDate: {
+                      gte: new Date()
+                    },
+                    startDate: {
+                      lte: new Date()
+                    }
+                  }
+                }))
+              },
+            });
+
+          }
+        })
+
         return { msg: "Deleted promotion successfully." };
       } catch (e) {
         console.log(e);
@@ -291,5 +554,24 @@ promotionController
       params: t.Object({
         id: t.String(),
       }),
+      response: {
+        200: t.Object({
+          msg: t.String(),
+        }),
+        404: t.Object({
+          msg: t.String(),
+        }),
+        400: t.Object({
+          msg: t.String(),
+        }),
+        422: t.Object({
+          msg: t.String(),
+          fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+        500: t.Object({
+          msg: t.String(),
+          error: t.String(),
+        }),
+      },
     }
   );

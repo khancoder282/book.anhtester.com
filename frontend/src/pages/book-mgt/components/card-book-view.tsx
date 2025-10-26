@@ -42,15 +42,14 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
             flexWrap: 'wrap',
           }}
         >
-          {book.promotions?.map((p) => (
+          {Array.from(new Set([...book.promotions.map((x) => x.type)])).map((p) => (
             <Label
-              key={p.id}
+              key={p}
               variant="filled"
-              color={MappingType[p.type].color}
-              startIcon={<Iconify icon={MappingType[p.type].icon} />}
-            >
-              Sale
-            </Label>
+              color={MappingType[p as keyof typeof MappingType]?.color}
+              startIcon={<Iconify icon={MappingType[p as keyof typeof MappingType]?.icon} />}
+              sx={{ textTransform: 'capitalize' }}
+            />
           ))}
           {book.createdAt && dayjs(book.createdAt) > dayjs().add(-7, 'day') && (
             <Label variant="filled" color="info" sx={{}}>

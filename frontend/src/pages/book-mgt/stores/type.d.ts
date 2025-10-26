@@ -39,7 +39,6 @@ type BookView = {
   promotions: PromotionType[];
   createdAt: string;
   updatedAt: string;
-  isFreeShipping: boolean;
   currentPrice: number;
   viewCount: number;
   auth: {

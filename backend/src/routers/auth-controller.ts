@@ -219,7 +219,7 @@ authController
 
       return {
         msg: "Refetch token successfully.",
-        assessToken: await jwt.sign({ id: user.userId }),
+        accessToken: await jwt.sign({ id: user.userId }),
         exp: Bun.env.EXPTOKEN || "30m",
       };
     },

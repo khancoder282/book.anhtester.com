@@ -1,8 +1,10 @@
+import dayjs from 'dayjs';
 import { useWatch, Controller, type Control } from 'react-hook-form';
 
 import { Box, Stack, Select, MenuItem, TextField, IconButton } from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
+import { DatePickerField } from 'src/components/fields/date-picker-field';
 
 import { TypeField, TypeFieldLabel } from '../config-type';
 
@@ -93,23 +95,35 @@ export function TableFilterItemView<T>({
         name={`fields.${index}.value`}
         defaultValue={type === 'enums' ? options[0] : ''}
         rules={{ required: true }}
-        render={({ field, fieldState: { invalid } }) => (
-          <TextField
-            size={size}
-            {...field}
-            label="Value"
-            fullWidth
-            error={invalid}
-            slotProps={{ inputLabel: { shrink: true } }}
-            select={type === 'enums'}
-          >
-            {options.map((o) => (
-              <MenuItem key={o} value={o}>
-                {o}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
+        render={({ field, fieldState: { invalid } }) =>
+          type === 'date' ? (
+            <DatePickerField
+              size={size}
+              error={invalid}
+              {...field}
+              label="Value"
+              value={dayjs(field.value || null)}
+              fullWidth
+              onChange={(v) => field.onChange(v?.toISOString())}
+            />
+          ) : (
+            <TextField
+              size={size}
+              {...field}
+              label="Value"
+              fullWidth
+              error={invalid}
+              slotProps={{ inputLabel: { shrink: true } }}
+              select={type === 'enums'}
+            >
+              {options.map((o) => (
+                <MenuItem key={o} value={o}>
+                  {o}
+                </MenuItem>
+              ))}
+            </TextField>
+          )
+        }
       />
     </Stack>
   );

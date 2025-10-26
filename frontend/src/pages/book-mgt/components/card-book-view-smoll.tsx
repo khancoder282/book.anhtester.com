@@ -42,6 +42,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
           right: (t) => t.spacing(1),
           width: 1,
           p: 1,
+          pl: 10,
           gap: 1,
           display: 'flex',
           position: 'absolute',
@@ -55,8 +56,9 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
             variant="filled"
             color={MappingType[p.type].color}
             startIcon={<Iconify icon={MappingType[p.type].icon} />}
+            sx={{textTransform: 'capitalize'}}
           >
-            Sale
+            {p.type.toLowerCase().replace('_', ' ')}
           </Label>
         ))}
         {book.createdAt && dayjs(book.createdAt) > dayjs().add(-7, 'day') && (

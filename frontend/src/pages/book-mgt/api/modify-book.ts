@@ -17,6 +17,7 @@ export const handleUpdateBook = async (idBook: string, book: BookForm) => {
             slug: book.slug,
             price: Number(book.price),
             pictures: paths,
+            promotions: book.promotions.map(x => x.id),
         })
     }
 

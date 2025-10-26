@@ -50,7 +50,15 @@ const routesSection: RouteObject[] = [
       {
         path: 'book-management/detail/:slug',
         Component: lazy(() => import('src/pages/book-mgt/detail')),
-      }
+      },
+      {
+        path: 'promotion-book-management',
+        Component: lazy(() => import('src/pages/promotions-mgt/page')),
+      },
+      {
+        path: 'promotion-book-management/handle',
+        Component: lazy(() => import('src/pages/promotions-mgt/handle')),
+      },
     ],
   },
   {

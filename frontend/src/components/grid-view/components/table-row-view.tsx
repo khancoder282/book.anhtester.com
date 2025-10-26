@@ -17,6 +17,7 @@ type TableRowViewProps<T> = {
     setSelected: (row: T[]) => void;
   };
   isStickyAction?: boolean;
+  keyName: keyof T;
 };
 
 export default function TableRowView<T>({
@@ -27,12 +28,14 @@ export default function TableRowView<T>({
   onClickRow,
   select,
   isStickyAction = false,
+  keyName,
 }: TableRowViewProps<T>) {
   const { setAnchorEl, setRow, setOpen } = usePopupAction();
   const isCheck = useMemo(
-    () => select?.selected?.some((item) => JSON.stringify(item) === JSON.stringify(row)),
-    [row, select?.selected]
+    () => select?.selected?.some((item) => item[keyName] === row[keyName]),
+    [keyName, row, select?.selected]
   );
+  
   const handleCheckbox = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
