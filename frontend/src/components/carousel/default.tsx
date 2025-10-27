@@ -47,7 +47,7 @@ export function CarouselDefault({
             <Box
               key={index}
               sx={{
-                flex: `0 0 ${size <= 1 ? `${size * 100}%` : `${size}px`}%`,
+                flex: `0 0 ${size <= 1 ? `${size * 100}` : `${size}`}%`,
                 minWidth: 0,
                 pl: spacing,
               }}

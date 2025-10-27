@@ -13,7 +13,7 @@ export const regis = new Elysia()
       documentation: {
         openapi: "3.0.0",
         info: {
-          title: "API Quản lý Sách",
+          title: "API Quản lý Sách AnhTester",
           description:
             "API toàn diện để quản lý sách, người dùng, tệp, danh mục và địa chỉ, được cung cấp bởi AnhTester[](https://anhtester.com).",
           version: "1.0.0",
@@ -22,6 +22,8 @@ export const regis = new Elysia()
             url: "https://anhtester.com",
             email: "thaian.it15@gmail.com"
           },
+          
+          
         },
         tags: [
           {
@@ -79,7 +81,7 @@ export const regis = new Elysia()
             description: "Máy chủ sản xuất"
           }
         ]
-      }
+      },
     })
   )
   .decorate("prisma", prisma)

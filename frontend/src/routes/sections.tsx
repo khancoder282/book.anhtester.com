@@ -1,7 +1,7 @@
 import type { RouteObject } from 'react-router';
 
 import { lazy, Suspense } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 import { CheckAuth } from './components/check-auth';
 import { renderFallback } from './components/fallback';
@@ -25,7 +25,7 @@ const routesSection: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Navigate to="/user-management" replace />,
+        Component: lazy(() => import('src/pages/home/page')),
       },
       {
         path: 'user-management',
@@ -61,8 +61,8 @@ const routesSection: RouteObject[] = [
       },
       {
         path: 'user-management/setting-account',
-        Component: lazy(()=> import('src/pages/user-mgt/setting'))
-      }
+        Component: lazy(() => import('src/pages/user-mgt/setting')),
+      },
     ],
   },
   {
