@@ -197,7 +197,7 @@ export default function Page() {
             >
               <Iconify icon="solar:document-add-bold" />
             </Box>
-            <Link component={RouterLink} href="/swagger">
+            <Link component="a" href="/swagger">
               <Typography variant="h6">Swagger API Documentation</Typography>
             </Link>
             <Typography variant="body2">
