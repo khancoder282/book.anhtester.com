@@ -94,13 +94,17 @@ new Elysia()
       hide: true
     }
   })
-  .post("/api/status", async ({ set, body: { code, msg } }) => {
+  .post("/api/status", async ({ set, body: { code, msg, time } }) => {
     set.status = code
+    if(time){
+      await new Promise((resolve) => setTimeout(resolve, time * 1000))
+    }
     return { msg }
   }, {
     body: t.Object({
       code: t.Number(),
-      msg: t.String()
+      msg: t.String(),
+      time: t.Optional(t.Number()),
     }),
     detail: {
       security: [],

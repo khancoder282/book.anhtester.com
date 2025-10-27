@@ -3,6 +3,7 @@ import type { IconifyName } from 'src/components/iconify';
 import api from 'axios';
 import dayjs from 'dayjs';
 import { varAlpha } from 'minimal-shared/utils';
+import { useForm, Controller } from 'react-hook-form';
 
 import {
   Box,
@@ -10,8 +11,13 @@ import {
   Link,
   Grid,
   Stack,
+  Slider,
+  Avatar,
+  Button,
   Divider,
+  MenuItem,
   CardMedia,
+  TextField,
   Typography,
   ButtonBase,
 } from '@mui/material';
@@ -99,22 +105,24 @@ const Icon: Record<number, IconifyName> = {
   3: 'eva:checkmark-fill',
   4: 'mingcute:close-line',
   5: 'mingcute:close-line',
+  6: 'solar:clock-circle-outline',
 };
 
 export default function Page() {
   const { data: books } = useRequest(() =>
     axios.get('/book').then((res) => res.data.list as BookView[])
   );
+  const form = useForm<{ time: number; code: number }>();
 
-  const handleAction = (item: { code: number; msg: string }) => () => {
-    api
-      .post('/api/status', { code: item.code, msg: item.msg })
-      .then((res) => {
-        toast.success(res.data.msg);
-      })
-      .catch((err) => {
-        toast.error(err.response.data.msg);
-      });
+  const handleAction = (item: { code: number; msg: string; time?: number }) => () => {
+    toast.loading(
+      () => api.post('/api/status', { code: item.code, msg: item.msg, time: item.time }),
+      {
+        loading: 'Loading ...',
+        success: (t) => t.data.msg,
+        error: (t) => t.response.data.msg,
+      }
+    );
   };
 
   return (
@@ -262,7 +270,7 @@ export default function Page() {
                         borderRadius: 4,
                         color: 'white',
                         boxShadow: 8,
-                        mb: 2
+                        mb: 2,
                       }}
                     >
                       <Iconify
@@ -280,6 +288,69 @@ export default function Page() {
             </Grid>
           ))}
         </Grid>
+        <Card
+          component="form"
+          noValidate
+          sx={{ overflow: 'visible' }}
+          onSubmit={form.handleSubmit((data) =>
+            handleAction({
+              time: data.time,
+              code: Number(data.code),
+              msg: status.find((item) => item.code === Number(data.code))?.msg ?? '',
+            })()
+          )}
+        >
+          <Stack p={3} px={5} spacing={3}>
+            <Stack direction="row" alignItems="center" gap={2}>
+              <Typography>Timeout</Typography>
+              <Controller
+                control={form.control}
+                name="time"
+                defaultValue={1}
+                render={({ field }) => (
+                  <Slider
+                    valueLabelDisplay="auto"
+                    sx={{ height: 12 }}
+                    min={0}
+                    max={20}
+                    step={1}
+                    {...field}
+                  />
+                )}
+              />
+            </Stack>
+            <TextField
+              select
+              sx={{
+                '& .MuiSelect-select': {
+                  display: 'flex',
+                },
+              }}
+              defaultValue={200}
+              {...form.register('code')}
+            >
+              {status.map((option) => (
+                <MenuItem key={option.code} value={option.code}>
+                  <Avatar
+                    sx={{ bgcolor: option.color, color: 'white', mr: 1, width: 24, height: 24 }}
+                  >
+                    <Iconify width={16} icon={Icon[parseInt((option.code / 100).toFixed(0), 10)]} />
+                  </Avatar>
+                  {option.msg}
+                </MenuItem>
+              ))}
+            </TextField>
+            <Button
+              type="submit"
+              size="large"
+              color="inherit"
+              variant="contained"
+              sx={{ alignSelf: 'flex-end' }}
+            >
+              Submit
+            </Button>
+          </Stack>
+        </Card>
       </Stack>
     </DashboardContent>
   );
