@@ -1,3 +1,5 @@
+import type { IconifyName } from 'src/components/iconify';
+
 import api from 'axios';
 import dayjs from 'dayjs';
 import { varAlpha } from 'minimal-shared/utils';
@@ -91,6 +93,13 @@ const status = [
   { code: 510, msg: 'Not Extended', color: '#F44336' },
   { code: 511, msg: 'Network Authentication Required', color: '#F44336' },
 ];
+
+const Icon: Record<number, IconifyName> = {
+  2: 'eva:checkmark-fill',
+  3: 'eva:checkmark-fill',
+  4: 'mingcute:close-line',
+  5: 'mingcute:close-line',
+};
 
 export default function Page() {
   const { data: books } = useRequest(() =>
@@ -242,6 +251,25 @@ export default function Page() {
               <Card id={`status-${item.code}`}>
                 <ButtonBase sx={{ py: 4, width: 1 }} onClick={handleAction(item)}>
                   <Stack alignItems="center">
+                    <Box
+                      sx={{
+                        height: 36,
+                        width: 36,
+                        bgcolor: item.color,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderRadius: 4,
+                        color: 'white',
+                        boxShadow: 8,
+                        mb: 2
+                      }}
+                    >
+                      <Iconify
+                        width={0.6}
+                        icon={Icon[parseInt((item.code / 100).toFixed(0), 10)]}
+                      />
+                    </Box>
                     <Typography variant="h4" sx={{ color: item.color }}>
                       {item.code}
                     </Typography>
