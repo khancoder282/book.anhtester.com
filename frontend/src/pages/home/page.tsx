@@ -312,7 +312,7 @@ export default function Page() {
                     valueLabelDisplay="auto"
                     sx={{ height: 12 }}
                     min={0}
-                    max={20}
+                    max={10}
                     step={1}
                     {...field}
                   />
