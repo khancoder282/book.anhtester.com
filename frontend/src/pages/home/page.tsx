@@ -336,7 +336,7 @@ export default function Page() {
                   >
                     <Iconify width={16} icon={Icon[parseInt((option.code / 100).toFixed(0), 10)]} />
                   </Avatar>
-                  {option.msg}
+                  <strong>{option.code}</strong> - {option.msg}
                 </MenuItem>
               ))}
             </TextField>
