@@ -104,6 +104,8 @@ new Elysia()
     }),
     detail: {
       security: [],
+      description: "Set status code.",
+      tags: ["System"]
     }
   })
   .listen(Bun.env.PORT || 4544, () => {
