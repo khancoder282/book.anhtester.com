@@ -264,7 +264,7 @@ userController
         await prisma.$transaction(async (ctx) => {
           if (body.password) {
             body.password = await Bun.password.hash(body.password);
-          }
+          }else body.password = undefined
           await ctx.user.update({
             where: {
               id: params.id,
