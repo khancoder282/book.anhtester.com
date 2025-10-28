@@ -62,7 +62,7 @@ function action(
             borderRadius: 1,
             p: 0.5,
             gap: 1,
-            boxShadow: (t) => t.customShadows.z24,
+            boxShadow: (t) => t.vars.customShadows.z24,
             minWidth: 300,
           }}
         >

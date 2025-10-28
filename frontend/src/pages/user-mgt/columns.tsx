@@ -25,7 +25,7 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
                 width: 18,
                 height: 18,
                 bgcolor: isActive ? 'success.main' : 'error.main',
-                boxShadow: 10,
+                boxShadow: t=>t.customShadows.z8,
               }}
             >
               <Iconify

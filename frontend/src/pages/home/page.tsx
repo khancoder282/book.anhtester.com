@@ -269,7 +269,7 @@ export default function Page() {
                         alignItems: 'center',
                         borderRadius: 4,
                         color: 'white',
-                        boxShadow: 8,
+                        boxShadow: t=>t.vars.customShadows.z8,
                         mb: 2,
                       }}
                     >
