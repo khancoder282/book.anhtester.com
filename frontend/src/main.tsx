@@ -1,7 +1,10 @@
 import { createRoot } from 'react-dom/client';
 import { Outlet, RouterProvider, createBrowserRouter } from 'react-router';
 
-import App from './app';
+// import App from './app';
+const App = lazy(() => import('./app'));
+import { lazy } from 'react';
+
 import routesSection from './routes/sections';
 import { ErrorBoundary } from './routes/components';
 

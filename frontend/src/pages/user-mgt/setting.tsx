@@ -20,7 +20,6 @@ import {
 import { RouterLink } from 'src/routes/components';
 import { useAuthCheck } from 'src/routes/hooks/use-auth-check';
 
-// eslint-disable-next-line import/no-unresolved
 import { useThemeData, generateColorPalette } from 'src/hooks/use-theme-data';
 
 import { axios } from 'src/api/axios';

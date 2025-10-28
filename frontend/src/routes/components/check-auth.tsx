@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 
 import { useColorScheme } from '@mui/material';
 
-// eslint-disable-next-line import/no-unresolved
 import { useThemeData } from 'src/hooks/use-theme-data';
 
 import { axios } from 'src/api/axios';

@@ -66,10 +66,6 @@ const routesSection: RouteObject[] = [
     ],
   },
   {
-    path: 'test',
-    Component: lazy(() => import('src/pages/test')),
-  },
-  {
     path: 'sign-up',
     Component: lazy(() => import('src/pages/user-mgt/sign-up')),
   },
