@@ -308,7 +308,10 @@ export default function FileContentView({
             <Button
               color="inherit"
               sx={{ minWidth: 'unset', borderRadius: 0.9 }}
-              onClick={() => setPath(rootPath)}
+              onClick={() => {
+                setPath(rootPath);
+                setSearch('');
+              }}
             >
               <Iconify icon="solar:home-2-bold" />
             </Button>

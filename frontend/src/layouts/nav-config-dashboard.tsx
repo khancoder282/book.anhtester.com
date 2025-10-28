@@ -23,7 +23,7 @@ export const navData = [
     icon: icon('ic-user'),
   },
   {
-    title: 'Books',
+    title: 'Book',
     path: '/book-management',
     icon: icon('ic-book'),
   },
@@ -33,7 +33,7 @@ export const navData = [
     icon: icon('ic-sale'),
   },
   {
-    title: 'File management',
+    title: 'File',
     path: '/file-management',
     icon: icon('ic-dir'),
   },

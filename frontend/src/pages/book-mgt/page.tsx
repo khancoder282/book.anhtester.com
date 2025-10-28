@@ -108,7 +108,7 @@ export function BookView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Book
+          Book Management
         </Typography>
         {auth && (
           <Button

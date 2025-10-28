@@ -64,7 +64,7 @@ export default function Page() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Promotion
+          Promotion Management
         </Typography>
         {auth && (
           <Button

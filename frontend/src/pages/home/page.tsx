@@ -1,6 +1,7 @@
 import type { IconifyName } from 'src/components/iconify';
 
 import api from 'axios';
+import { useState, useEffect } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
 import { useForm, Controller } from 'react-hook-form';
 
@@ -8,16 +9,14 @@ import {
   Box,
   Card,
   Link,
-  Grid,
   Stack,
   Slider,
   Avatar,
   Button,
-  Divider,
-  MenuItem,
   TextField,
   Typography,
-  ButtonBase,
+  CardContent,
+  Autocomplete,
 } from '@mui/material';
 
 import { RouterLink } from 'src/routes/components';
@@ -29,6 +28,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/toast';
 import { Iconify } from 'src/components/iconify';
+import { LabelBorder } from 'src/components/label/label-border';
 
 const status = [
   { code: 200, msg: 'OK', color: '#4CAF50' }, // Xanh lá (Thành công)
@@ -106,10 +106,15 @@ const Icon: Record<number, IconifyName> = {
 export default function Page() {
   const { auth } = useAuth();
   const form = useForm<{ time: number; code: number }>();
-
+  const [logs, setLogs] = useState<string[]>([]);
   const handleAction = (item: { code: number; msg: string; time?: number }) => () => {
     toast.loading(
-      () => api.post('/api/status', { code: item.code, msg: item.msg, time: item.time }),
+      () =>
+        api.post(`${import.meta.env.VITE_API_URL}/api/status`, {
+          code: item.code,
+          msg: item.msg,
+          time: item.time,
+        }),
       {
         loading: 'Loading ...',
         success: (t) => t.data.msg,
@@ -118,9 +123,21 @@ export default function Page() {
     );
   };
 
+  useEffect(() => {
+    const ws = new WebSocket(`${import.meta.env.VITE_API_URL}/ws`);
+    ws.onopen = () => {
+      ws.onmessage = ({ data }) => {
+        setLogs((prev) => [...prev, data]);
+      };
+    };
+    return () => ws.close();
+  }, []);
+
+  console.log(logs);
+
   return (
     <DashboardContent>
-      <Stack spacing={2}>
+      <Stack spacing={3}>
         <Card>
           <Box
             component="img"
@@ -228,54 +245,11 @@ export default function Page() {
             </Typography>
           </Card>
         </Box>
-        <Divider textAlign="left" sx={{ color: 'text.secondary' }}>
-          List status text
-        </Divider>
-        <Grid
-          container
-          spacing={2}
-          columns={{
-            xs: 1,
-            sm: 2,
-            md: 3,
-            lg: 4,
-            xl: 5,
-          }}
-        >
-          {status.map((item, index) => (
-            <Grid size={1} key={index}>
-              <Card id={`status-${item.code}`}>
-                <ButtonBase sx={{ py: 4, width: 1 }} onClick={handleAction(item)}>
-                  <Stack alignItems="center">
-                    <Box
-                      sx={{
-                        height: 36,
-                        width: 36,
-                        bgcolor: item.color,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        borderRadius: 4,
-                        color: 'white',
-                        boxShadow: (t) => t.vars.customShadows.z8,
-                        mb: 2,
-                      }}
-                    >
-                      <Iconify
-                        width={0.6}
-                        icon={Icon[parseInt((item.code / 100).toFixed(0), 10)]}
-                      />
-                    </Box>
-                    <Typography variant="h4" sx={{ color: item.color }}>
-                      {item.code}
-                    </Typography>
-                    <Typography variant="body2">{item.msg}</Typography>
-                  </Stack>
-                </ButtonBase>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+
+        <Card>
+          <CardContent />
+        </Card>
+
         <Card
           component="form"
           noValidate
@@ -288,6 +262,7 @@ export default function Page() {
             })()
           )}
         >
+          <LabelBorder>Test message server</LabelBorder>
           <Stack p={3} spacing={3}>
             <Stack direction="row" alignItems="center" gap={2}>
               <Typography>Timeout</Typography>
@@ -307,27 +282,35 @@ export default function Page() {
                 )}
               />
             </Stack>
-            <TextField
-              select
-              sx={{
-                '& .MuiSelect-select': {
-                  display: 'flex',
-                },
-              }}
+            <Controller
+              control={form.control}
+              name="code"
               defaultValue={200}
-              {...form.register('code')}
-            >
-              {status.map((option) => (
-                <MenuItem key={option.code} value={option.code}>
-                  <Avatar
-                    sx={{ bgcolor: option.color, color: 'white', mr: 1, width: 24, height: 24 }}
-                  >
-                    <Iconify width={16} icon={Icon[parseInt((option.code / 100).toFixed(0), 10)]} />
-                  </Avatar>
-                  <strong style={{ marginRight: '0.5rem' }}>{option.code}</strong> {option.msg}
-                </MenuItem>
-              ))}
-            </TextField>
+              render={({ field }) => (
+                <Autocomplete
+                  options={status}
+                  getOptionLabel={(option) => `${option.code} - ${option.msg}`}
+                  value={status.find((s) => s.code === field.value) || null}
+                  onChange={(_, newValue) => field.onChange(newValue?.code ?? '')}
+                  renderOption={(props, option) => (
+                    <li {...props}>
+                      <Avatar
+                        sx={{ bgcolor: option.color, color: 'white', mr: 1, width: 24, height: 24 }}
+                      >
+                        <Iconify
+                          width={16}
+                          icon={Icon[parseInt((option.code / 100).toFixed(0), 10)]}
+                        />
+                      </Avatar>
+                      <strong style={{ marginRight: '0.5rem' }}>{option.code}</strong> {option.msg}
+                    </li>
+                  )}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Status Code" variant="outlined" />
+                  )}
+                />
+              )}
+            />
             <Button type="submit" size="large" variant="contained" sx={{ alignSelf: 'flex-end' }}>
               Submit
             </Button>
