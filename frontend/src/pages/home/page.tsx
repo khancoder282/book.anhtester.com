@@ -22,12 +22,13 @@ import {
 
 import { RouterLink } from 'src/routes/components';
 
+import { formatFilePath } from 'src/utils/format-filepath';
+
 import { useAuth } from 'src/store/auth';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/toast';
 import { Iconify } from 'src/components/iconify';
-import { formatFilePath } from 'src/utils/format-filepath';
 
 const status = [
   { code: 200, msg: 'OK', color: '#4CAF50' }, // Xanh lá (Thành công)
@@ -188,7 +189,10 @@ export default function Page() {
             }}
           >
             {auth ? (
-              <Avatar sx={{ width: 52, height: 52, borderRadius: 1.75 }} src={formatFilePath(auth?.avatarUrl)} />
+              <Avatar
+                sx={{ width: 52, height: 52, borderRadius: 1.75 }}
+                src={formatFilePath(auth?.avatarUrl)}
+              />
             ) : (
               <Box
                 sx={{
