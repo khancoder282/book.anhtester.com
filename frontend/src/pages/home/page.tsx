@@ -213,7 +213,7 @@ export default function Page() {
             </Link>
             <Typography variant="body2" color="textSecondary">
               {auth
-                ? 'Bạn có thể quản lý thêm xóa sửa người dùng, sách và file.'
+                ? 'Bạn có thể quản lý thêm xóa sửa người dùng, sách và file. Cài đặt cá nhân hóa trang quản lý đổi màu và chế độ dark mode, light mode.'
                 : 'Đăng nhập vào trang quản lý sách, bao gồm tạo, cập nhật và xóa sách, tài liệu, người dùng, tệp.'}
             </Typography>
           </Card>
