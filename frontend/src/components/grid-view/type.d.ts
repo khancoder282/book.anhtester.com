@@ -1,3 +1,5 @@
+
+
 type Columns<T> = {
   label: string;
   sort?: keyof T;
@@ -10,7 +12,7 @@ type Fields = {
   mode: 'AND' | 'OR';
   fields: {
     key: string;
-    value: string;
+    value: string | Dayjs;
     operator: string;
   }[];
   _isFilter: boolean;
@@ -18,14 +20,14 @@ type Fields = {
 
 type FieldType<T> =
   | {
-      name: keyof T;
-      label: string;
-      type: 'string' | 'number' | 'date' | 'boolean';
-      options?: never;
-    }
+    name: keyof T;
+    label: string;
+    type: 'string' | 'number' | 'date' | 'boolean';
+    options?: never;
+  }
   | {
-      name: keyof T;
-      label: string;
-      type: 'enums';
-      options: string[];
-    };
+    name: keyof T;
+    label: string;
+    type: 'enums';
+    options: string[];
+  };

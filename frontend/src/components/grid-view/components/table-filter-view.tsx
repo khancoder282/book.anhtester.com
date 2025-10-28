@@ -41,6 +41,7 @@ export function TableFilterView<T>({
   const {
     control,
     reset,
+    setValue,
     formState: { isValid },
   } = useForm<Fields>({
     formControl: formControl.formControl,
@@ -143,6 +144,7 @@ export function TableFilterView<T>({
                 control={control}
                 index={index}
                 fields={fields}
+                setValue={setValue}
                 remove={
                   fieldsControl.length === 1
                     ? () => {

@@ -297,8 +297,8 @@ const MuiTextField: Components<Theme>['MuiTextField'] = {
   },
 };
 
-const IconSelect = ({ style, sx }: { style?: CSSProperties; sx?: Sx }) => (
-  <Iconify sx={sx} style={style} icon="eva:arrow-ios-downward-fill" />
+const IconSelect = (p: { style?: CSSProperties; sx?: Sx; className?: string }) => (
+  <Iconify {...p} icon="eva:arrow-ios-downward-fill" />
 );
 
 const MuiAutocomplete: Components<Theme>['MuiAutocomplete'] = {
