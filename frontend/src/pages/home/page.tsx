@@ -124,7 +124,19 @@ export default function Page() {
     <DashboardContent>
       <Stack spacing={2}>
         <Card>
-          <Box component="img" src="/assets/thumb.webp" />
+          <Box
+            component="img"
+            alt="Free API for Testing"
+            src="/assets/Free-API-for-Testing.png"
+            srcSet="/assets/thumb.webp 1x, /assets/Free-API-for-Testing.png 2x"
+            sx={{
+              width: 1,
+              border: 'none',
+              aspectRatio: '1200/628',
+              objectFit: 'cover',
+              borderRadius: 2,
+            }}
+          />
         </Card>
         <Box
           display="flex"
