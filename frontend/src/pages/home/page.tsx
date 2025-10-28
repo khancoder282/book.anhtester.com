@@ -186,22 +186,27 @@ export default function Page() {
                 `linear-gradient(30deg, ${varAlpha(t.vars.palette.info.mainChannel, 0.1)} 0%, rgba(0, 0, 0, 0) 60%, ${varAlpha(t.vars.palette.secondary.mainChannel, 0.1)} 100%)`,
             }}
           >
-            <Box
-              sx={{
-                bgcolor: (t) => varAlpha(t.vars.palette.info.mainChannel, 0.2),
-                alignSelf: 'start',
-                p: 2,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: 2,
-                color: 'info.main',
-              }}
-            >
-              <Iconify icon="solar:user-plus-bold" />
-            </Box>
+            {auth ? (
+              <Avatar sx={{ width: 52, height: 52, borderRadius: 1.75 }} src={auth?.avatarUrl} />
+            ) : (
+              <Box
+                sx={{
+                  bgcolor: (t) => varAlpha(t.vars.palette.info.mainChannel, 0.2),
+                  alignSelf: 'start',
+                  p: 2,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 1.75,
+                  color: 'info.main',
+                }}
+              >
+                <Iconify icon="solar:user-plus-bold" />
+              </Box>
+            )}
             <Link
               color="info"
+              underline={!auth ? 'hover' : 'none'}
               {...(!auth && {
                 component: RouterLink,
                 href: '/sign-in',
