@@ -202,7 +202,7 @@ export default function Page() {
             </Box>
             <Link
               color="info"
-              {...(auth && {
+              {...(!auth && {
                 component: RouterLink,
                 href: '/sign-in',
               })}
