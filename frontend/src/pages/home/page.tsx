@@ -300,7 +300,7 @@ export default function Page() {
             })()
           )}
         >
-          <Stack p={3} px={5} spacing={3}>
+          <Stack p={3} spacing={3}>
             <Stack direction="row" alignItems="center" gap={2}>
               <Typography>Timeout</Typography>
               <Controller
@@ -343,7 +343,6 @@ export default function Page() {
             <Button
               type="submit"
               size="large"
-              color="inherit"
               variant="contained"
               sx={{ alignSelf: 'flex-end' }}
             >

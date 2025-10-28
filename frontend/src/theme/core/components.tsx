@@ -26,10 +26,10 @@ const MuiButton: Components<Theme>['MuiButton'] = {
   styleOverrides: {
     containedInherit: ({ theme }) => ({
       color: theme.vars.palette.common.white,
-      backgroundColor: theme.vars.palette.grey[900],
+      backgroundColor: theme.vars.palette.grey[800],
       '&:hover': {
         color: theme.vars.palette.common.white,
-        backgroundColor: theme.vars.palette.grey[900],
+        backgroundColor: theme.vars.palette.grey[800],
       },
     }),
     sizeLarge: {
