@@ -5,7 +5,7 @@ import { PrismaClientKnownRequestError } from "../prisma/runtime/library";
 import { auth } from "../plugins/auth";
 
 const userController = new Elysia({
-  tags: ["Quản lý Người dùng"],
+  tags: ["User Management"],
   prefix: "user",
 }) as unknown as AppMain;
 
@@ -14,6 +14,9 @@ export default userController;
 // ***************************************************************************
 
 userController
+  // ==========================================
+  // GET /user
+  // ==========================================
   .get(
     "",
     async ({ query, prisma, set }) => {
@@ -33,8 +36,8 @@ userController
                 [sort]: sortBy,
               },
               {
-                updatedAt: 'desc'
-              }
+                updatedAt: "desc",
+              },
             ],
             skip: (page - 1) * limit,
             take: limit,
@@ -108,7 +111,6 @@ userController
         500: t.Object({
           msg: t.String(),
         }),
-
       },
       query: t.Partial(
         t.Object({
@@ -134,10 +136,15 @@ userController
         })
       ),
       detail: {
+        description: "Get a paginated list of users with optional filters and sorting",
         security: [],
       },
     }
   )
+
+  // ==========================================
+  // GET /user/:id
+  // ==========================================
   .get(
     "/:id",
     async ({ params, prisma, set }) => {
@@ -187,10 +194,15 @@ userController
         }),
       },
       detail: {
+        description: "Get detailed information of a specific user by ID",
         security: [],
       },
     }
   )
+
+  // ==========================================
+  // POST /user
+  // ==========================================
   .use(auth)
   .post(
     "",
@@ -218,7 +230,7 @@ userController
             msg: "Email already exists.",
             fields: {
               email: ["Email already exists."],
-            }
+            },
           };
         }
         return {
@@ -253,10 +265,14 @@ userController
         isActive: t.Optional(t.Boolean()),
       }),
       detail: {
-        description: "Tạo người dùng mới",
+        description: "Create a new user",
       },
     }
   )
+
+  // ==========================================
+  // PATCH /user/:id
+  // ==========================================
   .patch(
     "/:id",
     async ({ params, body, prisma, set }) => {
@@ -264,7 +280,7 @@ userController
         await prisma.$transaction(async (ctx) => {
           if (body.password) {
             body.password = await Bun.password.hash(body.password);
-          }else body.password = undefined
+          } else body.password = undefined;
           await ctx.user.update({
             where: {
               id: params.id,
@@ -294,7 +310,7 @@ userController
             msg: "Email already exists.",
             fields: {
               email: ["Email already exists."],
-            }
+            },
           };
         }
         if (e.code === "P2025") {
@@ -339,8 +355,15 @@ userController
           isActive: t.Optional(t.Boolean()),
         })
       ),
+      detail: {
+        description: "Update user information by ID and revoke old refresh tokens",
+      },
     }
   )
+
+  // ==========================================
+  // DELETE /user/:id
+  // ==========================================
   .delete(
     "/:id",
     async ({ params, prisma, set }) => {
@@ -390,10 +413,13 @@ userController
         422: t.Object({
           msg: t.String(),
           fields: t.Record(t.String(), t.Array(t.String())),
-        })
+        }),
       },
       params: t.Object({
         id: t.String(),
       }),
+      detail: {
+        description: "Delete a user by ID and remove all related refresh tokens",
+      },
     }
   );
