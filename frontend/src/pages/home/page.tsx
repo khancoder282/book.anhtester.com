@@ -1,7 +1,6 @@
 import type { IconifyName } from 'src/components/iconify';
 
 import api from 'axios';
-import { useState, useEffect } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
 import { useForm, Controller } from 'react-hook-form';
 
@@ -9,25 +8,30 @@ import {
   Box,
   Card,
   Link,
+  Grid,
   Stack,
   Slider,
   Avatar,
   Button,
   TextField,
   Typography,
-  CardContent,
+  CardHeader,
   Autocomplete,
 } from '@mui/material';
 
 import { RouterLink } from 'src/routes/components';
 
+import { useRequest } from 'src/hooks/use-request';
+
 import { formatFilePath } from 'src/utils/format-filepath';
 
+import { axios } from 'src/api/axios';
 import { useAuth } from 'src/store/auth';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/toast';
 import { Iconify } from 'src/components/iconify';
+import { SvgColor } from 'src/components/svg-color';
 import { LabelBorder } from 'src/components/label/label-border';
 
 const status = [
@@ -103,10 +107,70 @@ const Icon: Record<number, IconifyName> = {
   6: 'solar:clock-circle-outline',
 };
 
+const ViewCard = ({
+  title,
+  total: totalBook,
+  unit,
+  icon,
+  color,
+}: {
+  title: string;
+  total: number;
+  unit: string;
+  icon: string;
+  color: 'success' | 'warning' | 'error' | 'info' | 'primary' | 'secondary';
+}) => (
+  <Card>
+    <CardHeader
+      title={title}
+      subheader={`total: ${totalBook} ${unit}`}
+      sx={{
+        pb: 3,
+        color: `${color}.main`,
+        background: (t) =>
+          `linear-gradient(30deg, ${varAlpha(t.vars.palette[color].mainChannel, 0.3)} 0%, rgba(0, 0, 0, 0) 60%)`,
+      }}
+    />
+    <SvgColor
+      src={`/assets/icons/navbar/${icon}.svg`}
+      sx={{
+        position: 'absolute',
+        top: (t) => t.spacing(1),
+        right: 0,
+        transform: 'translateX(20%)',
+        height: 80,
+        width: 80,
+        color: `${color}.main`,
+      }}
+    />
+  </Card>
+);
+
 export default function Page() {
   const { auth } = useAuth();
   const form = useForm<{ time: number; code: number }>();
-  const [logs, setLogs] = useState<string[]>([]);
+
+  const { data: totalUser = 0 } = useRequest(
+    async () =>
+      await axios.get('/user', { params: { limit: 1 } }).then((e) => e.data.pagination.total)
+  );
+
+  const { data: totalBook = 0 } = useRequest(
+    async () =>
+      await axios.get('/book', { params: { limit: 1 } }).then((e) => e.data.pagination.total)
+  );
+
+  const { data: totalPromotion = 0 } = useRequest(
+    async () =>
+      await axios
+        .get('/promotion-book', { params: { limit: 1 } })
+        .then((e) => e.data.pagination.total)
+  );
+
+  const { data: totalCategory = 0 } = useRequest(
+    async () => await axios.get('/category-book').then((e) => e.data.pagination.total)
+  );
+
   const handleAction = (item: { code: number; msg: string; time?: number }) => () => {
     toast.loading(
       () =>
@@ -122,18 +186,6 @@ export default function Page() {
       }
     );
   };
-
-  useEffect(() => {
-    const ws = new WebSocket(`${import.meta.env.VITE_API_URL}/ws`);
-    ws.onopen = () => {
-      ws.onmessage = ({ data }) => {
-        setLogs((prev) => [...prev, data]);
-      };
-    };
-    return () => ws.close();
-  }, []);
-
-  console.log(logs);
 
   return (
     <DashboardContent>
@@ -246,9 +298,40 @@ export default function Page() {
           </Card>
         </Box>
 
-        <Card>
-          <CardContent />
-        </Card>
+        <Grid container spacing={3} columns={{ xs: 1, sm: 2, md: 4 }}>
+          <Grid size={1}>
+            <ViewCard total={totalUser} title="User mgt" unit="users" icon="ic-user" color="info" />
+          </Grid>
+
+          <Grid size={1}>
+            <ViewCard
+              total={totalBook}
+              title="Book mgt"
+              unit="books"
+              icon="ic-book"
+              color="success"
+            />
+          </Grid>
+
+          <Grid size={1}>
+            <ViewCard
+              total={totalCategory}
+              title="Category mgt"
+              unit="categories"
+              icon="ic-blog"
+              color="error"
+            />
+          </Grid>
+          <Grid size={1}>
+            <ViewCard
+              total={totalPromotion}
+              title="Promotion mgt"
+              unit="promotions"
+              icon="ic-sale"
+              color="warning"
+            />
+          </Grid>
+        </Grid>
 
         <Card
           component="form"

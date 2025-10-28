@@ -18,7 +18,12 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
   const navigate = useNavigate();
   return (
     <Card>
-      <Box position="relative">
+      <Box
+        id={`img-book-${book.id}`}
+        component={RouterLink}
+        href={`/book-management/detail/${book.slug}`}
+        position="relative"
+      >
         <CardMedia
           component="img"
           loading="lazy"

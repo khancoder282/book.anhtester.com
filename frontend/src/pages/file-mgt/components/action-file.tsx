@@ -37,6 +37,12 @@ export const ActionFile = ({
                 defaultValue: row.name,
                 rules: {
                   required: 'New name is required',
+                  pattern: {
+                    value:
+                      /^[a-zA-Z0-9àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđĐ._\-\s]+$/u,
+                    message:
+                      'Name must not contain special characters ? / \\ : * " < > | $ # @ ! % ^ & ( ) [ ] { } + = ; , ~',
+                  },
                   validate: {
                     nameExist: (val) =>
                       !listFile.some((f) => f.name === val && f.path !== row.path) ||
@@ -83,6 +89,12 @@ export const ActionFile = ({
                 type: 'custom',
                 defaultValue: row.path,
                 rules: {
+                  pattern: {
+                    value:
+                      /^[a-zA-Z0-9àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđĐ._\-\s]+$/u,
+                    message:
+                      'Name must not contain special characters ? / \\ : * " < > | $ # @ ! % ^ & ( ) [ ] { } + = ; , ~',
+                  },
                   validate: {
                     notMove: (v) => v !== row.path || 'New path must be different.',
                   },
@@ -149,6 +161,12 @@ export const ActionFile = ({
                 type: 'custom',
                 defaultValue: row.path,
                 rules: {
+                  pattern: {
+                    value:
+                      /^[a-zA-Z0-9àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđĐ._\-\s]+$/u,
+                    message:
+                      'Name must not contain special characters ? / \\ : * " < > | $ # @ ! % ^ & ( ) [ ] { } + = ; , ~',
+                  },
                   validate: {
                     notMove: (v) => v !== row.path || 'New path must be different.',
                     notStartOld: (v) =>

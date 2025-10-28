@@ -162,7 +162,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
             ))}
         </Tabs>
         {auth && (
-          <IconButton onClick={() => setOpen(true)} sx={{ ml: 'auto' }}>
+          <IconButton id="setting-category" onClick={() => setOpen(true)} sx={{ ml: 'auto' }}>
             <Iconify icon="solar:settings-bold-duotone" />
           </IconButton>
         )}

@@ -16,7 +16,12 @@ import { CarouselDefault } from 'src/components/carousel/default';
 
 export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?: boolean }) {
   return (
-    <Card sx={{ height: 390, position: 'relative' }}>
+    <Card
+      id={`book-${book.id}`}
+      component={RouterLink}
+      href={`/book-management/detail/${book.slug}`}
+      sx={{ height: 390, position: 'relative' }}
+    >
       <CarouselDefault
         plugin={[Autoplay({ delay: 5000, playOnInit: true })]}
         sx={{ height: 1, minHeight: 320 }}
@@ -56,7 +61,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
             variant="filled"
             color={MappingType[p.type].color}
             startIcon={<Iconify icon={MappingType[p.type].icon} />}
-            sx={{textTransform: 'capitalize'}}
+            sx={{ textTransform: 'capitalize' }}
           >
             {p.type.toLowerCase().replace('_', ' ')}
           </Label>
@@ -91,12 +96,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
         <Typography variant="caption" color="white" sx={{ opacity: 0.48 }}>
           {dayjs(book.createdAt).format('DD MMM YYYY')}
         </Typography>
-        <Link
-          id={`book-${book.id}`}
-          component={RouterLink}
-          href={`/book-management/detail/${book.slug}`}
-          color="white"
-        >
+        <Link color="white">
           <Typography
             variant={isFirst ? 'h6' : 'subtitle2'}
             sx={{

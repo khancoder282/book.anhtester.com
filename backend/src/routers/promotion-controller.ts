@@ -46,7 +46,7 @@ promotionController
       const {
         limit = 10,
         page = 1,
-        search,
+        search = "",
         sort = "updatedAt",
         sortBy = "desc",
       } = query;
@@ -133,7 +133,7 @@ promotionController
             default: 1,
             minimum: 1,
           }),
-          search: t.String(),
+          search: t.Optional(t.String()),
           sort: t.UnionEnum(
             [
               "code",

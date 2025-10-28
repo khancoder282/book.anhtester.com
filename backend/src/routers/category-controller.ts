@@ -29,6 +29,9 @@ categoryController
         name: c.name,
         bookCount: c._count.books,
       })),
+      pagination: {
+        total: categories.length,
+      },
     };
   }, {
     response: {
@@ -37,6 +40,9 @@ categoryController
           name: t.String(),
           bookCount: t.Number(),
         })),
+        pagination: t.Object({
+          total: t.Number(),
+        }),
       })
     },
     detail: {
