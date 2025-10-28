@@ -22,9 +22,7 @@ import {
 
 import { RouterLink } from 'src/routes/components';
 
-import { useRequest } from 'src/hooks/use-request';
-
-import { axios } from 'src/api/axios';
+import { useAuth } from 'src/store/auth';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/toast';
@@ -104,9 +102,7 @@ const Icon: Record<number, IconifyName> = {
 };
 
 export default function Page() {
-  const { data: books } = useRequest(() =>
-    axios.get('/book').then((res) => res.data.list as BookView[])
-  );
+  const { auth } = useAuth();
   const form = useForm<{ time: number; code: number }>();
 
   const handleAction = (item: { code: number; msg: string; time?: number }) => () => {
@@ -174,11 +170,10 @@ export default function Page() {
             <Link component="a" href="/swagger">
               <Typography variant="h6">Swagger API Documentation</Typography>
             </Link>
-            <Typography variant="body2">
-              Đây là tài liệu hướng dẫn chi tiết sử dụng các API đang có trong hệ thống của chúng
-              tôi. Bạn có thể tìm hiểu về cách gọi, tham số, định dạng trả về và ví dụ minh họa cho
-              mỗi API. Tài liệu này được cập nhật thường xuyên để phản ánh những thay đổi và cải
-              tiến của hệ thống.
+            <Typography variant="body2" color="textSecondary">
+              Hệ thống Book Management gồm API RESTful và UI được Anh Tester xây dựng dành cho việc
+              thực hành kiểm thử API và UI. Phù hợp cho người mới học và các tester automation muốn
+              luyện tập, kiểm thử và hoàn toàn miễn phí.
             </Typography>
           </Card>
 
@@ -205,12 +200,21 @@ export default function Page() {
             >
               <Iconify icon="solar:user-plus-bold" />
             </Box>
-            <Link color="info" component={RouterLink} href="/sign-in">
-              <Typography variant="h6">Book management sign in</Typography>
+            <Link
+              color="info"
+              {...(auth && {
+                component: RouterLink,
+                href: '/sign-in',
+              })}
+            >
+              <Typography variant="h6">
+                {auth ? `Welcome ${auth.name}` : 'Book management sign in'}
+              </Typography>
             </Link>
-            <Typography variant="body2">
-              Đăng nhập vào trang quản lý sách, bao gồm tạo, cập nhật và xóa sách, tài liệu, người
-              dùng, tệp, danh
+            <Typography variant="body2" color="textSecondary">
+              {auth
+                ? 'Bạn có thể quản lý thêm xóa sửa người dùng, sách và file.'
+                : 'Đăng nhập vào trang quản lý sách, bao gồm tạo, cập nhật và xóa sách, tài liệu, người dùng, tệp.'}
             </Typography>
           </Card>
         </Box>
