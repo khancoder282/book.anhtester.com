@@ -23,8 +23,10 @@ import { useAuthCheck } from 'src/routes/hooks/use-auth-check';
 import { useThemeData, generateColorPalette } from 'src/hooks/use-theme-data';
 
 import { axios } from 'src/api/axios';
+import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import Title from 'src/components/title';
 import { toast } from 'src/components/toast';
 import { Iconify, type IconifyName } from 'src/components/iconify';
 
@@ -74,6 +76,7 @@ export default function Setting() {
   const colorData = Object.entries(colors).filter((x) => x[0] !== 'common');
   return (
     <DashboardContent>
+      <Title>Setting account - {CONFIG.appName}</Title>
       <Stack spacing={2} mb={5}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Setting account

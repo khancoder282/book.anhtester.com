@@ -3,12 +3,10 @@ import type { RouteObject } from 'react-router';
 import { lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 
+import DashboardLayout from 'src/layouts/dashboard';
+
 import { CheckAuth } from './components/check-auth';
 import { renderFallback } from './components/fallback';
-
-// ----------------------------------------------------------------------
-
-const DashboardLayout = lazy(() => import('src/layouts/dashboard'));
 // ----------------------------------------------------------------------
 
 const routesSection: RouteObject[] = [

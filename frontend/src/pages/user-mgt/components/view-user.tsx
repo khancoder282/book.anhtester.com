@@ -67,7 +67,7 @@ export function ViewUser() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Users
+          User Management
         </Typography>
         {auth && (
           <Button
