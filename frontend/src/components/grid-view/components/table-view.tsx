@@ -26,7 +26,7 @@ type GridViewTableProps<T> = {
   minWidth?: number;
   minRowHeight?: number;
   rowsPerPageList?: number[];
-  renderAction?: (row: T) => React.ReactNode;
+  renderAction?: ((row: T) => React.ReactNode) | false;
   sx?: Sx;
   onClickRow?: (row: T, index: number) => void;
   select?: {

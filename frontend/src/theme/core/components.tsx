@@ -1,4 +1,4 @@
-import type { Theme, Components } from '@mui/material/styles';
+import type { Theme, Components, CSSProperties } from '@mui/material/styles';
 
 import { varAlpha } from 'minimal-shared/utils';
 
@@ -297,8 +297,13 @@ const MuiTextField: Components<Theme>['MuiTextField'] = {
   },
 };
 
+const IconSelect = ({ style, sx }: { style?: CSSProperties; sx?: Sx }) => (
+  <Iconify sx={sx} style={style} icon="eva:arrow-ios-downward-fill" />
+);
+
 const MuiAutocomplete: Components<Theme>['MuiAutocomplete'] = {
   defaultProps: {
+    popupIcon: <IconSelect />,
     slotProps: {
       popper: {
         disablePortal: false,
@@ -367,6 +372,12 @@ const MuiToggleButtonGroup: Components<Theme>['MuiToggleButtonGroup'] = {
   },
 };
 
+const MuiSelect: Components<Theme>['MuiSelect'] = {
+  defaultProps: {
+    IconComponent: (props: any) => <IconSelect {...props} sx={{ mr: 1 }} />,
+  },
+};
+
 // ----------------------------------------------------------------------
 
 export const components = {
@@ -390,4 +401,5 @@ export const components = {
   MuiInputBase,
   MuiToggleButtonGroup,
   MuiTabs,
+  MuiSelect,
 };

@@ -1,11 +1,107 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Thiết lập ký tự và viewport -->
     <meta charset="UTF-8" />
-    <link rel="icon" href="/assets/icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    
+    <!-- Favicon & Icon -->
+    <link rel="icon" href="/assets/icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/icon.png" />
+    <link rel="shortcut icon" href="/assets/icon.png" type="image/x-icon" />
+
+    <!-- Theme & UI -->
     <meta name="theme-color" content="#000000" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Book UI for api-book.anhtester.com</title>
+    <meta name="msapplication-TileColor" content="#000000" />
+    <meta name="msapplication-TileImage" content="/assets/icon.png" />
+
+    <!-- Tiêu đề & Mô tả SEO -->
+    <title>Book UI - Giao diện quản lý sách hiện đại cho book.anhtester.com</title>
+    <meta name="description" content="Book UI là giao diện quản lý sách trực quan, tích hợp Book API từ anhtester. Tìm kiếm, thêm, sửa, xóa sách dễ dàng. Hỗ trợ responsive, tối ưu tốc độ và trải nghiệm người dùng." />
+
+    <!-- Từ khóa SEO (khuyến nghị không nhồi nhét, giữ tự nhiên) -->
+    <meta name="keywords" content="Book UI, book.anhtester.com, Book API, API quản lý sách, anhtester, giao diện quản lý sách, thư viện sách online, quản lý sách trực tuyến, API sách, anhtester api" />
+
+    <!-- Tác giả & Thông tin sở hữu -->
+    <meta name="author" content="anhtester" />
+    <meta name="publisher" content="anhtester" />
+    <meta name="copyright" content="© 2025 anhtester. All rights reserved." />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <!-- Hình ảnh đại diện (Open Graph / Social Share) -->
+    <meta name="image" content="https://book.anhtester.com/assets/thumb.webp" />
+    <meta property="og:image" content="https://book.anhtester.com/assets/thumb.webp" />
+    <meta property="og:image:alt" content="Giao diện Book UI - Quản lý sách thông minh từ anhtester" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/webp" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="Book UI - Giao diện quản lý sách hiện đại cho book.anhtester.com" />
+    <meta property="og:description" content="Khám phá Book UI: Giao diện đẹp, nhanh, dễ dùng. Tích hợp hoàn hảo với Book API của anhtester. Quản lý thư viện sách chỉ trong vài cú click!" />
+    <meta property="og:url" content="https://book.anhtester.com" />
+    <meta property="og:site_name" content="Book UI - anhtester" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="vi_VN" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Book UI - Giao diện quản lý sách hiện đại cho book.anhtester.com" />
+    <meta name="twitter:description" content="Khám phá Book UI: Giao diện đẹp, nhanh, dễ dùng. Tích hợp hoàn hảo với Book API của anhtester." />
+    <meta name="twitter:image" content="https://book.anhtester.com/assets/thumb.webp" />
+    <meta name="twitter:image:alt" content="Book UI - Quản lý sách thông minh" />
+    <meta name="twitter:site" content="@anhtester" />
+    <meta name="twitter:creator" content="@anhtester" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://book.anhtester.com" />
+
+    <!-- DNS Prefetch & Preconnect (tối ưu tốc độ) -->
+    <link rel="dns-prefetch" href="//book.anhtester.com" />
+    <link rel="preconnect" href="https://book.anhtester.com" crossorigin />
+
+    <!-- Structured Data (JSON-LD) - WebSite & Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Book UI - anhtester",
+      "url": "https://book.anhtester.com",
+      "description": "Giao diện quản lý sách hiện đại tích hợp Book API từ anhtester.",
+      "publisher": {
+        "@type": "Person",
+        "name": "anhtester",
+        "url": "https://anhtester.com"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://book.anhtester.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Book UI",
+      "operatingSystem": "Web",
+      "applicationCategory": "BusinessApplication",
+      "description": "Giao diện quản lý sách trực quan, tích hợp Book API từ anhtester.",
+      "url": "https://book.anhtester.com",
+      "author": {
+        "@type": "Person",
+        "name": "anhtester"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
   </head>
 
   <body>

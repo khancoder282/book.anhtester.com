@@ -336,7 +336,7 @@ export default function Page() {
                   >
                     <Iconify width={16} icon={Icon[parseInt((option.code / 100).toFixed(0), 10)]} />
                   </Avatar>
-                  <strong>{option.code}</strong> - {option.msg}
+                  <strong style={{ marginRight: '0.5rem' }}>{option.code}</strong> {option.msg}
                 </MenuItem>
               ))}
             </TextField>
