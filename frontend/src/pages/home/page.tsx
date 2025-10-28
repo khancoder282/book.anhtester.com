@@ -1,7 +1,6 @@
 import type { IconifyName } from 'src/components/iconify';
 
 import api from 'axios';
-import dayjs from 'dayjs';
 import { varAlpha } from 'minimal-shared/utils';
 import { useForm, Controller } from 'react-hook-form';
 
@@ -16,7 +15,6 @@ import {
   Button,
   Divider,
   MenuItem,
-  CardMedia,
   TextField,
   Typography,
   ButtonBase,
@@ -26,14 +24,11 @@ import { RouterLink } from 'src/routes/components';
 
 import { useRequest } from 'src/hooks/use-request';
 
-import { formatFilePath } from 'src/utils/format-filepath';
-
 import { axios } from 'src/api/axios';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/toast';
 import { Iconify } from 'src/components/iconify';
-import { CarouselDefault } from 'src/components/carousel/default';
 
 const status = [
   { code: 200, msg: 'OK', color: '#4CAF50' }, // Xanh lá (Thành công)
@@ -128,42 +123,9 @@ export default function Page() {
   return (
     <DashboardContent>
       <Stack spacing={2}>
-        <CarouselDefault options={{ size: 1 }}>
-          {books?.map((book) => (
-            <Box key={book.id} sx={{ flex: '0 0 100%' }}>
-              <Card>
-                <CardMedia
-                  component="img"
-                  sx={{ aspectRatio: '21 / 9', minHeight: 300 }}
-                  src={formatFilePath(book.picture[0] ?? '/$image-404.svg')}
-                />
-                <Stack
-                  sx={{
-                    justifyContent: 'end',
-                    p: 3,
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: 1,
-                    height: 1,
-                    background:
-                      'linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.15) 100%)',
-                  }}
-                >
-                  <Typography variant="body2" sx={{ color: 'white', opacity: 0.48 }}>
-                    {dayjs(book.createdAt).format('DD MMM YYYY')}
-                  </Typography>
-                  <Typography variant="h5" sx={{ color: 'white', mb: 3 }}>
-                    {book.name}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'white', opacity: 0.48 }}>
-                    {book.description}
-                  </Typography>
-                </Stack>
-              </Card>
-            </Box>
-          ))}
-        </CarouselDefault>
+        <Card>
+          <Box component="img" src="/assets/thumb.webp" />
+        </Card>
         <Box
           display="flex"
           sx={{
@@ -269,7 +231,7 @@ export default function Page() {
                         alignItems: 'center',
                         borderRadius: 4,
                         color: 'white',
-                        boxShadow: t=>t.vars.customShadows.z8,
+                        boxShadow: (t) => t.vars.customShadows.z8,
                         mb: 2,
                       }}
                     >
@@ -340,12 +302,7 @@ export default function Page() {
                 </MenuItem>
               ))}
             </TextField>
-            <Button
-              type="submit"
-              size="large"
-              variant="contained"
-              sx={{ alignSelf: 'flex-end' }}
-            >
+            <Button type="submit" size="large" variant="contained" sx={{ alignSelf: 'flex-end' }}>
               Submit
             </Button>
           </Stack>
