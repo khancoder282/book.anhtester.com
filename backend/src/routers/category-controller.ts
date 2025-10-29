@@ -5,7 +5,7 @@ import { auth } from "../plugins/auth";
 
 const categoryController = new Elysia({
   prefix: "category-book",
-  tags: ["Quản lý Danh mục"],
+  tags: ["Category Management"],
 }) as unknown as AppMain;
 
 export default categoryController;
@@ -46,7 +46,8 @@ categoryController
       })
     },
     detail: {
-      description: "Lấy danh sách danh mục"
+      security: [],
+      description: "Get list of categories"
     }
   })
   .use(auth)
@@ -92,6 +93,9 @@ categoryController
           msg: t.String(),
           fields: t.Record(t.String(), t.Array(t.String())),
         }),
+      },
+      detail: {
+        description: "Create new category",
       }
     }
   )
@@ -139,6 +143,9 @@ categoryController
           msg: t.String(),
           fields: t.Record(t.String(), t.Array(t.String())),
         }),
+      },
+      detail: {
+        description: "Update category",
       }
     }
   )
@@ -186,6 +193,9 @@ categoryController
           msg: t.String(),
           fields: t.Record(t.String(), t.Array(t.String())),
         }),
+      },
+      detail: {
+        description: "Delete category",
       }
     }
   );

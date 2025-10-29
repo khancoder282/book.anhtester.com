@@ -13,12 +13,12 @@ export const regis = new Elysia()
       documentation: {
         openapi: "3.0.0",
         info: {
-          title: "API Quản lý Sách AnhTester",
+          title: "AnhTester Book Management API",
           description:
-            "API toàn diện để quản lý sách, người dùng, tệp, danh mục và địa chỉ, được cung cấp bởi AnhTester[](https://anhtester.com).",
+            "A comprehensive API for managing books, users, files, categories, and addresses, provided by AnhTester[](https://anhtester.com).",
           version: "1.0.0",
           contact: {
-            name: "Hỗ trợ AnhTester",
+            name: "AnhTester Support",
             url: "https://anhtester.com",
             email: "thaian.it15@gmail.com"
           },
@@ -27,38 +27,38 @@ export const regis = new Elysia()
         },
         tags: [
           {
-            name: "Quản lý Xác thực",
+            name: "Authentication Management",
             description:
-              "Quản lý đăng nhập người dùng, bao gồm tạo và làm mới JWT token."
+              "Manage user authentication, including creation and refresh of JWT tokens."
           },
           {
-            name: "Quản lý Người dùng",
+            name: "User Management",
             description:
-              "Quản lý tài khoản người dùng, bao gồm tạo, cập nhật và xóa thông tin người dùng."
+              "Manage user accounts, including creating, updating, and deleting user information."
           },
           {
-            name: "Quản lý Tệp",
+            name: "File Management",
             description:
-              "Hỗ trợ các thao tác với tệp như tải lên, tải xuống và quản lý tệp."
+              "Support file operations such as upload, download, and file management."
           },
           {
-            name: "Quản lý Sách",
+            name: "Book Management",
             description:
-              "Quản lý thông tin sách, bao gồm tạo, cập nhật và truy xuất danh sách sách."
+              "Manage book information, including creating, updating, and retrieving book lists."
           },
           {
-            name: "Quản lý Danh mục",
+            name: "Category Management",
             description:
-              "Quản lý danh mục sách, bao gồm tạo và cập nhật danh sách danh mục."
+              "Manage book categories, including creating and updating category lists."
           },
           {
-            name: "Quản lý Địa chỉ",
+            name: "Address Management",
             description:
-              "Quản lý thông tin địa chỉ tại Việt Nam, bao gồm tạo, truy xuất và cập nhật."
+              "Manage address information in Vietnam, including creation, retrieval, and updates."
           },
           {
-            name: "Quản lý giảm giá sản",
-            description: "Quản lý giảm giá sản phẩm, cập nhật thông tin và cho biết nội dung của giảm giá"
+            name: "Promotion Management",
+            description: "Manage promotions, update information, and provide promotion details."
           }
         ],
         components: {
@@ -78,7 +78,7 @@ export const regis = new Elysia()
         servers: [
           {
             url: "https://book.anhtester.com",
-            description: "Máy chủ sản xuất"
+            description: "Production Server"
           }
         ]
       },

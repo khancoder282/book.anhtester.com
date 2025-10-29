@@ -9,7 +9,7 @@ import { handlePrice } from "./book-controller";
 
 const promotionController = new Elysia({
   prefix: "promotion-book",
-  tags: ["Quản lý giảm giá sản"],
+  tags: ["Promotion Management"],
 }) as unknown as AppMain;
 
 export default promotionController;
@@ -40,8 +40,7 @@ const bodyPromotion = t.Object({
 
 
 promotionController
-  .get(
-    "",
+  .get("",
     async ({ query, prisma, set }) => {
       const {
         limit = 10,
@@ -195,6 +194,8 @@ promotionController
       },
 
       detail: {
+        // Query list of promotions
+        description: "Query list of promotions",
         security: [],
       },
     }
@@ -252,6 +253,7 @@ promotionController
     }),
     detail: {
       security: [],
+      description: "Get promotion by id",
     },
     response: {
       200: t.Object({
@@ -387,6 +389,9 @@ promotionController
           msg: t.String(),
           error: t.String(),
         }),
+      },
+      detail: {
+        description: "Create promotion",
       }
     }
   )
@@ -486,6 +491,9 @@ promotionController
           error: t.String(),
         }),
       },
+      detail: {
+        description: "Update promotion",
+      }
     }
   )
   .delete(
@@ -573,5 +581,8 @@ promotionController
           error: t.String(),
         }),
       },
+      detail: {
+        description: "Delete promotion",
+      }
     }
   );

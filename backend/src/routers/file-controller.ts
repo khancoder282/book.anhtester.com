@@ -6,7 +6,7 @@ import { AppMain } from "../regis";
 
 const fileController = new Elysia({
   prefix: "file",
-  tags: ["Quản lý Tệp"],
+  tags: ["File Management"],
 }) as unknown as AppMain;
 
 export default fileController;
@@ -25,7 +25,7 @@ if (!fs.existsSync(file_path)) {
 }
 
 async function dirsize(pathDir: string = "."): Promise<number> {
-  // Thử dùng `du -b` (Linux)
+  // Try using `du -b` (Linux)
   let proc = Bun.spawn({
     cmd: ["du", "-sb", pathDir],
     stdout: "pipe",
@@ -40,7 +40,7 @@ async function dirsize(pathDir: string = "."): Promise<number> {
     if (!isNaN(bytes)) return bytes;
   }
 
-  // Nếu thất bại → dùng `du -sk` (macOS)
+  // If it fails, use `du -sk` (macOS)
   proc = Bun.spawn({
     cmd: ["du", "-sk", pathDir],
     stdout: "pipe",
@@ -53,10 +53,10 @@ async function dirsize(pathDir: string = "."): Promise<number> {
   const blocks = parseInt(text.trim().split("\t")[0], 10);
 
   if (isNaN(blocks)) {
-    throw new Error(`Không thể tính kích thước thư mục: ${pathDir}`);
+    throw new Error(`Cannot calculate directory size: ${pathDir}`);
   }
 
-  return blocks * 1024; // macOS dùng 1024-byte blocks
+  return blocks * 1024; // macOS uses 1024-byte blocks
 }
 
 const getFilesRecursive = (dir: string, search: string) => {
@@ -157,6 +157,7 @@ fileController
       },
       detail: {
         security: [],
+        description: "Get files in a directory.",
       },
     }
   )
@@ -164,6 +165,11 @@ fileController
     return {
       usedStorage: await dirsize(file_path),
       maxStorage: maxStorage,
+    }
+  }, {
+    detail: {
+      security: [],
+      description: "Get information about storage.",
     }
   })
   .use(auth)
@@ -252,6 +258,9 @@ fileController
 
       },
       parse: ["multipart/form-data"],
+      detail: {
+        description: "Upload files.",
+      }
     }
   )
   .delete(
@@ -342,7 +351,10 @@ fileController
             error: validationDetail("Invalid path format. Path must start with '/' and follow valid directory or file path structure.")
           }))
         ])
-      })
+      }),
+      detail: {
+        description: "Delete files.",
+      }
     }
   )
   .put(
@@ -399,6 +411,9 @@ fileController
         path: t.String(),
         name: t.String(),
       }),
+      detail: {
+        description: "Rename file or directory.",
+      }
     }
   )
   .post(
@@ -463,6 +478,9 @@ fileController
         oldPath: t.String(),
         newPath: t.String(),
       }),
+      detail: {
+        description: "Copy file or directory.",
+      }
     }
   )
   .put(
@@ -531,5 +549,8 @@ fileController
         oldPath: t.String(),
         newPath: t.String(),
       }),
+      detail: {
+        description: "Move file or directory.",
+      }
     }
   )

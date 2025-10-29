@@ -6,7 +6,7 @@ import { auth } from "../plugins/auth";
 import { User } from "../prisma";
 
 const authController = new Elysia({
-  tags: ["Quản lý Xác thực"],
+  tags: ["Authentication Management"],
 }) as AppMain;
 
 export default authController;
@@ -120,6 +120,7 @@ authController
       },
       detail: {
         security: [],
+        description: "Login to access the system.",
       },
       cookie: t.Cookie({
         refetchToken: t.Optional(t.String()),
@@ -185,6 +186,7 @@ authController
       },
       detail: {
         security: [],
+        description: "Register new user account.",
       },
     }
   )
@@ -253,6 +255,7 @@ authController
       ),
       detail: {
         security: [],
+        description: "Refresh token to get new access token.",
       },
     }
   )
@@ -260,7 +263,7 @@ authController
   .patch(
     "/profile",
     async ({ prisma, body, set, cookie: { refetchToken, accessToken }, auth: user }) => {
-      // Kiểm tra xem user có tồn tại không
+      // Check if user exists
       if (!user || !user.id) {
         set.status = 400;
         return { msg: 'Unauthorized. User not authenticated.' };
@@ -274,7 +277,7 @@ authController
           phone: body.phone,
           address: body.address,
         }
-        // Kiểm tra mật khẩu cũ nếu cập nhật mật khẩu mới
+        // Check old password when updating new password
         if (body.password) {
           if (!body.password_old) {
             set.status = 400;
@@ -284,12 +287,12 @@ authController
             set.status = 400;
             return { msg: 'Old password is incorrect.' };
           }
-          // Băm mật khẩu mới
+          // Hash new password
           data.password = await Bun.password.hash(body.password);
         }
 
-        // Thu hồi token chỉ khi email hoặc password thay đổi
-        const shouldRevokeTokens = body.email && user.email !== body.email || body.password;
+        // Revoke tokens only if email or password has changed
+        const shouldRevokeTokens = (body.email && user.email !== body.email) || body.password;
         if (shouldRevokeTokens) {
           await prisma.userRefreshToken.updateMany({
             where: {
@@ -300,13 +303,12 @@ authController
               revoked: true,
             },
           });
-          // Xóa token nếu tồn tại
+          // Remove tokens if they exist
           refetchToken?.remove();
           accessToken?.remove();
         }
 
-
-        // Cập nhật thông tin người dùng
+        // Update user information
         await prisma.user.update({
           where: { id: user.id },
           data: {
@@ -318,7 +320,7 @@ authController
         set.status = 200;
         return { msg: 'Updated profile successfully.' };
       } catch (err) {
-        // Xử lý lỗi Prisma
+        // Handle Prisma errors
         if (err instanceof PrismaClientKnownRequestError) {
           if (err.code === 'P2002') {
             set.status = 400;
@@ -329,7 +331,7 @@ authController
             return { msg: 'User not found.' };
           }
         }
-        // Xử lý lỗi chung
+        // Handle general errors
         set.status = 400;
         return { msg: 'Invalid data.' };
       }
@@ -368,7 +370,10 @@ authController
           msg: t.String(),
           fields: t.Record(t.String(), t.Array(t.String())),
         }),
-      }
+      },
+      detail: {
+        description: "Update user profile.",
+      },
     }
   )
   .get("/me", async ({ auth: user }) => ({
@@ -403,7 +408,10 @@ authController
         msg: t.String(),
         fields: t.Record(t.String(), t.Array(t.String())),
       }),
-    }
+    },
+    detail: {
+      description: "Get current user information.",
+    },
   })
   .delete(
     "/logout",
@@ -463,5 +471,8 @@ authController
           fields: t.Record(t.String(), t.Array(t.String())),
         }),
       },
+      detail: {
+        description: "Logout from the system",
+      }
     }
   );

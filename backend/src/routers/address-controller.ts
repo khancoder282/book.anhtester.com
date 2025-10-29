@@ -3,7 +3,7 @@ import { AppMain } from '../regis';
 
 export const addressController = (new Elysia({
     prefix: '/address',
-    tags: ['Quản lý Địa chỉ'],
+    tags: ['Address Management'],
 }) as unknown as AppMain).get('', async ({ prisma, set }) => {
     try {
         const addresses = await prisma.address.groupBy({
@@ -19,7 +19,7 @@ export const addressController = (new Elysia({
             }
         }
         return {
-            msg: 'Failed to fetch address divisions'
+            msg: 'Failed to fetch address divisions data'
         }
     }
 }, {
@@ -30,7 +30,8 @@ export const addressController = (new Elysia({
         })
     },
     detail: {
-        security: []
+        security: [],
+        description: 'Get all address divisions of Vietnam'
     }
 }).get('/:divname', async ({ prisma, params, set }) => {
     try {
@@ -52,7 +53,7 @@ export const addressController = (new Elysia({
             }
         }
         return {
-            msg: 'Failed to fetch address divisions'
+            msg: 'Failed to fetch wards for the selected division'
         }
     }
 }, {
@@ -70,6 +71,7 @@ export const addressController = (new Elysia({
         })
     },
     detail: {
-        security: []
+        security: [],
+        description: 'Get all wards for the selected division'
     }
 })

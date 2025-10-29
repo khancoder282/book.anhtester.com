@@ -12,17 +12,17 @@ import { file_path } from "./file-controller";
 function slugify(str: string) {
   return str
     .toString()
-    .normalize('NFKD')              // tách dấu (đối với Unicode)
-    .replace(/[\u0300-\u036f]/g, '')// bỏ các dấu tách ra
+    .normalize('NFKD')              // normalize Unicode accents
+    .replace(/[\u0300-\u036f]/g, '')// remove separated diacritics
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '')   // giữ a-z, 0-9, space, dấu -
-    .replace(/\s+/g, '-')           // space -> -
-    .replace(/-+/g, '-');           // gộp nhiều dấu - thành 1
+    .replace(/[^a-z0-9\s-]/g, '')   // keep a-z, 0-9, spaces, and hyphens
+    .replace(/\s+/g, '-')           // replace spaces with hyphens
+    .replace(/-+/g, '-');           // collapse multiple hyphens into one
 }
 
 const bookController = new Elysia({
-  tags: ["Quản lý Sách"],
+  tags: ["Book Management"],
   prefix: "book",
 }) as unknown as AppMain;
 
@@ -245,8 +245,8 @@ bookController
         }),
       },
       detail: {
-        description: "Truy vấn danh sách sách (phân trang, lọc, sắp xếp)",
-        tags: ["Quản lý Sách"],
+        description: "Query list of books (pagination, filtering, sorting)",
+        tags: ["Book Management"],
         security: [],
       },
     }
@@ -473,7 +473,7 @@ bookController
         });
 
         return {
-          msg: "Create book successfully.",
+          msg: "Book created successfully.",
         };
       } catch (e) {
         console.log(e);
@@ -486,7 +486,7 @@ bookController
         }
         if (err.code === "P2025" || err.code === "P2003") {
           set.status = 404;
-          return { msg: "Not found promotion" };
+          return { msg: "Promotion not found." };
         }
         return {
           msg: "Invalid data.",
@@ -514,7 +514,7 @@ bookController
         }),
       },
       detail: {
-        description: "Tạo mới sách"
+        description: "Create a new book"
       }
     }
   )
@@ -532,7 +532,7 @@ bookController
         })
         if (!BookOld) {
           set.status = 404;
-          return { msg: "Not found book" };
+          return { msg: "Book not found." };
         }
         const price = body.price ?? BookOld.price
         const book = await prisma.book.update({
@@ -586,7 +586,7 @@ bookController
         }
 
         return {
-          msg: "Update book successfully.",
+          msg: "Book updated successfully.",
         };
       } catch (e) {
         console.log(e);
@@ -629,7 +629,7 @@ bookController
       },
       body: t.Partial(bodyBook),
       detail: {
-        description: "Cập nhật sách"
+        description: "Update a book"
       }
     }
   )
