@@ -374,7 +374,7 @@ const MuiToggleButtonGroup: Components<Theme>['MuiToggleButtonGroup'] = {
 
 const MuiSelect: Components<Theme>['MuiSelect'] = {
   defaultProps: {
-    IconComponent: (props: any) => <IconSelect {...props} sx={{ mx: 1 }} />,
+    IconComponent: (props: any) => <IconSelect {...props} />,
   },
 };
 

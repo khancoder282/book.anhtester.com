@@ -62,9 +62,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
             color={MappingType[p.type].color}
             startIcon={<Iconify icon={MappingType[p.type].icon} />}
             sx={{ textTransform: 'capitalize' }}
-          >
-            {p.type.toLowerCase().replace('_', ' ')}
-          </Label>
+          />
         ))}
         {book.createdAt && dayjs(book.createdAt) > dayjs().add(-7, 'day') && (
           <Label variant="filled" color="info" sx={{}}>

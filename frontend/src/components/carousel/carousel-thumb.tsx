@@ -53,7 +53,7 @@ export function CarouselThumb({
   }, [emblaMainApi, onSelect]);
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} px={{ xs: 0, md: 4 }}>
       <Box
         ref={emblaMainRef}
         sx={{ overflow: 'hidden', borderRadius: 2, position: 'relative', ...sx }}

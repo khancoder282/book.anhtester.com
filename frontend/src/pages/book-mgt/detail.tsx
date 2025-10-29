@@ -30,6 +30,7 @@ import { NoData } from 'src/components/grid-view/components/not-data';
 import { CarouselThumb } from 'src/components/carousel/carousel-thumb';
 
 import { getDetailBook } from './api/detail-book';
+import { MappingType } from '../promotions-mgt/const-type';
 
 export default function BookDetail() {
   const { slug } = useParams();
@@ -62,24 +63,35 @@ export default function BookDetail() {
         </Grid>
         <Grid size={{ xs: 12, md: 6, lg: 5 }}>
           <Stack gap={2} alignItems="flex-start">
-            {data.createdAt && dayjs(data.createdAt) > dayjs().add(-7, 'day') && (
-              <RouterLink href="/book-management?sort=Newest">
-                <Label
-                  sx={{
-                    textTransform: 'uppercase',
-                    fontWeight: 900,
-                    cursor: 'pointer',
-                    '&:hover': {
-                      textDecoration: 'underline',
-                    },
-                  }}
-                  color="info"
-                >
-                  New
-                </Label>
-              </RouterLink>
-            )}
+            <Box display="flex" gap={1} flexWrap="wrap">
+              {data.createdAt && dayjs(data.createdAt) > dayjs().add(-7, 'day') && (
+                <RouterLink href="/book-management?sort=Newest">
+                  <Label
+                    sx={{
+                      textTransform: 'uppercase',
+                      fontWeight: 900,
+                      cursor: 'pointer',
+                      '&:hover': {
+                        textDecoration: 'underline',
+                      },
+                    }}
+                    color="info"
+                  >
+                    New
+                  </Label>
+                </RouterLink>
+              )}
 
+              {data.promotions?.map((p) => (
+                <Label
+                  key={p.id}
+                  variant="filled"
+                  color={MappingType[p.type].color}
+                  startIcon={<Iconify icon={MappingType[p.type].icon} />}
+                  sx={{ textTransform: 'capitalize' }}
+                >{p.name}</Label>
+              ))}
+            </Box>
             <Box>
               {data.categories?.map((i, idx) => (
                 <Link key={i} component={RouterLink} href={`/book-management?category=${i}`}>
