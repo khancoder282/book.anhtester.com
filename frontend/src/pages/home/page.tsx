@@ -174,7 +174,7 @@ export default function Page() {
   const handleAction = (item: { code: number; msg: string; time?: number }) => () => {
     toast.loading(
       () =>
-        api.post(`${import.meta.env.VITE_API_URL}/api/status`, {
+        api.post('/api/status', {
           code: item.code,
           msg: item.msg,
           time: item.time,
