@@ -14,6 +14,7 @@ const table: (size: string) => Sx = (size) => ({
     borderRadius: (t) => t.spacing(1.5, 0, 0, 1.5),
   },
   '& tbody tr': {
+    userSelect: 'none',
     borderRadius: 1.5,
     transition: 'all .3s ease-in-out',
   },
