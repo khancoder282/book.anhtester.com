@@ -20,7 +20,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
       id={`book-${book.id}`}
       component={RouterLink}
       href={`/book-management/detail/${book.slug}`}
-      sx={{ height: 390, position: 'relative' }}
+      sx={{ height: 390, position: 'relative', display: 'block' }}
     >
       <CarouselDefault
         plugin={[Autoplay({ delay: 5000, playOnInit: true })]}
