@@ -15,7 +15,8 @@ export const regis = new Elysia()
         info: {
           title: "AnhTester Book Management API",
           description:
-            "A comprehensive API for managing books, users, files, categories, and addresses, provided by AnhTester[](https://anhtester.com).",
+            "A comprehensive API for managing books, users, files, categories, and addresses, provided by [AnhTester](https://anhtester.com). The API is designed to be easy to use and supports a wide range of operations for book management, user management, file management, category management, and address management. \
+            UI page to run this API: [book.anhtester.com](https://book.anhtester.com)",
           version: "1.0.0",
           contact: {
             name: "AnhTester Support",
