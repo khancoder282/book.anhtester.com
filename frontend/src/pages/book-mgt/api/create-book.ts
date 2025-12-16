@@ -1,3 +1,4 @@
+
 import { axios } from 'src/api/axios';
 
 import { toast } from 'src/components/toast';
@@ -31,7 +32,8 @@ export const handleCreateBook = async (book: BookForm) => {
     form.append('path', `/$book-image/${book.slug}`);
     const paths = await axios.post('/file', form).then((res) => res.data.paths);
     // upload book
-    toast.custom('Uploading book...', 'loading', { hiddenCloseButton: true, id });
+    toast.custom('Uploading book...', 'loading', { hiddenCloseButton: true, id, duration: Infinity });
+
     return axios
       .post('/book', {
         name: book.name,
@@ -41,7 +43,7 @@ export const handleCreateBook = async (book: BookForm) => {
         slug: book.slug,
         price: Number(book.price),
         pictures: paths,
-        promotions: book.promotions.map(x => x.id),
+        promotions: book.promotions?.map(x => x.id) ?? [],
       })
       .then((res) => {
         toast.success(res.data.msg, { id, duration: 3000 });
@@ -53,7 +55,8 @@ export const handleCreateBook = async (book: BookForm) => {
         throw err;
       });
   } catch (err: any) {
-    if (err.response.status === 422) {
+
+    if (err.response?.status === 422) {
       for (const [key, value] of Object.entries(err.response.data.fields)) {
         setError(key as keyof BookForm, {
           type: 'manual',
