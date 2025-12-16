@@ -37,4 +37,9 @@ export const navData = [
     path: '/file-management',
     icon: icon('ic-dir'),
   },
+  {
+    title: 'Database',
+    path: '/db-management',
+    icon: icon('ic-db'),
+  },
 ];

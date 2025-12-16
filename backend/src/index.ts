@@ -11,6 +11,7 @@ import path from "path";
 import dayjs from "dayjs";
 import { addressController } from "./routers/address-controller";
 import fs from "fs";
+import databaseController from "./routers/database-controller";
 
 new Elysia()
   .onRequest(({ request }) => {
@@ -53,6 +54,7 @@ new Elysia()
       .use(bookController)
       .use(promotionController)
       .use(addressController)
+      .use(databaseController)
   )
   .get("/view-file/*", ({ params, set }) => {
     const p = (path.join(process.cwd(), Bun.env.FILEDIR || "upload", decodeURIComponent(params["*"])))
@@ -96,7 +98,7 @@ new Elysia()
   })
   .post("/api/status", async ({ set, body: { code, msg, time } }) => {
     set.status = code
-    if(time){
+    if (time) {
       await new Promise((resolve) => setTimeout(resolve, time * 1000))
     }
     return { msg }

@@ -61,6 +61,10 @@ const routesSection: RouteObject[] = [
         path: 'user-management/setting-account',
         Component: lazy(() => import('src/pages/user-mgt/setting')),
       },
+      {
+        path: 'db-management',
+        Component: lazy(() => import('src/pages/db-mgt/page')),
+      },
     ],
   },
   {
