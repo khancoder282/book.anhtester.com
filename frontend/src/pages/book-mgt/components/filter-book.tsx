@@ -263,7 +263,7 @@ const Row = ({
 }>) => {
   const { id, setId, newName, setNewName } = useEdit();
   const item = list[index];
-  if (!item) return null;
+  if (!item) return <div/>;
   return (
     <Box
       key={item.name}
