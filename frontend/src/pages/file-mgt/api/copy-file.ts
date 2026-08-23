@@ -10,6 +10,6 @@ export const copyFile = (opt: { oldPath: string; newPath: string }) =>
       return res;
     })
     .catch((err) => {
-      toast.error(err.response.data.msg);
+      toast.error(err.response?.data?.msg ?? 'Something went wrong.');
       throw err;
     });

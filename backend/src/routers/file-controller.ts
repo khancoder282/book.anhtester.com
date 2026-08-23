@@ -12,7 +12,14 @@ const fileController = new Elysia({
 export default fileController;
 export const file_path = path.join(process.cwd(), Bun.env.FILEDIR || "upload");
 
-const maxStorage = 1024 * 1024 * 1024;  //1GB 
+const maxStorage = 1024 * 1024 * 1024; // 1GB
+
+/** Is `p` inside `parent` (or `parent` itself)? Guards against `../` escapes. */
+const isInsideOf = (p: string, parent: string) =>
+  p === parent || p.startsWith(parent + path.sep);
+
+/** Is `p` inside the upload directory? */
+const isInside = (p: string) => isInsideOf(p, file_path);
 
 if (!fs.existsSync(file_path)) {
   fs.mkdirSync(file_path);
@@ -106,7 +113,7 @@ fileController
       if (search === "*") search = "/";
 
       const pathname = path.join(file_path, p);
-      if (!pathname.startsWith(file_path)) {
+      if (!isInside(pathname)) {
         set.status = 400;
         return { msg: "Invalid path." };
       }
@@ -276,7 +283,7 @@ fileController
       for (let i = 0; i < ps.length; i++) {
         const p = ps[i];
         const pathname = path.join(file_path, p);
-        if (!pathname.startsWith(file_path)) {
+        if (!isInside(pathname)) {
           set.status = 400;
           return {
             msg: "Invalid path. Paths must be inside the upload directory.",
@@ -363,7 +370,7 @@ fileController
       const { path: p, name } = body;
       const pathname = path.join(file_path, p);
 
-      if (!pathname.startsWith(file_path)) {
+      if (!isInside(pathname)) {
         set.status = 400;
         return {
           msg: "Invalid path. Paths must be inside the upload directory.",
@@ -417,13 +424,13 @@ fileController
     }
   )
   .post(
-    "copy",
+    "/copy",
     async ({ body, set }) => {
       let { oldPath, newPath } = body;
       const oldPathname = path.join(file_path, oldPath);
       let newPathname = path.join(file_path, newPath);
 
-      if (!oldPathname.startsWith(file_path) || !newPathname.startsWith(file_path)) {
+      if (!isInside(oldPathname) || !isInside(newPathname)) {
         set.status = 400;
         return {
           msg: "Invalid path. Paths must be inside the upload directory.",
@@ -436,32 +443,53 @@ fileController
         return { msg: "Invalid characters in file name." };
       }
       if (!fs.existsSync(oldPathname)) {
-        set.status = 400;
+        set.status = 404;
         return {
           msg: "File or directory not found.",
         };
       }
 
-      while (fs.existsSync(newPathname)) {
-        newPath = path.basename(newPath) + "_copy" + path.extname(newPath);
-        newPathname = path.join(file_path, newPath);
+      const parentDir = path.dirname(newPathname);
+      if (!fs.existsSync(parentDir) || !fs.statSync(parentDir).isDirectory()) {
+        set.status = 400;
+        return { msg: "Destination folder not found." };
       }
-      if (fs.statSync(oldPathname).isDirectory()) {
-        fs.mkdirSync(newPathname);
-      } else {
-        fs.copyFileSync(oldPathname, newPathname);
+
+      const isDirectory = fs.statSync(oldPathname).isDirectory();
+      if (isDirectory && isInsideOf(newPathname, oldPathname)) {
+        set.status = 400;
+        return { msg: "Cannot copy a folder into itself." };
+      }
+
+      // Keep the destination folder, only make the name unique.
+      const ext = isDirectory ? "" : path.extname(newPathname);
+      const base = path.basename(newPathname, ext);
+      let count = 0;
+      while (fs.existsSync(newPathname)) {
+        count += 1;
+        newPathname = path.join(parentDir, `${base}_copy${count > 1 ? count : ""}${ext}`);
+      }
+      newPath = "/" + path.relative(file_path, newPathname);
+
+      try {
+        fs.cpSync(oldPathname, newPathname, { recursive: isDirectory });
+      } catch (e) {
+        set.status = 500;
+        return { msg: "Failed to copy." };
       }
 
       return {
         msg: "Copied successfully.",
-        newPath: "/" + newPath.replace(file_path, ""),
-        newName: path.basename(newPath) + path.extname(newPath),
+        newPath,
+        newName: path.basename(newPathname),
       };
     },
     {
       response: {
         200: t.Object({
           msg: t.String(),
+          newPath: t.String(),
+          newName: t.String(),
         }),
         400: t.Object({
           msg: t.String(),
@@ -472,6 +500,9 @@ fileController
         422: t.Object({
           msg: t.String(),
           fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+        500: t.Object({
+          msg: t.String(),
         }),
       },
       body: t.Object({
@@ -490,7 +521,7 @@ fileController
       const oldPathname = path.join(file_path, oldPath);
       const newPathname = path.join(file_path, newPath);
       // Check if paths are inside the base directory
-      if (!oldPathname.startsWith(file_path) || !newPathname.startsWith(file_path)) {
+      if (!isInside(oldPathname) || !isInside(newPathname)) {
         set.status = 400;
         return {
           msg: "Invalid path. Paths must be inside the upload directory.",
@@ -504,10 +535,28 @@ fileController
         };
       }
 
+      if (path.basename(oldPathname).startsWith("$")) {
+        set.status = 403;
+        return {
+          msg: "File system not allowed move.",
+        };
+      }
+
       const invalidChars = /[<>:"|?*]/;
       if (invalidChars.test(path.basename(newPath))) {
         set.status = 400;
         return { msg: "Invalid characters in file name." };
+      }
+
+      const parentDir = path.dirname(newPathname);
+      if (!fs.existsSync(parentDir) || !fs.statSync(parentDir).isDirectory()) {
+        set.status = 400;
+        return { msg: "Destination folder not found." };
+      }
+
+      if (fs.statSync(oldPathname).isDirectory() && isInsideOf(newPathname, oldPathname)) {
+        set.status = 400;
+        return { msg: "Cannot move a folder into itself." };
       }
 
       if (fs.existsSync(newPathname)) {
@@ -537,12 +586,18 @@ fileController
         400: t.Object({
           msg: t.String(),
         }),
+        403: t.Object({
+          msg: t.String(),
+        }),
         404: t.Object({
           msg: t.String(),
         }),
         422: t.Object({
           msg: t.String(),
           fields: t.Record(t.String(), t.Array(t.String())),
+        }),
+        500: t.Object({
+          msg: t.String(),
         }),
       },
       body: t.Object({

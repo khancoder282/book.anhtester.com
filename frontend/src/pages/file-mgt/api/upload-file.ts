@@ -7,6 +7,6 @@ export const uploadFile = (formData: FormData) =>
     .post('/file', formData)
     .then((res) => toast.success(res.data.msg))
     .catch((err) => {
-      toast.error(err.response.data.msg);
+      toast.error(err.response?.data?.msg ?? 'Something went wrong.');
       throw err;
     });

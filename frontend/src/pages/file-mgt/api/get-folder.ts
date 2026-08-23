@@ -12,6 +12,6 @@ export const getFolder = (path: string, search: string = ''): Promise<FileItem[]
     })
     .then((res) => res.data.list as FileItem[])
     .catch((res) => {
-      toast.error(res.response.data.msg);
+      toast.error(res.response?.data?.msg ?? 'Something went wrong.');
       throw res;
     });
