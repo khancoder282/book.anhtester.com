@@ -25,24 +25,28 @@ new Elysia()
       console.log(responseValue)
     }
   })
-  .onError(async ({ code, error }) => {
-    console.error(error);
+  .onError(async ({ code, error, set }) => {
     if (code === "VALIDATION") {
-      return {
-        msg: "Invalid data.",
-        fields: error.all.reduce((acc, cur) => {
-          const { path, summary } = cur as {
-            path: string;
-            summary: string;
-            message: string;
-          };
-          const key = path.replace("/", "");
-          if (!acc[key]) acc[key] = [];
-          acc[key].push(summary);
-          return acc;
-        }, {} as Record<string, string[]>),
-      };
+      // NOTE: don't log the raw error object here. Elysia's ValidationError
+      // builds its message lazily via TypeBox Value.Create(), which throws
+      // "String types with formats must specify a default value" for any
+      // formatted string schema without a `default`.
+      const fields = (error.all ?? []).reduce((acc, cur) => {
+        const { path, summary, message } = cur as {
+          path?: string;
+          summary?: string;
+          message?: string;
+        };
+        const key = (path ?? "").replace("/", "") || "_";
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(summary ?? message ?? "Invalid value.");
+        return acc;
+      }, {} as Record<string, string[]>);
+      console.error(`[VALIDATION] ${JSON.stringify(fields)}`);
+      set.status = 422;
+      return { msg: "Invalid data.", fields };
     }
+    console.error(code, error instanceof Error ? error.message : error);
   })
   .use(regis)
   .group("/api", (app) =>

@@ -253,7 +253,7 @@ userController
       },
       body: t.Object({
         name: t.String(),
-        email: t.String({ format: "email" }),
+        email: t.String({ format: "email", default: "user@example.com" }),
         password: t.Optional(
           t.String({
             default: "anhtester.com",
@@ -347,7 +347,7 @@ userController
       body: t.Partial(
         t.Object({
           name: t.String(),
-          email: t.String({ format: "email" }),
+          email: t.String({ format: "email", default: "user@example.com" }),
           password: t.String(),
           avatarUrl: t.String(),
           address: t.Optional(t.String()),

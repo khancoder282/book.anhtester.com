@@ -93,7 +93,7 @@ authController
     },
     {
       body: t.Object({
-        email: t.String({ format: "email" }),
+        email: t.String({ format: "email", default: "user@example.com" }),
         password: t.String(),
       }),
       response: {
@@ -165,7 +165,7 @@ authController
     {
       body: t.Object({
         name: t.String(),
-        email: t.String({ format: "email" }),
+        email: t.String({ format: "email", default: "user@example.com" }),
         password: t.String(),
         avatarUrl: t.Optional(t.String()),
         phone: t.Optional(t.String()),
@@ -340,7 +340,7 @@ authController
       body: t.Partial(
         t.Object({
           name: t.String(),
-          email: t.String({ format: "email" }),
+          email: t.String({ format: "email", default: "user@example.com" }),
           password: t.String(),
           password_old: t.String(),
           avatarUrl: t.String(),
