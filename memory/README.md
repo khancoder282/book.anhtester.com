@@ -39,3 +39,5 @@ Danh mục bug ở [`docs/bugs/README.md`](../docs/bugs/README.md), evidence ở
 - Mỗi file chỉ nói về một chủ đề. Thêm tính năng mới thì tạo file mới trong `features/` và thêm một dòng vào bảng trên.
 - Ghi ngày tuyệt đối (YYYY-MM-DD), không viết "hôm qua" hay "tuần trước".
 - Thông tin đã sai thì sửa hoặc xoá, đừng để tồn tại song song với thông tin mới.
+- Quy tắc user đã xác nhận (2026-11-20): ghi ngay vào `CLAUDE.md` **và** bộ nhớ, không để chỉ nằm trong một phiên chat.
+- Hướng dẫn cho người dùng repo (cài đặt, chạy, `.env`, seed, tài khoản, build) ghi vào `README.md` ở gốc repo (2026-11-20). `memory/` chỉ giữ ghi chú làm việc.

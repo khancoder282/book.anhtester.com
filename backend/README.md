@@ -1,15 +1,9 @@
-# Elysia with Bun runtime
+# Backend
 
-## Getting Started
-To get started with this template, simply paste this command into your terminal:
+Hướng dẫn cài đặt, chạy, dữ liệu mẫu và build: xem [README ở gốc repo](../README.md).
+
 ```bash
-bun create elysia ./elysia-example
+bun run dev          # dev, http://localhost:4566 (theo PORT trong .env)
+bun run seed --yes   # dựng lại dữ liệu mẫu (xoá hết, trừ admin)
+bun run start        # production
 ```
-
-## Development
-To start the development server run:
-```bash
-bun run dev
-```
-
-Open http://localhost:3000/ with your browser to see the result.

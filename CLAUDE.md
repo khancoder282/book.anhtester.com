@@ -9,6 +9,11 @@
 
 Runtime là **Bun** cho cả hai phần (backend dùng `Bun.env`, `Bun.password`, ...). Không chạy bằng Node.
 
+## Ghi nhớ quy tắc đã chốt
+
+- Quy tắc nào user đã xác nhận thì ghi **ngay** vào cả hai nơi: `CLAUDE.md` (mục phù hợp) và bộ nhớ (`memory/` trong repo + auto-memory của Claude). Không chỉ làm theo trong phiên rồi để mất.
+- **Hướng dẫn cho người dùng repo** (cài đặt, chạy, `.env`, dữ liệu mẫu, tài khoản, build/deploy) ghi vào [`README.md`](README.md). Đổi cách cài/chạy thì cập nhật README cùng lúc. `CLAUDE.md` và `memory/` chỉ giữ ghi chú cho Claude.
+
 ## Quy tắc git
 
 - Làm việc, commit và push trên nhánh **`deploy-vps`** (`git push origin deploy-vps`). Không commit hay push lên `main`.
