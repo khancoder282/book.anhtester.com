@@ -9,6 +9,11 @@
 
 Runtime là **Bun** cho cả hai phần (backend dùng `Bun.env`, `Bun.password`, ...). Không chạy bằng Node.
 
+## Quy tắc git
+
+- Làm việc, commit và push trên nhánh **`deploy-vps`** (`git push origin deploy-vps`). Không commit hay push lên `main`.
+- Đang ở nhánh khác thì chuyển về `deploy-vps` trước khi commit.
+
 ## Chạy local
 
 Yêu cầu: Bun, MySQL ở `127.0.0.1:3306`. Trên máy dev hiện tại MySQL đến từ WAMP, user `root`, không mật khẩu.
