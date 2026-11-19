@@ -8,6 +8,7 @@ import { RouterLink } from 'src/routes/components';
 import { fShortenNumber } from 'src/utils/format-number';
 import { formatFilePath } from 'src/utils/format-filepath';
 
+import { useTranslate } from 'src/locales';
 import { MappingType } from 'src/pages/promotions-mgt/const-type';
 
 import { Label } from 'src/components/label';
@@ -17,6 +18,7 @@ import { SvgColor } from 'src/components/svg-color';
 import { BookCover } from './book-cover';
 
 export function CardBookView({ book, isEdit }: CardBookViewProps) {
+  const { t } = useTranslate();
   const navigate = useNavigate();
   return (
     <Card>
@@ -52,18 +54,23 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
           ))}
           {book.createdAt && dayjs(book.createdAt) > dayjs().add(-7, 'day') && (
             <Label variant="filled" color="info" sx={{}}>
-              New
+              {t('book.newLabel')}
             </Label>
           )}
         </Box>
       </Box>
       <Box
-        sx={{ position: 'relative', p: 2, pt: 3, bgcolor: (t) => t.vars.palette.background.paper }}
+        sx={{
+          position: 'relative',
+          p: 2,
+          pt: 3,
+          bgcolor: (theme) => theme.vars.palette.background.paper,
+        }}
       >
         <SvgColor
           src="/assets/icons/shape-avatar.svg"
           sx={{
-            color: (t) => t.vars.palette.background.paper,
+            color: (theme) => theme.vars.palette.background.paper,
             width: 88,
             height: 36,
             position: 'absolute',
@@ -94,8 +101,8 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
             }}
             sx={{
               position: 'absolute',
-              right: (t) => t.spacing(1),
-              top: (t) => t.spacing(1),
+              right: (theme) => theme.spacing(1),
+              top: (theme) => theme.spacing(1),
             }}
           >
             <Iconify icon="solar:pen-bold" />
@@ -141,7 +148,7 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
                 alignItems="center"
               >
                 <Iconify
-                  sx={{ color: (t) => t.palette.success.main, mr: 0.5 }}
+                  sx={{ color: (theme) => theme.palette.success.main, mr: 0.5 }}
                   icon="eva:arrow-ios-downward-fill"
                   width={12}
                 />

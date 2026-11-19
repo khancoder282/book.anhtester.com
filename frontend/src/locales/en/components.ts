@@ -1,0 +1,77 @@
+// Namespace 'components'. Khoá tiếng Anh là nguồn: thêm khoá ở đây trước, rồi thêm bản dịch ở vi/components.ts.
+export const components = {
+  button: {
+    clickToDelete: 'Click to delete',
+    scrollTop: 'Click to top',
+  },
+  dialog: {
+    confirmDelete: 'Confirm delete',
+    message: 'Message',
+  },
+  // Chữ mặc định của MUI TablePagination / Pagination, giữ nguyên văn bản tiếng Anh của MUI
+  table: {
+    rowsPerPage: 'Rows per page:',
+    displayedRows: '{from}–{to} of {count}',
+    moreThan: 'more than {to}',
+    goToFirst: 'Go to first page',
+    goToLast: 'Go to last page',
+    goToNext: 'Go to next page',
+    goToPrevious: 'Go to previous page',
+    goToPage: 'Go to page {page}',
+    page: 'page {page}',
+  },
+  filter: {
+    searchPlaceholder: 'Search...',
+    field: 'Field',
+    operator: 'Operator',
+    value: 'Value',
+    and: 'AND',
+    or: 'OR',
+    true: 'True',
+    false: 'False',
+    addFilter: 'Add filter',
+    clearFilter: 'Clear filter',
+    operators: {
+      equals: 'Equals (=)',
+      not: 'Not equal to (!=)',
+      lt: 'Less than (<)',
+      lte: 'Less than or equal to (<=)',
+      gt: 'Greater than (>)',
+      gte: 'Greater than or equal to (>=)',
+      contains: 'Contains (∈)',
+      startsWith: 'Starts with (→)',
+      endsWith: 'Ends with (←)',
+    },
+  },
+  datePicker: {
+    endDate: 'End date',
+    weekdays: {
+      mon: 'Mo',
+      tue: 'Tu',
+      wed: 'We',
+      thu: 'Th',
+      fri: 'Fr',
+      sat: 'Sa',
+      sun: 'Su',
+    },
+  },
+  fromTo: {
+    priceFrom: 'Price from',
+    priceTo: 'Price to',
+  },
+  upload: {
+    title: 'Drop or select a files',
+    dragHere: 'Drag a file here, or',
+    browse: 'browse',
+    yourDevice: 'your device.',
+    uploadPhoto: 'Upload photo',
+    allowed: 'Allowed {types}',
+    maxSize: 'max size of {size}',
+  },
+  toast: {
+    errorDefault: 'Error in processing request',
+    loading: 'Loading...',
+    success: 'Success',
+    error: 'Error',
+  },
+};

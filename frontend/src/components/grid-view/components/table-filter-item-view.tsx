@@ -5,6 +5,8 @@ import { useWatch, Controller } from 'react-hook-form';
 
 import { Box, Stack, Select, MenuItem, TextField, IconButton } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from 'src/components/iconify';
 import { DatePickerField } from 'src/components/fields/date-picker-field';
 
@@ -25,6 +27,7 @@ export function TableFilterItemView<T>({
   isOnly: boolean;
   setValue: UseFormSetValue<Fields>;
 }) {
+  const { t } = useTranslate();
   const size: 'small' | 'medium' = 'medium';
   const [key] = useWatch({
     control,
@@ -52,8 +55,8 @@ export function TableFilterItemView<T>({
                 {...field}
                 sx={{ minWidth: 80, opacity: index > 1 ? 0.4 : 1 }}
               >
-                <MenuItem value="AND">AND</MenuItem>
-                <MenuItem value="OR">OR</MenuItem>
+                <MenuItem value="AND">{t('components.filter.and')}</MenuItem>
+                <MenuItem value="OR">{t('components.filter.or')}</MenuItem>
               </Select>
             )}
           />
@@ -71,7 +74,7 @@ export function TableFilterItemView<T>({
               setValue(`fields.${index}.operator`, 'equals');
               setValue(`fields.${index}.value`, '');
             }}
-            label="Field"
+            label={t('components.filter.field')}
             select
             sx={{ maxWidth: 150 }}
             fullWidth
@@ -91,14 +94,14 @@ export function TableFilterItemView<T>({
           <TextField
             size={size}
             {...field}
-            label="Operator"
+            label={t('components.filter.operator')}
             select
             sx={{ maxWidth: 150 }}
             fullWidth
           >
-            {TypeField[type ?? 'string']?.map((t) => (
-              <MenuItem key={t} value={t}>
-                {TypeFieldLabel[t as keyof typeof TypeFieldLabel]}
+            {TypeField[type ?? 'string']?.map((op) => (
+              <MenuItem key={op} value={op}>
+                {t(TypeFieldLabel[op as keyof typeof TypeFieldLabel])}
               </MenuItem>
             ))}
           </TextField>
@@ -117,7 +120,7 @@ export function TableFilterItemView<T>({
               size={size}
               error={invalid}
               {...field}
-              label="Value"
+              label={t('components.filter.value')}
               value={dayjs.isDayjs(field.value) ? field.value : null}
               fullWidth
               onChange={(v) => field.onChange(v)}
@@ -133,7 +136,14 @@ export function TableFilterItemView<T>({
           defaultValue={options[0]}
           rules={{ required: true }}
           render={({ field, fieldState: { invalid } }) => (
-            <TextField size={size} {...field} label="Value" error={invalid} select fullWidth>
+            <TextField
+              size={size}
+              {...field}
+              label={t('components.filter.value')}
+              error={invalid}
+              select
+              fullWidth
+            >
               {options.map((o) => (
                 <MenuItem key={o} value={o}>
                   {o}
@@ -154,7 +164,7 @@ export function TableFilterItemView<T>({
             <TextField
               size={size}
               {...field}
-              label="Value"
+              label={t('components.filter.value')}
               fullWidth
               error={invalid}
             />
@@ -172,13 +182,13 @@ export function TableFilterItemView<T>({
               select
               size={size}
               {...field}
-              label="Value"
+              label={t('components.filter.value')}
               error={invalid}
               fullWidth
               helperText={error?.message}
             >
-              <MenuItem value="_true">True</MenuItem>
-              <MenuItem value="_false">False</MenuItem>
+              <MenuItem value="_true">{t('components.filter.true')}</MenuItem>
+              <MenuItem value="_false">{t('components.filter.false')}</MenuItem>
             </TextField>
           )}
         />

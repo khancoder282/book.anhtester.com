@@ -20,6 +20,7 @@ import { RouterLink } from 'src/routes/components';
 import { renderFallback } from 'src/routes/components/fallback';
 
 import { CONFIG } from 'src/config-global';
+import { useTranslate } from 'src/locales';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import Title from 'src/components/title';
@@ -36,6 +37,7 @@ import { handleUpdateBook } from '../api/modify-book';
 import { reset, control, setFocus, getValues, handleSubmit } from '../stores/form-add';
 
 export function AddOverview() {
+  const { t } = useTranslate();
   const [search] = useSearchParams();
   const { isLoading, isSubmitSuccessful, isDirty, isSubmitted, errors } = useFormState({ control });
   const [loadingPage, setLoadingPage] = useState(true);
@@ -96,17 +98,17 @@ export function AddOverview() {
   return (
     <DashboardContent>
       <Title>
-        {id ? `Modify book - ${CONFIG.appName}` : `Create a new book - ${CONFIG.appName}`}
+        {`${id ? t('book.form.modifyTitle') : t('book.form.createTitle')} - ${CONFIG.appName}`}
       </Title>
       <Stack spacing={2} mb={5}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          {id ? 'Modify book' : 'Create a new book'}
+          {id ? t('book.form.modifyTitle') : t('book.form.createTitle')}
         </Typography>
         <Breadcrumbs sx={{ mb: 3 }}>
           <Link component={RouterLink} href="/book-management" color="textPrimary" variant="body2">
-            Book management
+            {t('book.form.breadcrumb')}
           </Link>
-          <Typography variant="body2">Create a new book</Typography>
+          <Typography variant="body2">{t('book.form.createTitle')}</Typography>
         </Breadcrumbs>
       </Stack>
 
@@ -125,7 +127,7 @@ export function AddOverview() {
                   checked={field.value === 'AVAILABLE'}
                   onChange={(_, c) => field.onChange(c ? 'AVAILABLE' : 'UNAVAILABLE')}
                   control={<Switch />}
-                  label={field.value ? 'Available book' : 'Unavailable book'}
+                  label={field.value ? t('book.form.available') : t('book.form.unavailable')}
                   sx={{ ml: 2 }}
                 />
               )}
@@ -138,7 +140,7 @@ export function AddOverview() {
               color="inherit"
               onClick={() => reset()}
             >
-              Reset
+              {t('book.form.reset')}
             </Button>
             <Button
               size="large"
@@ -150,16 +152,14 @@ export function AddOverview() {
                 id ? await handleUpdateBook(id, data) : await handleCreateBook(data)
               )}
             >
-              {id ? 'Save changes' : 'Create book'}
+              {id ? t('book.form.saveChanges') : t('book.form.createBook')}
             </Button>
           </Box>
           {id && (
             <Stack>
               <Divider sx={{ borderStyle: 'dashed', mb: 2 }} />
               <Typography variant="body2" color="textSecondary">
-                This book, previously part of your business inventory, is no longer in active
-                commerce and is now available for sale to interested buyers looking for a great
-                deal.
+                {t('book.form.deleteNote')}
               </Typography>
               <Button
                 variant="outlined"
@@ -169,7 +169,8 @@ export function AddOverview() {
                 onClick={() =>
                   dialog.delete(
                     <>
-                      Do you want delete <b>{rootName}</b>, after delete you can&apos;t undo
+                      {t('book.form.deleteConfirmBefore')} <b>{rootName}</b>
+                      {t('book.form.deleteConfirmAfter')}
                     </>,
                     () =>
                       deleteBook(id).then(() => {
@@ -178,7 +179,7 @@ export function AddOverview() {
                   )
                 }
               >
-                Delete
+                {t('common.actions.delete')}
               </Button>
             </Stack>
           )}

@@ -16,6 +16,7 @@ import {
 import { useRequest } from 'src/hooks/use-request';
 import { useDebounce } from 'src/hooks/use-debound';
 
+import { useTranslate } from 'src/locales';
 import { getBooks } from 'src/pages/book-mgt/api/get-books';
 
 import { Iconify } from 'src/components/iconify';
@@ -24,11 +25,13 @@ import { TableView } from 'src/components/grid-view/components/table-view';
 import { TableFilterView } from 'src/components/grid-view/components/table-filter-view';
 import { TablePaginationView } from 'src/components/grid-view/components/table-pagination-view';
 
-import { filter, columns } from '../hooks/columns';
+import { columns, getFilter } from '../hooks/columns';
 import { control, setValue, getValues } from '../hooks/form-control';
 
 export function CardBook() {
   const [expen, setExpen] = useState(true);
+  const { t } = useTranslate();
+  const filter = getFilter();
 
   const config = useTable<BookView>({
     order: 'createdAt',
@@ -66,8 +69,8 @@ export function CardBook() {
   return (
     <Card>
       <CardHeader
-        title="Select book"
-        subheader="Select book apply promotion"
+        title={t('promotion.books.title')}
+        subheader={t('promotion.books.subheader')}
         action={
           <IconButton onClick={() => setExpen(!expen)}>
             <Iconify
@@ -99,31 +102,33 @@ export function CardBook() {
             total={total}
           />
 
-          {selected.length > 0 && <>
-            <Divider />
-            <Box p={2} display="flex" flexWrap="unset" gap={1}>
-              {selected.map((item) => (
-                <Chip
-                  avatar={
-                    <Avatar src={item.picture[0]}>
-                      <Iconify width={0.6} icon="solar:album-outline" />
-                    </Avatar>
-                  }
-                  key={item.id}
-                  label={item.name}
-                  onDelete={() => setSelected((s) => s.filter((i) => i.id !== item.id))}
-                />
-              ))}
-              {selected.length > 1 && (
-                <Chip
-                  onClick={() => setSelected([])}
-                  variant="outlined"
-                  label={`Remove ${selected.length} book`}
-                  sx={{ fontWeight: 'bold' }}
-                />
-              )}
-            </Box>
-          </>}
+          {selected.length > 0 && (
+            <>
+              <Divider />
+              <Box p={2} display="flex" flexWrap="unset" gap={1}>
+                {selected.map((item) => (
+                  <Chip
+                    avatar={
+                      <Avatar src={item.picture[0]}>
+                        <Iconify width={0.6} icon="solar:album-outline" />
+                      </Avatar>
+                    }
+                    key={item.id}
+                    label={item.name}
+                    onDelete={() => setSelected((s) => s.filter((i) => i.id !== item.id))}
+                  />
+                ))}
+                {selected.length > 1 && (
+                  <Chip
+                    onClick={() => setSelected([])}
+                    variant="outlined"
+                    label={t('promotion.books.removeAll', { count: selected.length })}
+                    sx={{ fontWeight: 'bold' }}
+                  />
+                )}
+              </Box>
+            </>
+          )}
         </Stack>
       </Collapse>
     </Card>

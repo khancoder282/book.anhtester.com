@@ -2,6 +2,8 @@ import { useWatch, Controller } from 'react-hook-form';
 
 import { Stack, Switch, TextField, useMediaQuery, FormControlLabel } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { LabelBorder } from 'src/components/label/label-border';
 import { AvatarField } from 'src/components/fields/avatar-field';
 import { AddressField } from 'src/components/fields/address-field';
@@ -28,7 +30,8 @@ export function ContentUser({
     name: ['id', 'oldPassword', 'password'],
   });
 
-  const isMobile = useMediaQuery((t) => t.breakpoints.down('md'));
+  const { t } = useTranslate();
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   return (
     <Stack
@@ -48,7 +51,7 @@ export function ContentUser({
           position: 'relative',
         }}
       >
-        <LabelBorder>Infomation</LabelBorder>
+        <LabelBorder>{t('user.form.information')}</LabelBorder>
         {isAvatar && (
           <Controller
             control={formControl.control}
@@ -58,11 +61,11 @@ export function ContentUser({
                 maxBytes: (value) =>
                   !value?.size ||
                   (value instanceof File && value.size < 3 * 1024 * 1024) ||
-                  'Avatar size must be less than 3MB.',
+                  t('user.validation.avatarMaxSize'),
                 acceptedFormats: (value) =>
                   !value?.type ||
                   (value instanceof File && checkType(value, accepImg)) ||
-                  'Avatar format must be *.jpeg, *.jpg, *.png, *.gif.',
+                  t('user.validation.avatarFormat'),
               },
             }}
             render={({ field, fieldState: { invalid } }) => (
@@ -79,15 +82,15 @@ export function ContentUser({
           name="name"
           defaultValue=""
           rules={{
-            required: 'Name is required.',
+            required: t('user.validation.nameRequired'),
             maxLength: {
               value: 250,
-              message: 'Name must be less than 250 characters.',
+              message: t('user.validation.nameMaxLength'),
             },
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <TextField
-              label="Name"
+              label={t('user.form.name')}
               error={invalid}
               helperText={error?.message}
               required
@@ -102,11 +105,16 @@ export function ContentUser({
           rules={{
             maxLength: {
               value: 10,
-              message: 'Max length for number phone is 10 number.',
+              message: t('user.validation.phoneMaxLength'),
             },
           }}
           render={({ field, fieldState: { invalid, error } }) => (
-            <TextField label="Phone" error={invalid} helperText={error?.message} {...field} />
+            <TextField
+              label={t('user.form.phone')}
+              error={invalid}
+              helperText={error?.message}
+              {...field}
+            />
           )}
         />
         <Controller
@@ -116,7 +124,7 @@ export function ContentUser({
           rules={{
             maxLength: {
               value: 250,
-              message: 'Max length for address is 250 characters.',
+              message: t('user.validation.addressMaxLength'),
             },
           }}
           render={({ field, fieldState: { invalid, error } }) => (
@@ -142,19 +150,19 @@ export function ContentUser({
           name="email"
           defaultValue=""
           rules={{
-            required: 'Email is required.',
+            required: t('user.validation.emailRequired'),
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: 'Invalid email address',
+              message: t('user.validation.emailInvalid'),
             },
             maxLength: {
               value: 250,
-              message: 'Email must be less than 250 characters.',
+              message: t('user.validation.emailMaxLength'),
             },
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <TextField
-              label="Email"
+              label={t('user.form.email')}
               error={invalid}
               helperText={error?.message}
               required
@@ -168,16 +176,16 @@ export function ContentUser({
             name="oldPassword"
             defaultValue=""
             rules={{
-              required: (!!old || !!pass) && 'Old Password is required.',
+              required: (!!old || !!pass) && t('user.validation.oldPasswordRequired'),
               maxLength: {
                 value: 250,
-                message: 'Old Password must be less than 250 characters.',
+                message: t('user.validation.oldPasswordMaxLength'),
               },
               deps: ['password'],
             }}
             render={({ field, fieldState: { invalid, error } }) => (
               <PasswordField
-                label="Old Password"
+                label={t('user.form.oldPassword')}
                 error={invalid}
                 helperText={error?.message}
                 required={!!old || !!pass}
@@ -191,16 +199,16 @@ export function ContentUser({
           name="password"
           defaultValue=""
           rules={{
-            required: (!!old || !id) && 'Password is required.',
+            required: (!!old || !id) && t('user.validation.passwordRequired'),
             maxLength: {
               value: 250,
-              message: 'Password must be less than 250 characters.',
+              message: t('user.validation.passwordMaxLength'),
             },
             deps: ['password_confirmation'],
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <PasswordField
-              label="Password"
+              label={t('user.form.password')}
               error={invalid}
               helperText={error?.message}
               required={!!old || !id}
@@ -213,17 +221,17 @@ export function ContentUser({
           name="password_confirmation"
           defaultValue=""
           rules={{
-            required: (!!old || !id) && 'Password confirmation is required.',
+            required: (!!old || !id) && t('user.validation.passwordConfirmationRequired'),
             maxLength: {
               value: 250,
-              message: 'Password confirmation must be less than 250 characters.',
+              message: t('user.validation.passwordConfirmationMaxLength'),
             },
             validate: (value, { password }) =>
-              value === password || 'Password confirmation does not match.',
+              value === password || t('user.validation.passwordConfirmationMismatch'),
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <PasswordField
-              label="Password Confirmation"
+              label={t('user.form.passwordConfirmation')}
               error={invalid}
               helperText={error?.message}
               required={!!old || !id}
@@ -241,12 +249,14 @@ export function ContentUser({
                 {...field}
                 checked={field.value}
                 control={<Switch />}
-                label={field.value ? 'Active for login' : 'Inactive for login'}
+                label={
+                  field.value ? t('user.form.activeForLogin') : t('user.form.inactiveForLogin')
+                }
               />
             )}
           />
         )}
-        <LabelBorder>Account</LabelBorder>
+        <LabelBorder>{t('user.form.account')}</LabelBorder>
       </Stack>
     </Stack>
   );

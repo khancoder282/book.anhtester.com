@@ -1,3 +1,4 @@
+import type { TKey } from 'src/locales';
 import type { RowComponentProps } from 'react-window';
 
 import { create } from 'zustand';
@@ -26,6 +27,7 @@ import {
 import { useRequest } from 'src/hooks/use-request';
 
 import { useAuth } from 'src/store/auth';
+import { translate, useTranslate } from 'src/locales';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/toast';
@@ -38,8 +40,16 @@ import { BookSort } from './book-sort';
 import { Category } from '../api/categorys';
 import { mappingSort, type ReturnUseFileterBook } from '../stores/filter';
 
+// Giá trị sort (key của mappingSort) đi lên URL nên giữ nguyên, chỉ dịch nhãn hiển thị
+const SORT_LABEL: Record<keyof typeof mappingSort, TKey> = {
+  Feature: 'book.sort.feature',
+  Newest: 'book.sort.newest',
+  'Price: Low to High': 'book.sort.priceLowToHigh',
+  'Price: High to Low': 'book.sort.priceHighToLow',
+};
+
 function formatNumber(from: number | null) {
-  if (!from) return 'unset';
+  if (!from) return translate('book.filter.unset');
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(from);
 }
 
@@ -48,13 +58,16 @@ function getPriceLabel(price: { from?: number | null; to?: number | null }): str
   const { from, to } = price;
 
   if (from != null && to != null)
-    return `Price between ${formatNumber(from)} and ${formatNumber(to)}`;
+    return translate('book.filter.priceBetween', {
+      from: formatNumber(from),
+      to: formatNumber(to),
+    });
 
-  if (from != null) return `Price greater than or equal to ${formatNumber(from)}`;
+  if (from != null) return translate('book.filter.priceFrom', { from: formatNumber(from) });
 
-  if (to != null) return `Price less than or equal to ${formatNumber(to)}`;
+  if (to != null) return translate('book.filter.priceTo', { to: formatNumber(to) });
 
-  return 'Price not specified';
+  return translate('book.filter.priceNotSpecified');
 }
 
 export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
@@ -71,6 +84,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
     category,
   } = config;
 
+  const { t } = useTranslate();
   const { auth } = useAuth();
   const { setId, id } = useEdit();
   const { data = [], request, setData } = useRequest(() => Category.get());
@@ -99,10 +113,13 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
           }
           onClick={() => setIsFilter(!isFilter)}
         >
-          Filter
+          {t('book.filter.button')}
         </Button>
         <BookSort
-          options={Object.keys(mappingSort).map((item) => ({ value: item, label: item }))}
+          options={(Object.keys(mappingSort) as (keyof typeof mappingSort)[]).map((item) => ({
+            value: item,
+            label: t(SORT_LABEL[item]),
+          }))}
           sortBy={sort}
           onSort={(s) => setSort(s as any)}
         />
@@ -127,7 +144,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
               color="inherit"
               value={searchName}
               onChange={setSearchName}
-              placeholder="Search book..."
+              placeholder={t('book.filter.searchPlaceholder')}
               sx={{ maxWidth: 'unset' }}
             />
           </Stack>
@@ -146,7 +163,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
           value={category}
           onChange={(_, value) => setCategory(value)}
         >
-          <Tab value="" label="All" />
+          <Tab value="" label={t('book.filter.all')} />
           {data
             .filter((c) => c.bookCount > 0)
             .map((item) => (
@@ -172,7 +189,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
 
       <Dialog open={open} fullWidth maxWidth="xs">
         <DialogTitle>
-          Category management <Label>{data.length}</Label>
+          {t('book.category.title')} <Label>{data.length}</Label>
         </DialogTitle>
         <DialogContent dividers sx={{ borderStyle: 'dashed none' }}>
           <OutlinedInput
@@ -182,7 +199,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
               if (id) setId('');
             }}
             fullWidth
-            placeholder="Add new category"
+            placeholder={t('book.category.addPlaceholder')}
           />
           <Stack sx={{ height: 52 * 6, mt: 1 }}>
             {search && (
@@ -190,7 +207,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
                 <Button
                   onClick={() => {
                     toast.loading(() => Category.create(search), {
-                      loading: 'Saving new category...',
+                      loading: t('book.category.saving'),
                       success: async (res) => {
                         await request();
                         setSearch('');
@@ -201,7 +218,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
                   }}
                   color="inherit"
                 >
-                  Add &quot;{search}&quot; to list
+                  {t('book.category.addToList', { name: search })}
                 </Button>
               </Box>
             )}
@@ -217,7 +234,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
         </DialogContent>
         <DialogActions>
           <Button color="inherit" onClick={() => setOpen(false)}>
-            Close
+            {t('common.actions.close')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -239,7 +256,7 @@ const useEdit = create<{
 
 const saveChange = (name: string, newName: string, success: () => void, error: () => void) =>
   toast.loading(() => Category.update(name, newName), {
-    loading: 'Saving changes...',
+    loading: translate('book.category.savingChanges'),
     success: async (res) => {
       success();
       return res.data.msg;
@@ -263,7 +280,7 @@ const Row = ({
 }>) => {
   const { id, setId, newName, setNewName } = useEdit();
   const item = list[index];
-  if (!item) return <div/>;
+  if (!item) return <div />;
   return (
     <Box
       key={item.name}
@@ -327,7 +344,7 @@ const Row = ({
         id={`del-${item.name}`}
         onDelete={() =>
           toast.loading(() => Category.delete(item.name), {
-            loading: 'Deleting category...',
+            loading: translate('book.category.deleting'),
             success: async (res) => {
               await request();
               return res.data.msg;

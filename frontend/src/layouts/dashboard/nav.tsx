@@ -12,6 +12,8 @@ import Drawer, { drawerClasses } from '@mui/material/Drawer';
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
+import { useTranslate } from 'src/locales';
+
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
 
@@ -102,6 +104,7 @@ export function NavMobile({
 
 export function NavContent({ data, slots, sx }: NavContentProps) {
   const pathname = usePathname();
+  const { t } = useTranslate();
 
   return (
     <>
@@ -167,7 +170,7 @@ export function NavContent({ data, slots, sx }: NavContentProps) {
                     </Box>
 
                     <Box component="span" sx={{ flexGrow: 1 }}>
-                      {item.title}
+                      {t(item.title)}
                     </Box>
 
                     {item.info && item.info}

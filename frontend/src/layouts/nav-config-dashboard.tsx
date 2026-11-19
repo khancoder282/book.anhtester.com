@@ -1,3 +1,5 @@
+import type { TKey } from 'src/locales';
+
 import { SvgColor } from 'src/components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -5,45 +7,45 @@ import { SvgColor } from 'src/components/svg-color';
 const icon = (name: string) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} />;
 
 export type NavItem = {
-  title: string;
+  title: TKey;
   path: string;
   icon: React.ReactNode;
   info?: React.ReactNode;
 };
 
-export const navData = [
+export const navData: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: 'nav.dashboard',
     path: '/',
     icon: icon('ic-analytics'),
   },
   {
-    title: 'User',
+    title: 'nav.user',
     path: '/user-management',
     icon: icon('ic-user'),
   },
   {
-    title: 'Book',
+    title: 'nav.book',
     path: '/book-management',
     icon: icon('ic-book'),
   },
   {
-    title: 'Category',
+    title: 'nav.category',
     path: '/category-management',
     icon: icon('ic-blog'),
   },
   {
-    title: 'Promotion',
+    title: 'nav.promotion',
     path: '/promotion-book-management',
     icon: icon('ic-sale'),
   },
   {
-    title: 'File',
+    title: 'nav.file',
     path: '/file-management',
     icon: icon('ic-dir'),
   },
   {
-    title: 'Database',
+    title: 'nav.database',
     path: '/db-management',
     icon: icon('ic-db'),
   },

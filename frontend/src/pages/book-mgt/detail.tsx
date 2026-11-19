@@ -21,6 +21,7 @@ import { useRequest } from 'src/hooks/use-request';
 
 import { formatFilePath } from 'src/utils/format-filepath';
 
+import { useTranslate } from 'src/locales';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Label } from 'src/components/label';
@@ -34,6 +35,7 @@ import { BookCover } from './components/book-cover';
 import { MappingType } from '../promotions-mgt/const-type';
 
 export default function BookDetail() {
+  const { t } = useTranslate();
   const { slug } = useParams();
   const { data = {} as Partial<BookForm> } = useRequest(
     useCallback(() => getDetailBook(slug!), [slug])
@@ -50,7 +52,7 @@ export default function BookDetail() {
           onClick={() => router.back('/book-management')}
           startIcon={<Iconify icon="eva:arrow-ios-forward-fill" sx={{ scale: -1 }} />}
         >
-          Back
+          {t('common.actions.back')}
         </Button>
       </Box>
       <Grid container spacing={8}>
@@ -81,7 +83,7 @@ export default function BookDetail() {
                     }}
                     color="info"
                   >
-                    New
+                    {t('book.newLabel')}
                   </Label>
                 </RouterLink>
               )}
@@ -130,7 +132,7 @@ export default function BookDetail() {
                   left={0}
                 >
                   <Iconify
-                    sx={{ color: (t) => t.palette.success.main, mr: 0.5 }}
+                    sx={{ color: (theme) => theme.palette.success.main, mr: 0.5 }}
                     icon="eva:arrow-ios-downward-fill"
                     width={12}
                   />
@@ -147,7 +149,7 @@ export default function BookDetail() {
                 subheader={data.auth?.email}
                 avatar={<Avatar src={formatFilePath(data.auth?.avatarUrl)} />}
               />
-              <LabelBorder>Author by </LabelBorder>
+              <LabelBorder>{t('book.authorBy')}</LabelBorder>
             </Card>
           </Stack>
         </Grid>

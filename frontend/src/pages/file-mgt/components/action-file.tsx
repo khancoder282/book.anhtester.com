@@ -2,6 +2,8 @@ import type { DialogConfirmFormProps } from 'src/components/dialog-confirm/dialo
 
 import { Stack, Divider, MenuItem, TextField, Autocomplete } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from 'src/components/iconify';
 import { dialog } from 'src/components/dialog-confirm/confirm';
 import { PreviewFile } from 'src/components/fields/components/preview-file';
@@ -13,9 +15,6 @@ import { renameFile } from '../api/rename-file';
 
 const NAME_PATTERN =
   /^[a-zA-Z0-9àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđĐ._\-\s]+$/u;
-
-const NAME_MESSAGE =
-  'Name must not contain special characters ? / \\ : * " < > | $ # @ ! % ^ & ( ) [ ] { } + = ; , ~';
 
 const ROOT_FOLDER: FileItem = {
   name: 'Root',
@@ -44,9 +43,12 @@ const isInside = (p: string, folder: string) => p === folder || p.startsWith(`${
  * Destination fields shared by Copy and Move: the user picks an existing folder
  * and a file name, the final path is `folder + '/' + name`.
  */
+type Translate = ReturnType<typeof useTranslate>['t'];
+
 const destinationBody = (
   row: FileItem,
-  allFolder: FileItem[]
+  allFolder: FileItem[],
+  t: Translate
 ): DialogConfirmFormProps['body'] => {
   // A folder can never be copied/moved into itself or one of its children.
   const folders = [ROOT_FOLDER, ...allFolder].filter((f) => !isInside(f.path, row.path));
@@ -56,7 +58,7 @@ const destinationBody = (
   return {
     oldPath: {
       type: 'text',
-      label: 'Current path',
+      label: t('file.destination.currentPath'),
       defaultValue: row.path,
       props: {
         disabled: true,
@@ -66,9 +68,9 @@ const destinationBody = (
       type: 'custom',
       defaultValue: dirOf(row.path),
       rules: {
-        required: 'Destination folder is required',
+        required: t('file.destination.folderRequired'),
         validate: {
-          exists: (v) => mapFolder.has(v) || 'Destination folder does not exist',
+          exists: (v) => mapFolder.has(v) || t('file.destination.folderNotExist'),
         },
       },
       render(_, field, inValid, helperText) {
@@ -84,8 +86,8 @@ const destinationBody = (
                 {...params}
                 error={inValid}
                 helperText={helperText}
-                label="Destination folder"
-                placeholder="Select a folder"
+                label={t('file.destination.folder')}
+                placeholder={t('file.destination.folderPlaceholder')}
               />
             )}
             renderOption={({ key, ...props }, option) => (
@@ -99,20 +101,20 @@ const destinationBody = (
     },
     name: {
       type: 'text',
-      label: 'Name',
+      label: t('file.destination.name'),
       defaultValue: row.name,
       rules: {
-        required: 'Name is required',
+        required: t('file.destination.nameRequired'),
         pattern: {
           value: NAME_PATTERN,
-          message: NAME_MESSAGE,
+          message: t('file.nameInvalid'),
         },
         validate: {
           notSame: (v, values) =>
-            joinPath(values.folder, v) !== row.path || 'New path must be different',
+            joinPath(values.folder, v) !== row.path || t('file.destination.pathMustDiffer'),
           notExistFolder: (v, values) =>
             !allFolder.some((f) => f.path === joinPath(values.folder, v)) ||
-            'A folder with this name already exists',
+            t('file.destination.folderExists'),
         },
       },
       props: {
@@ -132,105 +134,114 @@ export const ActionFile = ({
   request: () => void;
   listFile: FileItem[];
   allFolder: FileItem[];
-}) => (
-  <Stack>
-    <MenuItem
-      onClick={() => {
-        dialog.form({
-          title: 'Rename file or folder',
-          body: {
-            name: {
-              type: 'text',
-              label: 'New name',
-              defaultValue: row.name,
-              rules: {
-                required: 'New name is required',
-                pattern: {
-                  value: NAME_PATTERN,
-                  message: NAME_MESSAGE,
+}) => {
+  const { t } = useTranslate();
+
+  return (
+    <Stack>
+      <MenuItem
+        onClick={() => {
+          dialog.form({
+            title: t('file.rename.title'),
+            body: {
+              name: {
+                type: 'text',
+                label: t('file.rename.newName'),
+                defaultValue: row.name,
+                rules: {
+                  required: t('file.rename.newNameRequired'),
+                  pattern: {
+                    value: NAME_PATTERN,
+                    message: t('file.nameInvalid'),
+                  },
+                  validate: {
+                    nameExist: (val) =>
+                      !listFile.some((f) => f.name === val && f.path !== row.path) ||
+                      t('file.rename.nameExists'),
+                    noChange: (val) => val !== row.name || t('file.rename.nameMustDiffer'),
+                  },
                 },
-                validate: {
-                  nameExist: (val) =>
-                    !listFile.some((f) => f.name === val && f.path !== row.path) ||
-                    'Name already exists',
-                  noChange: (val) => val !== row.name || 'New name must be different',
+                props: {
+                  placeholder: row.name,
                 },
-              },
-              props: {
-                placeholder: row.name,
               },
             },
-          },
-          action: {
-            children: 'Rename',
-            color: 'inherit',
-            startIcon: <Iconify icon="solar:text-field-focus-bold" />,
-            onAction: (d) =>
-              renameFile({
-                path: row.path,
-                name: d.name,
-              }).then(() => request()),
-          },
-        });
-      }}
-    >
-      <Iconify sx={{ color: 'text.secondary' }} icon="solar:text-field-focus-bold" />
-      Rename
-    </MenuItem>
-    <MenuItem
-      onClick={() => {
-        dialog.form({
-          title: 'Copy file',
-          body: destinationBody(row, allFolder),
-          action: {
-            children: 'Copy',
-            color: 'inherit',
-            startIcon: <Iconify icon="solar:copy-bold-duotone" />,
-            onAction: (d) =>
-              copyFile({
-                oldPath: row.path,
-                newPath: joinPath(d.folder, d.name),
-              }).then(() => request()),
-          },
-        });
-      }}
-    >
-      <Iconify sx={{ color: 'text.secondary' }} icon="solar:copy-bold-duotone" />
-      Copy
-    </MenuItem>
-    <MenuItem
-      onClick={() => {
-        dialog.form({
-          title: 'Move file',
-          body: destinationBody(row, allFolder),
-          action: {
-            children: 'Move',
-            color: 'inherit',
-            startIcon: <Iconify icon="solar:move-to-folder-bold" />,
-            onAction: (d) =>
-              moveFile({
-                oldPath: row.path,
-                newPath: joinPath(d.folder, d.name),
-              }).then(() => request()),
-          },
-        });
-      }}
-    >
-      <Iconify sx={{ color: 'text.secondary' }} icon="solar:move-to-folder-bold" />
-      Move
-    </MenuItem>
-    <Divider />
-    <MenuItem
-      sx={{ color: 'error.main' }}
-      onClick={() =>
-        dialog.delete(
-          `Do you want to delete ${row.type.includes('folder') ? 'folder' : 'file'}: "${row.name}" this file?`,
-          () => deleteFile(row.path).then(() => request())
-        )
-      }
-    >
-      <Iconify icon="solar:trash-bin-trash-bold" />
-      Delete
-    </MenuItem>
-  </Stack>
-);
+            action: {
+              children: t('common.actions.rename'),
+              color: 'inherit',
+              startIcon: <Iconify icon="solar:text-field-focus-bold" />,
+              onAction: (d) =>
+                renameFile({
+                  path: row.path,
+                  name: d.name,
+                }).then(() => request()),
+            },
+          });
+        }}
+      >
+        <Iconify sx={{ color: 'text.secondary' }} icon="solar:text-field-focus-bold" />
+        {t('common.actions.rename')}
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          dialog.form({
+            title: t('file.destination.copyTitle'),
+            body: destinationBody(row, allFolder, t),
+            action: {
+              children: t('file.actions.copy'),
+              color: 'inherit',
+              startIcon: <Iconify icon="solar:copy-bold-duotone" />,
+              onAction: (d) =>
+                copyFile({
+                  oldPath: row.path,
+                  newPath: joinPath(d.folder, d.name),
+                }).then(() => request()),
+            },
+          });
+        }}
+      >
+        <Iconify sx={{ color: 'text.secondary' }} icon="solar:copy-bold-duotone" />
+        {t('file.actions.copy')}
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          dialog.form({
+            title: t('file.destination.moveTitle'),
+            body: destinationBody(row, allFolder, t),
+            action: {
+              children: t('file.actions.move'),
+              color: 'inherit',
+              startIcon: <Iconify icon="solar:move-to-folder-bold" />,
+              onAction: (d) =>
+                moveFile({
+                  oldPath: row.path,
+                  newPath: joinPath(d.folder, d.name),
+                }).then(() => request()),
+            },
+          });
+        }}
+      >
+        <Iconify sx={{ color: 'text.secondary' }} icon="solar:move-to-folder-bold" />
+        {t('file.actions.move')}
+      </MenuItem>
+      <Divider />
+      <MenuItem
+        sx={{ color: 'error.main' }}
+        onClick={() =>
+          dialog.delete(
+            t(
+              row.type.includes('folder') ? 'file.delete.confirmFolder' : 'file.delete.confirmFile',
+              {
+                name: row.name,
+              }
+            ),
+            () => deleteFile(row.path).then(() => request())
+          )
+        }
+      >
+        <Iconify icon="solar:trash-bin-trash-bold" />
+        {t('common.actions.delete')}
+      </MenuItem>
+    </Stack>
+  );
+};

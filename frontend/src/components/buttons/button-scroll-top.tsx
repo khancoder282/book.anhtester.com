@@ -1,8 +1,12 @@
 import { Fab, Zoom } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from '../iconify';
 
 export function ButtonScrollTop({ in: show }: { in: boolean }) {
+  const { t } = useTranslate();
+
   return (
     <Zoom in={show}>
       <Fab
@@ -16,11 +20,11 @@ export function ButtonScrollTop({ in: show }: { in: boolean }) {
         color="secondary"
         sx={{
           position: 'fixed',
-          bottom: (t) => t.spacing(4),
-          right: (t) => t.spacing(3),
+          bottom: (theme) => theme.spacing(4),
+          right: (theme) => theme.spacing(3),
           '&:hover::after': { opacity: 1, scale: 1 },
           '&::after': {
-            content: '"Click to top"',
+            content: `"${t('components.button.scrollTop')}"`,
             position: 'absolute',
             right: 'calc(100% + 0.75rem)',
             transition: 'all 0.2s ease-in-out',
@@ -28,7 +32,7 @@ export function ButtonScrollTop({ in: show }: { in: boolean }) {
             scale: 0,
             opacity: 0,
             textWrap: 'nowrap',
-            bgcolor: (t) => t.palette.Tooltip.bg,
+            bgcolor: (theme) => theme.palette.Tooltip.bg,
             px: 1,
             py: 0.5,
             typography: 'body2',

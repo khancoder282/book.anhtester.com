@@ -20,6 +20,7 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 import { useAuthCheck } from 'src/routes/hooks/use-auth-check';
 
+import { useTranslate } from 'src/locales';
 import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -39,6 +40,7 @@ export default function Handle() {
   const id = s.get('id');
   const rootName = getValues('name');
   const router = useRouter();
+  const { t } = useTranslate();
   const [endDate] = useWatch({ control, name: ['endDate'] });
   const { isSubmitted, errors, isSubmitSuccessful } = useFormState({ control });
   useAuthCheck();
@@ -69,11 +71,11 @@ export default function Handle() {
   return (
     <DashboardContent>
       <Title>
-        {id ? `Modify promotion - ${CONFIG.appName}` : `Create a new promotion - ${CONFIG.appName}`}
+        {`${id ? t('promotion.handle.modifyTitle') : t('promotion.handle.createTitle')} - ${CONFIG.appName}`}
       </Title>
       <Stack spacing={2} mb={5}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          {id ? 'Modify promotion' : 'Create a new promotion'}
+          {id ? t('promotion.handle.modifyTitle') : t('promotion.handle.createTitle')}
         </Typography>
         <Breadcrumbs sx={{ mb: 3 }}>
           <Link
@@ -82,9 +84,9 @@ export default function Handle() {
             color="textPrimary"
             variant="body2"
           >
-            Promotion management
+            {t('promotion.handle.breadcrumb')}
           </Link>
-          <Typography variant="body2">Create a new promotion</Typography>
+          <Typography variant="body2">{t('promotion.handle.createTitle')}</Typography>
         </Breadcrumbs>
       </Stack>
       <Container maxWidth="md">
@@ -103,7 +105,9 @@ export default function Handle() {
                     checked={field.value}
                     onChange={(_, c) => field.onChange(c)}
                     control={<Switch />}
-                    label={field.value ? 'Active' : 'Inactive'}
+                    label={
+                      field.value ? t('promotion.handle.active') : t('promotion.handle.inactive')
+                    }
                     sx={{ ml: 2 }}
                   />
                 )}
@@ -117,7 +121,7 @@ export default function Handle() {
               color="inherit"
               onClick={() => reset()}
             >
-              Reset
+              {t('promotion.handle.reset')}
             </Button>
             <Button
               size="large"
@@ -127,16 +131,14 @@ export default function Handle() {
               color="inherit"
               type="submit"
             >
-              {id ? 'Save changes' : 'Create book'}
+              {id ? t('promotion.handle.saveChanges') : t('promotion.handle.create')}
             </Button>
           </Box>
           {id && (
             <Stack>
               <Divider sx={{ borderStyle: 'dashed', mb: 2 }} />
               <Typography variant="body2" color="textSecondary">
-                This book, previously part of your business inventory, is no longer in active
-                commerce and is now available for sale to interested buyers looking for a great
-                deal.
+                {t('promotion.handle.deleteNote')}
               </Typography>
               <Button
                 variant="outlined"
@@ -146,7 +148,9 @@ export default function Handle() {
                 onClick={() =>
                   dialog.delete(
                     <>
-                      Do you want delete <b>{rootName}</b>, after delete you can&apos;t undo
+                      {t('promotion.handle.deleteConfirmBefore')}
+                      <b>{rootName}</b>
+                      {t('promotion.handle.deleteConfirmAfter')}
                     </>,
                     () =>
                       deleteBook(id).then(() => {
@@ -155,7 +159,7 @@ export default function Handle() {
                   )
                 }
               >
-                Delete
+                {t('common.actions.delete')}
               </Button>
             </Stack>
           )}

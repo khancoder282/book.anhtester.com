@@ -2,7 +2,11 @@ import { varAlpha } from 'minimal-shared/utils';
 
 import { Box, Typography } from '@mui/material';
 
-export function NoData({sx}: {sx?: Sx}) {
+import { useTranslate } from 'src/locales';
+
+export function NoData({ sx }: { sx?: Sx }) {
+  const { t } = useTranslate();
+
   return (
     <Box
       sx={{
@@ -12,12 +16,12 @@ export function NoData({sx}: {sx?: Sx}) {
         boxSizing: 'content-box',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: (t) => varAlpha(t.palette.grey['500Channel'], 0.04),
+        bgcolor: (theme) => varAlpha(theme.palette.grey['500Channel'], 0.04),
         border: 1,
         borderRadius: 2,
-        borderColor: (t) => varAlpha(t.palette.grey['500Channel'], 0.08),
+        borderColor: (theme) => varAlpha(theme.palette.grey['500Channel'], 0.08),
         borderStyle: 'dashed',
-        ...sx
+        ...sx,
       }}
     >
       <Box
@@ -30,7 +34,7 @@ export function NoData({sx}: {sx?: Sx}) {
         src="/assets/ic-content.svg"
       />
       <Typography variant="h6" color="textDisabled">
-        No Data
+        {t('common.noData')}
       </Typography>
     </Box>
   );

@@ -4,6 +4,8 @@ import { Stack, Badge, Avatar, Typography } from '@mui/material';
 
 import { formatFilePath } from 'src/utils/format-filepath';
 
+import { translate } from 'src/locales';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
@@ -12,7 +14,7 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
   reload
 ) => [
   {
-    label: 'Name',
+    label: translate('common.fields.name'),
     sort: 'name',
     render: ({ avatarUrl, name, email, isActive, id }) => (
       <Stack direction="row" spacing={1}>
@@ -25,7 +27,7 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
                 width: 18,
                 height: 18,
                 bgcolor: isActive ? 'success.main' : 'error.main',
-                boxShadow: t=>t.customShadows.z8,
+                boxShadow: (t) => t.customShadows.z8,
               }}
             >
               <Iconify
@@ -39,7 +41,7 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
         </Badge>
         <Stack flex={1} overflow="hidden">
           <Typography variant="subtitle2" noWrap>
-            {name} {id === user?.id && <Label>You</Label>}
+            {name} {id === user?.id && <Label>{translate('user.you')}</Label>}
           </Typography>
           <Typography noWrap color="textSecondary" variant="caption">
             {email}
@@ -49,23 +51,27 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
     ),
   },
   {
-    label: 'Phone',
+    label: translate('common.fields.phone'),
     sort: 'phone',
     render: (row) => <Typography variant="body2">{row.phone}</Typography>,
   },
   {
-    label: 'Address',
+    label: translate('common.fields.address'),
     sort: 'address',
     render: (row) => <Typography variant="body2">{row.address}</Typography>,
   },
   {
-    label: 'Active',
+    label: translate('user.columns.active'),
     sort: 'isActive',
     render: (row) =>
-      row.isActive ? <Label color="success">Active</Label> : <Label color="error">Inactive</Label>,
+      row.isActive ? (
+        <Label color="success">{translate('user.status.active')}</Label>
+      ) : (
+        <Label color="error">{translate('user.status.inactive')}</Label>
+      ),
   },
   {
-    label: 'Created',
+    label: translate('common.fields.createdAt'),
     sort: 'createdAt',
     render: (row) => (
       <Stack>
@@ -77,7 +83,7 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
     ),
   },
   {
-    label: 'Updated',
+    label: translate('common.fields.updatedAt'),
     sort: 'updatedAt',
     render: (row) => (
       <Stack>
@@ -89,40 +95,41 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
     ),
   },
 ];
-export const fieldOptions: FieldType<User>[] = [
+/** Hàm, không phải hằng số: gọi lúc render để nhãn theo ngôn ngữ hiện tại. */
+export const fieldOptions = (): FieldType<User>[] => [
   {
     name: 'name',
-    label: 'Name',
+    label: translate('common.fields.name'),
     type: 'string',
   },
   {
     name: 'email',
-    label: 'Email',
+    label: translate('common.fields.email'),
     type: 'string',
   },
   {
     name: 'phone',
-    label: 'Phone',
+    label: translate('common.fields.phone'),
     type: 'string',
   },
   {
     name: 'address',
-    label: 'Address',
+    label: translate('common.fields.address'),
     type: 'string',
   },
   {
     name: 'isActive',
-    label: 'Is Active',
+    label: translate('user.filter.isActive'),
     type: 'boolean',
   },
   {
     name: 'createdAt',
-    label: 'Created At',
+    label: translate('user.filter.createdAt'),
     type: 'date',
   },
   {
     name: 'updatedAt',
-    label: 'Updated At',
+    label: translate('user.filter.updatedAt'),
     type: 'date',
   },
 ];

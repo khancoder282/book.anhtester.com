@@ -1,0 +1,83 @@
+// Namespace 'user'. Khoá tiếng Anh là nguồn: thêm khoá ở đây trước, rồi thêm bản dịch ở vi/user.ts.
+// Màn quản lý user, form thêm/sửa user (dùng cả ở sign-up), profile, setting.
+export const user = {
+  title: 'User Management',
+  newUser: 'New user',
+  searchPlaceholder: 'Search user (name, email, phone or address)',
+  deleteConfirm: 'Confirm you want to delete user "{name}".',
+  you: 'You',
+  columns: {
+    active: 'Active',
+  },
+  status: {
+    active: 'Active',
+    inactive: 'Inactive',
+  },
+  filter: {
+    isActive: 'Is Active',
+    createdAt: 'Created At',
+    updatedAt: 'Updated At',
+  },
+  dialog: {
+    addTitle: 'Add user',
+    updateTitle: 'Update user',
+  },
+  form: {
+    information: 'Infomation',
+    account: 'Account',
+    name: 'Name',
+    phone: 'Phone',
+    email: 'Email',
+    oldPassword: 'Old Password',
+    password: 'Password',
+    passwordConfirmation: 'Password Confirmation',
+    activeForLogin: 'Active for login',
+    inactiveForLogin: 'Inactive for login',
+  },
+  validation: {
+    avatarMaxSize: 'Avatar size must be less than 3MB.',
+    avatarFormat: 'Avatar format must be *.jpeg, *.jpg, *.png, *.gif.',
+    nameRequired: 'Name is required.',
+    nameMaxLength: 'Name must be less than 250 characters.',
+    phoneMaxLength: 'Max length for number phone is 10 number.',
+    addressMaxLength: 'Max length for address is 250 characters.',
+    emailRequired: 'Email is required.',
+    emailInvalid: 'Invalid email address',
+    emailMaxLength: 'Email must be less than 250 characters.',
+    oldPasswordRequired: 'Old Password is required.',
+    oldPasswordMaxLength: 'Old Password must be less than 250 characters.',
+    passwordRequired: 'Password is required.',
+    passwordMaxLength: 'Password must be less than 250 characters.',
+    passwordConfirmationRequired: 'Password confirmation is required.',
+    passwordConfirmationMaxLength: 'Password confirmation must be less than 250 characters.',
+    passwordConfirmationMismatch: 'Password confirmation does not match.',
+  },
+  toast: {
+    uploadAvatar: 'Upload avatar...',
+    uploadUser: 'Upload user...',
+    uploadProfile: 'Upload profile...',
+    loginFirst: 'Please login first',
+  },
+  breadcrumb: {
+    userManagement: 'User management',
+  },
+  profile: {
+    pageTitle: 'My profile',
+    title: 'My Profile',
+    breadcrumb: 'Change my profile',
+    reset: 'Reset',
+    save: 'Save Profile',
+  },
+  setting: {
+    title: 'Setting account',
+    themeTitle: 'Theme',
+    themeSubheader:
+      'Switch between Light, Dark, or System themes for a personalized and comfortable experience.',
+    themeLight: 'Light',
+    themeDark: 'Dark',
+    themeSystem: 'System',
+    colorTitle: 'Select color',
+    colorSubheader: 'Select color for your account.',
+    reset: 'Reset',
+  },
+};

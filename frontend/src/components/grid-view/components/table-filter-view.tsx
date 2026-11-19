@@ -11,6 +11,8 @@ import {
   InputAdornment,
 } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
@@ -28,8 +30,9 @@ type TableFilterViewProps<T> = {
 export function TableFilterView<T>({
   config: { filter: filters, setFilter: setFilters },
   filter: fields,
-  placeholder = 'Search...',
+  placeholder,
 }: TableFilterViewProps<T>) {
+  const { t } = useTranslate();
   const [isFilter] = useWatch({
     control: formControl.control,
     name: ['_isFilter'],
@@ -102,7 +105,7 @@ export function TableFilterView<T>({
           <Stack direction="row" spacing={1} alignItems="center">
             <OutlinedInput
               fullWidth
-              placeholder={placeholder}
+              placeholder={placeholder ?? t('components.filter.searchPlaceholder')}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -172,7 +175,7 @@ export function TableFilterView<T>({
                   })
                 }
               >
-                Add filter
+                {t('components.filter.addFilter')}
               </Button>
               <Button
                 id="clear-filter"
@@ -187,7 +190,7 @@ export function TableFilterView<T>({
                 variant="outlined"
                 startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
               >
-                Clear filter
+                {t('components.filter.clearFilter')}
               </Button>
             </Box>
           </Stack>

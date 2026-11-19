@@ -8,6 +8,8 @@ import {
   DialogContentText,
 } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { useDialog } from './store';
 
 type DialogConfirm = {
@@ -16,6 +18,7 @@ type DialogConfirm = {
 };
 
 export function DialogConfirm({ onConfirm, message }: DialogConfirm) {
+  const { t } = useTranslate();
   const [isConfirm, setIsConfirm] = useState(false);
   const { setOpen } = useDialog();
   const handleConfirm = async () => {
@@ -30,7 +33,7 @@ export function DialogConfirm({ onConfirm, message }: DialogConfirm) {
   };
   return (
     <>
-      <DialogTitle>Confirm</DialogTitle>
+      <DialogTitle>{t('common.actions.confirm')}</DialogTitle>
       <DialogContent>
         <DialogContentText>{message}</DialogContentText>
       </DialogContent>
@@ -41,7 +44,7 @@ export function DialogConfirm({ onConfirm, message }: DialogConfirm) {
           color="inherit"
           onClick={() => setOpen(false)}
         >
-          Cancel
+          {t('common.actions.cancel')}
         </Button>
         <Button
           id="dialog-confirm-action"
@@ -49,7 +52,7 @@ export function DialogConfirm({ onConfirm, message }: DialogConfirm) {
           variant="contained"
           onClick={handleConfirm}
         >
-          Confirm
+          {t('common.actions.confirm')}
         </Button>
       </DialogActions>
     </>

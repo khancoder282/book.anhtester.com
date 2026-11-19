@@ -1,13 +1,18 @@
 import { CONFIG } from 'src/config-global';
+import { useTranslate } from 'src/locales';
 
 import Title from 'src/components/title';
 
 import { BookView } from './page';
 
-export default function page() {
+export default function BookPage() {
+  const { t } = useTranslate();
+
   return (
     <>
-      <Title>Book Management - {CONFIG.appName}</Title>
+      <Title>
+        {t('book.title')} - {CONFIG.appName}
+      </Title>
       <BookView />
     </>
   );

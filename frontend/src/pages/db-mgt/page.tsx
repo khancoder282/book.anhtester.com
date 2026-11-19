@@ -25,6 +25,7 @@ import {
 import { useRequest } from 'src/hooks/use-request';
 
 import { axios } from 'src/api/axios';
+import { useTranslate } from 'src/locales';
 import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -58,30 +59,35 @@ const KEY_LABEL: Record<string, { text: string; color: 'primary' | 'info' | 'def
 };
 
 const fNumber = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
-const plural = (n: number, word: string) => `${fNumber(n)} ${word}${n === 1 ? '' : 's'}`;
 
 export default function Page() {
   const { data = [], loading, error, request } = useRequest(getSchema);
   const [params, setParams] = useSearchParams();
+  const { t } = useTranslate();
+  const columnCount = (n: number) =>
+    n === 1 ? t('db.columnCountOne') : t('db.columnCount', { count: fNumber(n) });
+  const rowCount = (n: number) =>
+    n === 1 ? t('db.rowCountOne') : t('db.rowCount', { count: fNumber(n) });
 
   const selected = useMemo(
-    () => data.find((t) => t.name === params.get('table')) ?? data[0],
+    () => data.find((tb) => tb.name === params.get('table')) ?? data[0],
     [data, params]
   );
-  const totalRows = useMemo(() => data.reduce((sum, t) => sum + t.rows, 0), [data]);
+  const totalRows = useMemo(() => data.reduce((sum, tb) => sum + tb.rows, 0), [data]);
 
   const selectTable = (name: string) => setParams({ table: name }, { replace: true });
 
   return (
     <>
-      <Title>Database Management - {CONFIG.appName}</Title>
+      <Title>
+        {t('db.title')} - {CONFIG.appName}
+      </Title>
       <DashboardContent>
         <Box sx={{ mb: 5, display: 'flex', alignItems: 'center', gap: 2 }}>
           <Stack sx={{ flexGrow: 1 }}>
-            <Typography variant="h4">Database Management</Typography>
+            <Typography variant="h4">{t('db.title')}</Typography>
             <Typography variant="body2" color="text.secondary" id="db-summary">
-              {data.length} tables · {fNumber(totalRows)} rows. Structure only, row data is not
-              shown.
+              {t('db.summary', { tables: data.length, rows: fNumber(totalRows) })}
             </Typography>
           </Stack>
           <Button
@@ -92,41 +98,40 @@ export default function Page() {
             startIcon={<Iconify icon="solar:restart-bold" />}
             onClick={() => request()}
           >
-            Reload
+            {t('common.actions.reload')}
           </Button>
         </Box>
 
         {!!error && (
           <Alert severity="error" sx={{ mb: 3 }}>
-            Cannot load database schema.{' '}
-            {(error as any)?.response?.data?.msg ?? (error as Error)?.message}
+            {t('db.loadError')} {(error as any)?.response?.data?.msg ?? (error as Error)?.message}
           </Alert>
         )}
 
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4, lg: 3 }}>
             <Card>
-              <CardHeader title="Tables" sx={{ pb: 1 }} />
+              <CardHeader title={t('db.tables')} sx={{ pb: 1 }} />
               <List id="db-table-list" sx={{ p: 1 }}>
-                {data.map((t) => (
+                {data.map((tb) => (
                   <ListItemButton
-                    key={t.name}
-                    selected={t.name === selected?.name}
-                    onClick={() => selectTable(t.name)}
-                    data-table={t.name}
+                    key={tb.name}
+                    selected={tb.name === selected?.name}
+                    onClick={() => selectTable(tb.name)}
+                    data-table={tb.name}
                     sx={{ borderRadius: 1 }}
                   >
                     <ListItemText
-                      primary={t.name}
-                      secondary={plural(t.columns.length, 'column')}
+                      primary={tb.name}
+                      secondary={columnCount(tb.columns.length)}
                       slotProps={{ primary: { typography: 'subtitle2', noWrap: true } }}
                     />
-                    <Label color={t.rows ? 'success' : 'default'}>{fNumber(t.rows)}</Label>
+                    <Label color={tb.rows ? 'success' : 'default'}>{fNumber(tb.rows)}</Label>
                   </ListItemButton>
                 ))}
                 {!loading && !error && data.length === 0 && (
                   <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-                    No table found.
+                    {t('db.noTable')}
                   </Typography>
                 )}
               </List>
@@ -140,18 +145,18 @@ export default function Page() {
                   <CardHeader
                     id="db-table-title"
                     title={selected.name}
-                    subheader={`${plural(selected.columns.length, 'column')} · ${plural(selected.rows, 'row')}`}
+                    subheader={`${columnCount(selected.columns.length)} · ${rowCount(selected.rows)}`}
                   />
                   <TableContainer sx={{ mt: 2 }}>
                     <Table id="db-column-table" size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell>Column</TableCell>
-                          <TableCell>Type</TableCell>
-                          <TableCell>Nullable</TableCell>
-                          <TableCell>Key</TableCell>
-                          <TableCell>Default</TableCell>
-                          <TableCell>References</TableCell>
+                          <TableCell>{t('db.columns.column')}</TableCell>
+                          <TableCell>{t('db.columns.type')}</TableCell>
+                          <TableCell>{t('db.columns.nullable')}</TableCell>
+                          <TableCell>{t('db.columns.key')}</TableCell>
+                          <TableCell>{t('db.columns.default')}</TableCell>
+                          <TableCell>{t('db.columns.references')}</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -166,7 +171,9 @@ export default function Page() {
                               )}
                             </TableCell>
                             <TableCell sx={{ fontFamily: 'monospace' }}>{c.type}</TableCell>
-                            <TableCell>{c.nullable ? 'Yes' : 'No'}</TableCell>
+                            <TableCell>
+                              {c.nullable ? t('common.status.yes') : t('common.status.no')}
+                            </TableCell>
                             <TableCell>
                               {KEY_LABEL[c.key] && (
                                 <Label color={KEY_LABEL[c.key].color}>

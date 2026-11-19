@@ -11,6 +11,8 @@ import {
   DialogContent,
 } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from 'src/components/iconify';
 import { UploadField } from 'src/components/fields/upload-field';
 
@@ -23,6 +25,7 @@ type UploadForm = {
 };
 
 export function DialogUpload({ reload }: { reload: () => void }) {
+  const { t } = useTranslate();
   const { open, setOpen, path, rootPath } = useDialogUpload();
   const { control, handleSubmit, reset, setValue, watch } = useForm<UploadForm>();
   const [lstFiles] = watch(['files']);
@@ -56,7 +59,7 @@ export function DialogUpload({ reload }: { reload: () => void }) {
 
   return (
     <Dialog open={open} fullWidth maxWidth="sm" scroll="body">
-      <DialogTitle>Upload file</DialogTitle>
+      <DialogTitle>{t('file.upload.title')}</DialogTitle>
       <DialogContent dividers sx={{ borderTopStyle: 'dashed', borderBottomStyle: 'dashed' }}>
         <Stack spacing={2}>
           <Controller
@@ -66,20 +69,21 @@ export function DialogUpload({ reload }: { reload: () => void }) {
             rules={{
               pattern: {
                 value: /^[a-zA-Z0-9/_-]*$/,
-                message:
-                  'Path can only contain characters a-z, A-Z, 0-9, _, -, and /, not starting with /',
+                message: t('file.upload.pathInvalid'),
               },
             }}
             render={({ field, fieldState: { error, invalid } }) => (
               <TextField
                 {...field}
-                label="Folder upload file"
+                label={t('file.upload.folder')}
                 error={invalid}
                 helperText={
                   error?.message ||
-                  `Upload in: ${(rootPath + '/' + field.value).replace(/\/\//g, '/')}`
+                  t('file.upload.uploadIn', {
+                    path: (rootPath + '/' + field.value).replace(/\/\//g, '/'),
+                  })
                 }
-                placeholder="Enter a folder name or use the current folder"
+                placeholder={t('file.upload.folderPlaceholder')}
                 multiline
               />
             )}
@@ -88,12 +92,12 @@ export function DialogUpload({ reload }: { reload: () => void }) {
             control={control}
             name="files"
             rules={{
-              required: 'File is required',
+              required: t('file.upload.fileRequired'),
               validate: {
                 maxFileSize: (files) =>
                   files.every((file) => file.size < 1024 * 1024 * 5) ||
-                  'File size must be less than 5MB',
-                maxLength: (files) => files.length <= 30 || 'You can upload up to 30 files',
+                  t('file.upload.maxFileSize'),
+                maxLength: (files) => files.length <= 30 || t('file.upload.maxFiles'),
               },
             }}
             render={({ field, fieldState: { error, invalid } }) => (
@@ -118,11 +122,11 @@ export function DialogUpload({ reload }: { reload: () => void }) {
             onClick={() => setValue('files', [])}
             sx={{ mr: 'auto' }}
           >
-            Remove all
+            {t('file.upload.removeAll')}
           </Button>
         )}
         <Button onClick={hanldeClose} color="inherit">
-          Cancel
+          {t('common.actions.cancel')}
         </Button>
         <Button
           color="inherit"
@@ -130,7 +134,7 @@ export function DialogUpload({ reload }: { reload: () => void }) {
           startIcon={<Iconify icon="solar:cloud-upload-bold" />}
           onClick={upload}
         >
-          Upload
+          {t('common.actions.upload')}
         </Button>
       </DialogActions>
     </Dialog>

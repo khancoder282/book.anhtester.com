@@ -5,13 +5,24 @@ import { forwardRef } from 'react';
 
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
+import { type TKey, translate, useTranslate } from 'src/locales';
+
 import { Iconify } from '../iconify';
 
-export const formatter = (date: dayjs.Dayjs): string => {
-  const days: string[] = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-  const dayIndex: number = date.day() === 0 ? 6 : date.day() - 1;
-  return days[dayIndex];
-};
+// Thứ tự T2 → CN; dayjs: day() = 0 là Chủ nhật
+const WEEKDAY_KEYS: TKey[] = [
+  'components.datePicker.weekdays.mon',
+  'components.datePicker.weekdays.tue',
+  'components.datePicker.weekdays.wed',
+  'components.datePicker.weekdays.thu',
+  'components.datePicker.weekdays.fri',
+  'components.datePicker.weekdays.sat',
+  'components.datePicker.weekdays.sun',
+];
+
+const weekdayKey = (date: dayjs.Dayjs): TKey => WEEKDAY_KEYS[date.day() === 0 ? 6 : date.day() - 1];
+
+export const formatter = (date: dayjs.Dayjs): string => translate(weekdayKey(date));
 
 type DatePickerFieldProps = {
   error?: boolean;
@@ -21,23 +32,26 @@ type DatePickerFieldProps = {
 } & DatePickerProps;
 
 export const DatePickerField = forwardRef<HTMLInputElement, DatePickerFieldProps>(
-  ({ error, helperText, size, fullWidth, ...props }, ref) => (
-    <DatePicker
-      ref={ref}
-      label="End date"
-      dayOfWeekFormatter={formatter}
-      {...props}
-      slots={{
-        openPickerIcon: () => <Iconify icon="solar:calendar-minimalistic-bold" />,
-      }}
-      slotProps={{
-        textField: {
-          error,
-          size,
-          fullWidth,
-          helperText,
-        },
-      }}
-    />
-  )
+  ({ error, helperText, size, fullWidth, ...props }, ref) => {
+    const { t } = useTranslate();
+    return (
+      <DatePicker
+        ref={ref}
+        label={t('components.datePicker.endDate')}
+        dayOfWeekFormatter={(date) => t(weekdayKey(date))}
+        {...props}
+        slots={{
+          openPickerIcon: () => <Iconify icon="solar:calendar-minimalistic-bold" />,
+        }}
+        slotProps={{
+          textField: {
+            error,
+            size,
+            fullWidth,
+            helperText,
+          },
+        }}
+      />
+    );
+  }
 );

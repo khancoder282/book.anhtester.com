@@ -16,6 +16,7 @@ import {
 
 import { useRequest } from 'src/hooks/use-request';
 
+import { useTranslate } from 'src/locales';
 import { MappingType } from 'src/pages/promotions-mgt/const-type';
 import { getPromotion } from 'src/pages/promotions-mgt/api/get-promotion';
 
@@ -58,6 +59,9 @@ function handlePrice(price: number, promotions: PromotionType[]) {
 }
 
 export function CardPromotion() {
+  const { t, lang } = useTranslate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const filterFields = useMemo(() => fields(), [lang]);
   const [expen, setExpen] = useState(false);
   const [selected = [], _price = 0] = useWatch({ control, name: ['promotions', 'price'] });
   const price = Number(_price || 0);
@@ -106,8 +110,8 @@ export function CardPromotion() {
   return (
     <Card>
       <CardHeader
-        title="Promotion"
-        subheader="Select promotion"
+        title={t('book.promotion.title')}
+        subheader={t('book.promotion.subheader')}
         action={
           <IconButton onClick={() => setExpen(!expen)}>
             <Iconify
@@ -122,7 +126,7 @@ export function CardPromotion() {
       <Collapse in={expen}>
         <Divider />
         <Stack>
-          <TableFilterView config={config} filter={fields} />
+          <TableFilterView config={config} filter={filterFields} />
           <TableView
             select={{
               selected,
@@ -131,7 +135,7 @@ export function CardPromotion() {
             config={config}
             columns={columns()}
             data={list}
-            filter={fields}
+            filter={filterFields}
             keyName="id"
           />
           <TablePaginationView
@@ -168,7 +172,7 @@ export function CardPromotion() {
                   <Chip
                     onClick={() => setSelected([])}
                     variant="outlined"
-                    label={`Remove ${selected.length} promotions`}
+                    label={t('book.promotion.removeAll', { count: selected.length })}
                     sx={{ fontWeight: 'bold' }}
                   />
                 )}
@@ -192,7 +196,7 @@ export function CardPromotion() {
                   alignItems="center"
                 >
                   <Iconify
-                    sx={{ color: (t) => t.palette.success.main, mr: 0.5 }}
+                    sx={{ color: (theme) => theme.palette.success.main, mr: 0.5 }}
                     icon="eva:arrow-ios-downward-fill"
                     width={12}
                   />

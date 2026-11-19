@@ -2,12 +2,15 @@ import { useState, forwardRef } from 'react';
 
 import { Button, Collapse, type ButtonProps, ClickAwayListener } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from '../iconify';
 
 export const ButtonDelete = forwardRef<
   HTMLButtonElement,
   { onDelete: () => Promise<void> | void } & ButtonProps
 >((props, ref) => {
+  const { t } = useTranslate();
   const [isCheck, setIsCheck] = useState(false);
   const [isDel, setIsDel] = useState(false);
   return (
@@ -42,7 +45,7 @@ export const ButtonDelete = forwardRef<
           mountOnEnter
           sx={{ textWrap: 'nowrap', mx: isCheck ? 0.5 : 0 }}
         >
-          {props.children || 'Click to delete'}
+          {props.children || t('components.button.clickToDelete')}
         </Collapse>
       </Button>
     </ClickAwayListener>

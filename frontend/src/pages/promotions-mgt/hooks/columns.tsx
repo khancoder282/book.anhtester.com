@@ -2,11 +2,13 @@ import dayjs from 'dayjs';
 
 import { Stack, Avatar, Typography } from '@mui/material';
 
+import { translate } from 'src/locales';
+
 import { Iconify } from 'src/components/iconify';
 
 export const columns: () => Columns<BookView>[] = () => [
   {
-    label: 'Name',
+    label: translate('promotion.books.columns.name'),
     sort: 'name',
     render: ({ name, picture, description }) => (
       <Stack overflow="hidden" direction="row" gap={2}>
@@ -35,7 +37,7 @@ export const columns: () => Columns<BookView>[] = () => [
     ),
   },
   {
-    label: 'Price',
+    label: translate('promotion.books.columns.price'),
     sort: 'price',
     render: ({ price }) => (
       <Typography variant="body2">
@@ -44,7 +46,7 @@ export const columns: () => Columns<BookView>[] = () => [
     ),
   },
   {
-    label: 'Created',
+    label: translate('promotion.books.columns.created'),
     sort: 'createdAt',
     render: ({ createdAt }) => (
       <Stack>
@@ -59,25 +61,26 @@ export const columns: () => Columns<BookView>[] = () => [
   },
 ];
 
-export const filter: FieldType<BookView>[] = [
+/** Gọi lúc render (không để hằng số cấp module) để nhãn theo ngôn ngữ hiện tại */
+export const getFilter = (): FieldType<BookView>[] => [
   {
     name: 'name',
     type: 'string',
-    label: 'Name',
+    label: translate('promotion.books.fields.name'),
   },
   {
     name: 'description',
     type: 'string',
-    label: 'Description',
+    label: translate('promotion.books.fields.description'),
   },
   {
     name: 'price',
     type: 'number',
-    label: 'Price',
+    label: translate('promotion.books.fields.price'),
   },
   {
     name: 'createdAt',
     type: 'date',
-    label: 'Created',
+    label: translate('promotion.books.fields.created'),
   },
 ];

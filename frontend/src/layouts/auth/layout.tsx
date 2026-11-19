@@ -8,9 +8,21 @@ import Alert from '@mui/material/Alert';
 
 import { RouterLink } from 'src/routes/components';
 
+import { useTranslate } from 'src/locales';
+
 import { Logo } from 'src/components/logo';
 
 import { AuthContent } from './content';
+import { LanguagePopover } from '../components/language-popover';
+
+function NeedHelpLink() {
+  const { t } = useTranslate();
+  return (
+    <Link href="#" component={RouterLink} color="inherit" sx={{ typography: 'subtitle2' }}>
+      {t('nav.needHelp')}
+    </Link>
+  );
+}
 import { MainSection } from '../core/main-section';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
@@ -52,10 +64,9 @@ export function AuthLayout({
       leftArea: <Logo />,
       rightArea: (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+          <LanguagePopover />
           {/** @slot Help link */}
-          <Link href="#" component={RouterLink} color="inherit" sx={{ typography: 'subtitle2' }}>
-            Need help?
-          </Link>
+          <NeedHelpLink />
         </Box>
       ),
     };

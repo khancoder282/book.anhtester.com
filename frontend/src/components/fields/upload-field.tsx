@@ -15,6 +15,8 @@ import {
 
 import { Box, Stack, ToggleButton, FormHelperText, ToggleButtonGroup } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from '../iconify';
 import { UploadImg } from './upload-img';
 import { SortableImage } from './components/sortable';
@@ -109,6 +111,7 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
     },
     ref
   ) => {
+    const { t } = useTranslate();
     const [viewMode, setMode] = useState(dfViewMode);
     const [files, setFiles] = useState<(File | FileItem)[]>(value);
 
@@ -156,11 +159,11 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
             borderColor: 'divider',
             borderStyle: 'dashed',
             cursor: 'pointer',
-            bgcolor: (t) => varAlpha(t.palette.grey['500Channel'], 0.08),
+            bgcolor: (theme) => varAlpha(theme.palette.grey['500Channel'], 0.08),
             ...(error && {
-              bgcolor: (t) => varAlpha(t.palette.error.mainChannel, 0.08),
-              color: (t) => t.palette.error.main,
-              borderColor: (t) => t.palette.error.main,
+              bgcolor: (theme) => varAlpha(theme.palette.error.mainChannel, 0.08),
+              color: (theme) => theme.palette.error.main,
+              borderColor: (theme) => theme.palette.error.main,
             }),
             ...(disabled && {
               opacity: 0.48,
@@ -171,13 +174,13 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
         >
           <Stack alignItems="center">
             <UploadImg sx={{ width: 200, height: 150 }} />
-            <Box sx={{ fontWeight: 'bold', fontSize: 16 }}>Drop or select a files</Box>
+            <Box sx={{ fontWeight: 'bold', fontSize: 16 }}>{t('components.upload.title')}</Box>
             <Box color="text.secondary" sx={{ fontSize: 14 }}>
-              Drag a file here, or{' '}
+              {t('components.upload.dragHere')}{' '}
               <Box component="span" color="primary.main">
-                browse
+                {t('components.upload.browse')}
               </Box>{' '}
-              your device.
+              {t('components.upload.yourDevice')}
             </Box>
           </Stack>
         </Box>
@@ -226,8 +229,8 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
             exclusive
             sx={{
               position: 'absolute',
-              left: (t) => t.spacing(1),
-              top: (t) => t.spacing(1),
+              left: (theme) => theme.spacing(1),
+              top: (theme) => theme.spacing(1),
             }}
             value={viewMode}
             onChange={(e, v) => setMode(v)}

@@ -9,6 +9,7 @@ import { useThrottle } from 'src/hooks/use-throttle';
 import { useScrollTop } from 'src/hooks/use-scroll-top';
 
 import { useAuth } from 'src/store/auth';
+import { useTranslate } from 'src/locales';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -22,6 +23,7 @@ import { CardBookView } from './components/card-book-view';
 import { CardBookViewSmoll } from './components/card-book-view-smoll';
 
 export function BookView() {
+  const { t } = useTranslate();
   const { auth } = useAuth();
   const [loading, setLoading] = useState(false);
   const config = useFilterBook();
@@ -96,7 +98,7 @@ export function BookView() {
       query.set('query', queryCurrent);
     }
     return path + '?' + query.toString();
-  })()
+  })();
 
   return (
     <DashboardContent>
@@ -108,7 +110,7 @@ export function BookView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Book Management
+          {t('book.title')}
         </Typography>
         {auth && (
           <Button
@@ -118,7 +120,7 @@ export function BookView() {
             LinkComponent={RouterLink}
             href={renderLinkNew}
           >
-            New book
+            {t('book.newBook')}
           </Button>
         )}
       </Box>
@@ -152,7 +154,7 @@ export function BookView() {
               sx={{ animation: 'spin 1s linear infinite', mr: 1 }}
               icon="mingcute:loading-fill"
             />
-            Loading more book...
+            {t('book.loadingMore')}
           </Typography>
         ) : (
           list.length > 300 && (
@@ -167,7 +169,7 @@ export function BookView() {
                 })
               }
             >
-              No more than {list.length} items displayed. Please try searching instead.
+              {t('book.limitReached', { count: list.length })}
             </Button>
           )
         )}

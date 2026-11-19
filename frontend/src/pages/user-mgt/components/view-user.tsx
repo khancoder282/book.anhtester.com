@@ -6,6 +6,7 @@ import { useDebounce } from 'src/hooks/use-debound';
 
 import { axios } from 'src/api/axios';
 import { useAuth } from 'src/store/auth';
+import { useTranslate } from 'src/locales';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -30,6 +31,7 @@ export function ViewUser() {
   const [users, setUsers] = useState<User[]>([]);
   const [total, setTotal] = useState(0);
   const { auth } = useAuth();
+  const { t } = useTranslate();
   const { orderBy, order, page, rowsPerPage, filter } = config;
 
   const search = useDebounce(filter, 650);
@@ -67,7 +69,7 @@ export function ViewUser() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          User Management
+          {t('user.title')}
         </Typography>
         {auth && (
           <Button
@@ -81,18 +83,18 @@ export function ViewUser() {
               dialog.custom(() => <AddUserDialog callback={loadUsers} />, { maxWidth: 'md' });
             }}
           >
-            New user
+            {t('user.newUser')}
           </Button>
         )}
       </Box>
       <Card>
         <TableFilterView
-          placeholder="Search user (name, email, phone or address)"
-          filter={fieldOptions}
+          placeholder={t('user.searchPlaceholder')}
+          filter={fieldOptions()}
           config={config}
         />
         <TableView
-          filter={fieldOptions}
+          filter={fieldOptions()}
           sticky={{
             isStickyAction: true,
           }}
@@ -126,24 +128,21 @@ export function ViewUser() {
                         }}
                       >
                         <Iconify icon="solar:pen-bold" />
-                        Edit
+                        {t('common.actions.edit')}
                       </MenuItem>
 
                       <MenuItem
                         sx={{ color: 'error.main' }}
                         disabled={row?.id === auth?.id}
                         onClick={() =>
-                          dialog.delete(
-                            `Confirm you want to delete user "${row.name}".`,
-                            async () => {
-                              await handleDelete(row.id);
-                              loadUsers();
-                            }
-                          )
+                          dialog.delete(t('user.deleteConfirm', { name: row.name }), async () => {
+                            await handleDelete(row.id);
+                            loadUsers();
+                          })
                         }
                       >
                         <Iconify icon="solar:trash-bin-trash-bold" />
-                        Delete
+                        {t('common.actions.delete')}
                       </MenuItem>
                     </Stack>
                   )

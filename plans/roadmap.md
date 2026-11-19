@@ -11,10 +11,10 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 1.1 | Màn **Category** riêng (`/category-management`): tìm, sắp xếp, tạo, đổi tên, xoá | ✅ 2026-11-20 | Dùng API `/api/category-book` có sẵn. Chi tiết: [mobile-sync.md#2026-11-20-01](mobile-sync.md#2026-11-20-01) |
 | 1.2 | Màn **Database** (`/db-management`) hết trống: xem cấu trúc bảng | ✅ 2026-11-20 | API mới `GET /api/db/schema`. Chi tiết: [mobile-sync.md#2026-11-20-02](mobile-sync.md#2026-11-20-02) |
 | 1.3 | **Ảnh bìa mặc định** khi sách không có ảnh hoặc ảnh lỗi | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-03](mobile-sync.md#2026-11-20-03) |
-| 1.4 | Cột Value của Promotion có đơn vị (`20%`, `50.000 ₫`, `Miễn phí ship`) | ⏳ | |
-| 1.5 | Trạng thái Promotion tính theo ngày: Sắp chạy / Đang chạy / Hết hạn | ⏳ | Hiện chỉ dựa vào `isActive` |
-| 1.6 | Thống nhất ngôn ngữ UI (vi hoặc en, hoặc nút chuyển vi/en) | ⏳ | Hiện menu tiếng Anh, ngày tháng tiếng Việt |
-| 1.7 | Tiêu đề tab không nháy "API RESTful miễn phí…" khi chuyển trang | ⏳ | Tiêu đề mặc định trong `index.html` hiện ra trước khi `<Title>` chạy |
+| 1.4 | Cột Value của Promotion có đơn vị (`20%`, `50.000 ₫`, `Miễn phí ship`) | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-05](mobile-sync.md#2026-11-20-05) |
+| 1.5 | Trạng thái Promotion tính theo ngày: Sắp chạy / Đang chạy / Hết hạn | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-05](mobile-sync.md#2026-11-20-05) |
+| 1.6 | Nút chuyển ngôn ngữ **vi / en** cho toàn bộ UI | ✅ 2026-11-20 | Chốt 2026-11-20: có nút chuyển, mặc định `en`. Chi tiết: [mobile-sync.md#2026-11-20-06](mobile-sync.md#2026-11-20-06) |
+| 1.7 | Tiêu đề tab đổi ngay khi chuyển trang | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-07](mobile-sync.md#2026-11-20-07) |
 | 1.8 | Dữ liệu **Address** đúng đơn vị hành chính hiện hành (34 tỉnh/thành, 3.321 phường/xã/đặc khu), API trả theo thứ tự mã hành chính | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-04](mobile-sync.md#2026-11-20-04) |
 
 ## Đợt 2: Giao diện
@@ -41,3 +41,23 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 ## Câu hỏi còn mở
 
 - 30 bug đang mở trong [`docs/bugs/README.md`](../docs/bugs/README.md) (9 Critical) có phải **cố ý giữ** để học viên tìm không? Câu trả lời quyết định làm 3.6 hay sửa bug trước.
+- Màn **File** trên máy Windows trống: `GET /api/file/info` trả 500 vì backend gọi lệnh `du` (không có trên Windows). Trên VPS Linux chạy được. Có cần sửa để chạy được cả Windows không?
+
+## Bug phát hiện thêm khi làm đa ngôn ngữ (2026-11-20, chưa vào `docs/bugs/`)
+
+Đọc code trong lúc dịch thì thấy, **chưa tái hiện trên UI** và chưa viết bug report. Chữ tiếng Anh sai vẫn giữ nguyên văn để không gãy test; bản tiếng Việt dịch sát nghĩa.
+
+| Module | Bug | File |
+|---|---|---|
+| Promotion | Form sửa khuyến mãi: nút Delete gọi `deleteBook(id)` (xoá **sách** theo id khuyến mãi) rồi về `/book-management` | `pages/promotions-mgt/handle.tsx` |
+| Promotion | Chế độ sửa vẫn gọi `createPromotion` (POST), không có API cập nhật | `handle.tsx` |
+| Promotion | Menu *Edit* trong danh sách có `onClick={() => {}}`, bấm không làm gì | `components/action-list.tsx` |
+| Promotion | Hộp xác nhận xoá ghi "delete user"; nút tạo ghi "Create book"; ô mã ghi "Code book"; breadcrumb luôn "Create a new promotion" | `action-list.tsx`, `handle.tsx`, `card-detail.tsx` |
+| Book | Chip khuyến mãi đã chọn hiện chữ `[item.code]` thay vì mã | `book-mgt/components/card-promotion.tsx` |
+| Book | Lọc giá có cả "từ" và "đến" thì chỉ áp "đến" (điều kiện sau ghi đè điều kiện trước) | `book-mgt/stores/filter.ts` |
+| Book | Hộp quản lý category trong bộ lọc: tìm kiếm thì hiện sai category (số dòng theo danh sách đã lọc, nội dung theo danh sách đầy đủ) | `book-mgt/components/filter-book.tsx` |
+| Book | Xoá sách thành công lại hiện toast kiểu lỗi | `book-mgt/api/delete-book.ts` |
+| Book | Nhãn công tắc trạng thái luôn "Available book"; breadcrumb luôn "Create a new book"; giá tối đa 100 tỷ nhưng thông báo ghi "1 billion"; ô slug dùng thông báo lỗi của ô tên | `add-overview.tsx`, `card-property.tsx`, `card-detail.tsx` |
+| File | Hộp xoá thư mục ghi "...folder: "X" this file?"; thông báo đường dẫn upload ghi "not starting with /" nhưng regex cho phép `/` đầu; breadcrumb ghép đường dẫn thiếu `/` đầu; sắp xếp danh sách làm đổi mảng gốc | `file-mgt/components/*` |
+| User | `toast.error(err.response.data.msg)` văng lỗi khi mất mạng (`err.response` là `undefined`) | `user-mgt/api/*`, `sign-in/api/login.ts`, `setting.tsx` |
+| Chung | Xoá trống ô giá trong bộ lọc gửi `0` thay vì bỏ điều kiện; Dashboard để trống *Status Code* rồi Gửi thì gửi `code: 0` | `components/fields/from-to-field.tsx`, `pages/home/page.tsx` |

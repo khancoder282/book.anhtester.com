@@ -2,12 +2,14 @@ import dayjs from 'dayjs';
 
 import { Box, Stack, Typography } from '@mui/material';
 
+import { translate } from 'src/locales';
+
 import { formatSize } from 'src/components/fields/upload-field';
 import { ImgPreview } from 'src/components/fields/components/Img-preview';
 
 export const columns: (isPreview: boolean) => Columns<FileItem>[] = (isPreview) => [
   {
-    label: 'Name',
+    label: translate('file.columns.name'),
     sort: 'name',
     render: (file) => (
       <Box
@@ -38,7 +40,7 @@ export const columns: (isPreview: boolean) => Columns<FileItem>[] = (isPreview) 
     ),
   },
   {
-    label: 'Size',
+    label: translate('file.columns.size'),
     sort: 'size',
     render: (row) => (
       <Typography variant="body2" noWrap>
@@ -47,7 +49,7 @@ export const columns: (isPreview: boolean) => Columns<FileItem>[] = (isPreview) 
     ),
   },
   {
-    label: 'Type',
+    label: translate('file.columns.type'),
     sort: 'type',
     render: (row) => (
       <Typography variant="body2" noWrap>
@@ -56,7 +58,7 @@ export const columns: (isPreview: boolean) => Columns<FileItem>[] = (isPreview) 
     ),
   },
   {
-    label: 'Modified',
+    label: translate('file.columns.modified'),
     sort: 'modified',
     render: (row) => (
       <Stack>

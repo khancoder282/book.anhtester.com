@@ -30,6 +30,7 @@ import { formatFilePath } from 'src/utils/format-filepath';
 
 import { axios } from 'src/api/axios';
 import { useAuth } from 'src/store/auth';
+import { useTranslate } from 'src/locales';
 
 import { Iconify } from 'src/components/iconify';
 import { useTable } from 'src/components/grid-view/hook/use-table';
@@ -60,6 +61,7 @@ export default function FileContentView({
   onChange,
 }: FileContentViewProps) {
   const { auth } = useAuth();
+  const { t } = useTranslate();
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState<number>(-1);
@@ -165,7 +167,7 @@ export default function FileContentView({
       <Box p={3} display="flex" alignItems="center" flexWrap="wrap-reverse" gap={1}>
         <OutlinedInput
           fullWidth
-          placeholder="Search file..."
+          placeholder={t('file.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           sx={{ maxWidth: 300 }}
@@ -189,13 +191,13 @@ export default function FileContentView({
           checked={isPreview}
           onChange={(_, c) => setIsPreview(c)}
           control={<Switch />}
-          label="Preview"
+          label={t('file.preview')}
         />
         <FormControlLabel
           checked={isSmall}
           onChange={(_, c) => setIsSmall(c)}
           control={<Switch />}
-          label="Small"
+          label={t('file.small')}
         />
         <Divider
           flexItem
@@ -244,7 +246,7 @@ export default function FileContentView({
           >
             <Box>
               <Box width={70} color="text.secondary">
-                Used
+                {t('file.used')}
               </Box>
               <Box flex={1} textAlign="end">
                 {formatSize(usedStorage)}
@@ -253,7 +255,7 @@ export default function FileContentView({
 
             <Box>
               <Box width={70} color="text.secondary">
-                Maximum
+                {t('file.maximum')}
               </Box>
               <Box flex={1} textAlign="end">
                 {formatSize(maxStorage)}
@@ -294,7 +296,7 @@ export default function FileContentView({
               <Chip
                 variant="outlined"
                 color="default"
-                label={`Unselect all (${fileList.length})`}
+                label={t('file.unselectAll', { count: fileList.length })}
                 onClick={() => onChange([])}
               />
             )}
@@ -367,7 +369,7 @@ export default function FileContentView({
         <DialogTitle
           sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          Preview file
+          {t('file.previewDialog.title')}
           <ButtonGroup color="inherit">
             <Button
               disabled={index === 0}
@@ -402,7 +404,7 @@ export default function FileContentView({
             />
           )}
           <Button color="inherit" onClick={() => setOpen(false)}>
-            Close
+            {t('common.actions.close')}
           </Button>
           {!value && !onChange && (
             <Button
@@ -412,7 +414,7 @@ export default function FileContentView({
               color="inherit"
               variant="contained"
             >
-              Download
+              {t('common.actions.download')}
             </Button>
           )}
         </DialogActions>

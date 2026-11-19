@@ -8,6 +8,8 @@ import { Box, Stack, Typography } from '@mui/material';
 
 import { formatFilePath } from 'src/utils/format-filepath';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from '../iconify';
 import { accepImg, formatSize } from './upload-field';
 
@@ -22,6 +24,7 @@ type AvatarFieldProps = {
   name?: string;
 };
 export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props, ref) => {
+  const { t } = useTranslate();
   const { opt, onChange, name, onBlur, onFocus, value, error } = props;
   const flagUserHandle = useRef<boolean>(false);
   const [preview, setPreview] = useState('');
@@ -106,20 +109,22 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
             color: error ? 'error.dark' : 'text.disabled',
             transition: 'opacity 200ms cubic-bezier(0.4, 0, 0.2, 1)',
             '&:hover': { opacity: 0.8 },
-            bgcolor: (t) =>
-              error ? t.palette.error.light : varAlpha(t.vars.palette.grey['500Channel'], 0.08),
+            bgcolor: (theme) =>
+              error
+                ? theme.palette.error.light
+                : varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
             ...(preview && {
               opacity: 0,
               '&:hover': {
                 opacity: 1,
-                color: (t) => t.palette.getContrastText(t.palette.text.primary),
-                bgcolor: (t) => varAlpha(t.vars.palette.grey['900Channel'], 0.64),
+                color: (theme) => theme.palette.getContrastText(theme.palette.text.primary),
+                bgcolor: (theme) => varAlpha(theme.vars.palette.grey['900Channel'], 0.64),
               },
             }),
           }}
         >
           <Iconify width={32} icon="solar:camera-add-bold" />
-          <Typography variant="caption">Upload photo</Typography>
+          <Typography variant="caption">{t('components.upload.uploadPhoto')}</Typography>
         </Stack>
       </Box>
       <Typography
@@ -128,10 +133,14 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
         textAlign="center"
         mt={2}
       >
-        Allowed {Object.values(opt?.accept || accepImg).flatMap((i) => `*${i}`)}
+        {t('components.upload.allowed', {
+          types: Object.values(opt?.accept || accepImg)
+            .flatMap((i) => `*${i}`)
+            .join(''),
+        })}
         {opt?.maxSize && (
           <>
-            <br /> max size of {formatSize(opt.maxSize)}
+            <br /> {t('components.upload.maxSize', { size: formatSize(opt.maxSize) })}
           </>
         )}
       </Typography>

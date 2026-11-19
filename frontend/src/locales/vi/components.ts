@@ -1,0 +1,78 @@
+import type { Translation } from '../types';
+import type { components as en } from '../en/components';
+
+export const components: Translation<typeof en> = {
+  button: {
+    clickToDelete: 'Bấm lần nữa để xoá',
+    scrollTop: 'Lên đầu trang',
+  },
+  dialog: {
+    confirmDelete: 'Xác nhận xoá',
+    message: 'Thông báo',
+  },
+  table: {
+    rowsPerPage: 'Số dòng mỗi trang:',
+    displayedRows: '{from}–{to} trên {count}',
+    moreThan: 'hơn {to}',
+    goToFirst: 'Về trang đầu',
+    goToLast: 'Đến trang cuối',
+    goToNext: 'Đến trang sau',
+    goToPrevious: 'Về trang trước',
+    goToPage: 'Đến trang {page}',
+    page: 'trang {page}',
+  },
+  filter: {
+    searchPlaceholder: 'Tìm kiếm...',
+    field: 'Trường',
+    operator: 'Phép so sánh',
+    value: 'Giá trị',
+    and: 'VÀ',
+    or: 'HOẶC',
+    true: 'Đúng',
+    false: 'Sai',
+    addFilter: 'Thêm điều kiện',
+    clearFilter: 'Xoá lọc',
+    operators: {
+      equals: 'Bằng (=)',
+      not: 'Khác (!=)',
+      lt: 'Nhỏ hơn (<)',
+      lte: 'Nhỏ hơn hoặc bằng (<=)',
+      gt: 'Lớn hơn (>)',
+      gte: 'Lớn hơn hoặc bằng (>=)',
+      contains: 'Chứa (∈)',
+      startsWith: 'Bắt đầu bằng (→)',
+      endsWith: 'Kết thúc bằng (←)',
+    },
+  },
+  datePicker: {
+    endDate: 'Ngày kết thúc',
+    weekdays: {
+      mon: 'T2',
+      tue: 'T3',
+      wed: 'T4',
+      thu: 'T5',
+      fri: 'T6',
+      sat: 'T7',
+      sun: 'CN',
+    },
+  },
+  fromTo: {
+    priceFrom: 'Giá từ',
+    priceTo: 'Giá đến',
+  },
+  upload: {
+    title: 'Kéo thả hoặc chọn tệp',
+    dragHere: 'Kéo thả tệp vào đây, hoặc',
+    browse: 'chọn',
+    yourDevice: 'từ thiết bị.',
+    uploadPhoto: 'Tải ảnh lên',
+    allowed: 'Cho phép {types}',
+    maxSize: 'dung lượng tối đa {size}',
+  },
+  toast: {
+    errorDefault: 'Có lỗi khi xử lý yêu cầu',
+    loading: 'Đang tải...',
+    success: 'Thành công',
+    error: 'Lỗi',
+  },
+};

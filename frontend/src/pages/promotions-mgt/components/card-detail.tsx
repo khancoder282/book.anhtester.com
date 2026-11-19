@@ -12,12 +12,17 @@ import {
   IconButton,
 } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from 'src/components/iconify';
 
 import { control, TypePromotion } from '../hooks/form-control';
 
 export function CardDetail() {
   const [expen, setExpen] = useState(true);
+  const { t, lang } = useTranslate();
+  // Chữ thường + CSS viết hoa từng từ chỉ hợp với tiếng Anh; tiếng Việt đã viết sẵn đúng hoa thường
+  const typeTextTransform = lang === 'en' ? 'capitalize' : 'none';
   const [type] = useWatch({
     control,
     name: ['type'],
@@ -26,8 +31,8 @@ export function CardDetail() {
   return (
     <Card>
       <CardHeader
-        title="Detail"
-        subheader="Title, description, picture"
+        title={t('promotion.detail.title')}
+        subheader={t('promotion.detail.subheader')}
         action={
           <IconButton onClick={() => setExpen(!expen)}>
             <Iconify
@@ -47,16 +52,16 @@ export function CardDetail() {
             name="name"
             defaultValue=""
             rules={{
-              required: 'Name is required.',
+              required: t('promotion.detail.nameRequired'),
               maxLength: {
                 value: 100,
-                message: 'Name must be less than 100 characters.',
+                message: t('promotion.detail.nameMax'),
               },
             }}
             render={({ field, fieldState: { invalid, error } }) => (
               <TextField
                 fullWidth
-                label="Promotion name"
+                label={t('promotion.detail.name')}
                 {...field}
                 error={invalid}
                 helperText={error?.message}
@@ -69,13 +74,13 @@ export function CardDetail() {
             control={control}
             defaultValue=""
             rules={{
-              required: 'Code is required.',
-              validate: (value) => value.length === 6 || 'Code must be 6 characters.',
+              required: t('promotion.detail.codeRequired'),
+              validate: (value) => value.length === 6 || t('promotion.detail.codeLength'),
             }}
             render={({ field, fieldState: { invalid, error } }) => (
               <TextField
                 sx={{ flex: 1 }}
-                label="Code book"
+                label={t('promotion.detail.code')}
                 error={invalid}
                 helperText={error?.message}
                 required
@@ -95,7 +100,7 @@ export function CardDetail() {
             rules={{
               maxLength: {
                 value: 500,
-                message: 'Description must be less than 500 characters.',
+                message: t('promotion.detail.descriptionMax'),
               },
             }}
             render={({ field, fieldState: { invalid, error } }) => (
@@ -103,7 +108,7 @@ export function CardDetail() {
                 multiline
                 minRows={5}
                 fullWidth
-                label="Description"
+                label={t('promotion.detail.description')}
                 {...field}
                 error={invalid}
                 helperText={error?.message}
@@ -118,17 +123,17 @@ export function CardDetail() {
               render={({ field, fieldState: { invalid, error } }) => (
                 <TextField
                   fullWidth
-                  sx={{ textTransform: 'capitalize' }}
+                  sx={{ textTransform: typeTextTransform }}
                   select
-                  label="Type"
+                  label={t('promotion.detail.type')}
                   required
                   {...field}
                   error={invalid}
                   helperText={error?.message}
                 >
-                  {TypePromotion.map((t) => (
-                    <MenuItem value={t} sx={{ textTransform: 'capitalize' }}>
-                      {t.toLocaleLowerCase().replace('_', ' ')}
+                  {TypePromotion.map((option) => (
+                    <MenuItem value={option} sx={{ textTransform: typeTextTransform }}>
+                      {t(`promotion.detail.typeOption.${option}`)}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -141,7 +146,7 @@ export function CardDetail() {
                 <TextField
                   disabled={type === 'FREE_SHIPPING'}
                   type="number"
-                  label="Value"
+                  label={t('promotion.detail.value')}
                   required={type !== 'FREE_SHIPPING'}
                   {...field}
                   error={invalid}

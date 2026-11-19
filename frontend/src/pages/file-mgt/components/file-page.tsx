@@ -1,6 +1,7 @@
 import { Box, Card, Button, Typography } from '@mui/material';
 
 import { useAuth } from 'src/store/auth';
+import { useTranslate } from 'src/locales';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -11,6 +12,7 @@ import { useDialogUpload } from '../store/use-dialog-upload';
 export function FilePageView() {
   const { auth } = useAuth();
   const { setOpen } = useDialogUpload();
+  const { t } = useTranslate();
 
   return (
     <DashboardContent>
@@ -22,7 +24,7 @@ export function FilePageView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          File management
+          {t('file.title')}
         </Typography>
         {auth && (
           <Button
@@ -31,7 +33,7 @@ export function FilePageView() {
             startIcon={<Iconify icon="solar:cloud-upload-bold" />}
             onClick={() => setOpen(true)}
           >
-            Upload file
+            {t('file.uploadFile')}
           </Button>
         )}
       </Box>

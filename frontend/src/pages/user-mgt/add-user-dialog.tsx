@@ -3,6 +3,8 @@ import { useWatch, useFormState } from 'react-hook-form';
 
 import { Button, DialogTitle, DialogActions, DialogContent } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from 'src/components/iconify';
 import { useDialog } from 'src/components/dialog-confirm/store';
 
@@ -17,6 +19,7 @@ type AddUserDialogProps = {
 export function AddUserDialog({ callback }: AddUserDialogProps) {
   const { isLoading, isSubmitSuccessful } = useFormState({ control: formControl.control });
   const { setOpen } = useDialog();
+  const { t } = useTranslate();
   const [id] = useWatch({ control: formControl.control, name: ['id'] });
 
   useEffect(() => {
@@ -29,13 +32,13 @@ export function AddUserDialog({ callback }: AddUserDialogProps) {
 
   return (
     <>
-      <DialogTitle>{id ? 'Update user' : 'Add user'}</DialogTitle>
+      <DialogTitle>{id ? t('user.dialog.updateTitle') : t('user.dialog.addTitle')}</DialogTitle>
       <DialogContent dividers>
         <ContentUser />
       </DialogContent>
       <DialogActions>
         <Button color="inherit" onClick={() => setOpen(false)}>
-          Cancel
+          {t('common.actions.cancel')}
         </Button>
         <Button
           loading={isLoading}
@@ -46,7 +49,7 @@ export function AddUserDialog({ callback }: AddUserDialogProps) {
           color="inherit"
           startIcon={<Iconify icon="solar:diskette-bold" />}
         >
-          {id ? 'Update' : 'Save'}
+          {id ? t('common.actions.update') : t('common.actions.save')}
         </Button>
       </DialogActions>
     </>

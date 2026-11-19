@@ -27,6 +27,7 @@ import { formatFilePath } from 'src/utils/format-filepath';
 
 import { axios } from 'src/api/axios';
 import { useAuth } from 'src/store/auth';
+import { useTranslate } from 'src/locales';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/toast';
@@ -119,34 +120,38 @@ const ViewCard = ({
   unit: string;
   icon: string;
   color: 'success' | 'warning' | 'error' | 'info' | 'primary' | 'secondary';
-}) => (
-  <Card>
-    <CardHeader
-      title={title}
-      subheader={`total: ${totalBook} ${unit}`}
-      sx={{
-        pb: 3,
-        color: `${color}.main`,
-        background: (t) =>
-          `linear-gradient(30deg, ${varAlpha(t.vars.palette[color].mainChannel, 0.3)} 0%, rgba(0, 0, 0, 0) 60%)`,
-      }}
-    />
-    <SvgColor
-      src={`/assets/icons/navbar/${icon}.svg`}
-      sx={{
-        position: 'absolute',
-        top: (t) => t.spacing(1),
-        right: 0,
-        transform: 'translateX(20%)',
-        height: 80,
-        width: 80,
-        color: `${color}.main`,
-      }}
-    />
-  </Card>
-);
+}) => {
+  const { t } = useTranslate();
+  return (
+    <Card>
+      <CardHeader
+        title={title}
+        subheader={t('home.stats.total', { count: totalBook, unit })}
+        sx={{
+          pb: 3,
+          color: `${color}.main`,
+          background: (theme) =>
+            `linear-gradient(30deg, ${varAlpha(theme.vars.palette[color].mainChannel, 0.3)} 0%, rgba(0, 0, 0, 0) 60%)`,
+        }}
+      />
+      <SvgColor
+        src={`/assets/icons/navbar/${icon}.svg`}
+        sx={{
+          position: 'absolute',
+          top: (theme) => theme.spacing(1),
+          right: 0,
+          transform: 'translateX(20%)',
+          height: 80,
+          width: 80,
+          color: `${color}.main`,
+        }}
+      />
+    </Card>
+  );
+};
 
 export default function Page() {
+  const { t } = useTranslate();
   const { auth } = useAuth();
   const form = useForm<{ time: number; code: number }>();
 
@@ -180,9 +185,9 @@ export default function Page() {
           time: item.time,
         }),
       {
-        loading: 'Loading ...',
-        success: (t) => t.data.msg,
-        error: (t) => t.response.data.msg,
+        loading: t('home.testMessage.loading'),
+        success: (res) => res.data.msg,
+        error: (err) => err.response.data.msg,
       }
     );
   };
@@ -193,7 +198,7 @@ export default function Page() {
         <Card>
           <Box
             component="img"
-            alt="Free API for Testing"
+            alt={t('home.bannerAlt')}
             src="/assets/Free-API-for-Testing.png"
             srcSet="/assets/thumb.webp 1x, /assets/Free-API-for-Testing.png 2x"
             sx={{
@@ -220,13 +225,13 @@ export default function Page() {
             p={3}
             gap={2}
             sx={{
-              background: (t) =>
-                `linear-gradient(30deg, ${varAlpha(t.vars.palette.primary.mainChannel, 0.1)} 0%, rgba(0, 0, 0, 0) 60%, ${varAlpha(t.vars.palette.secondary.mainChannel, 0.1)} 100%)`,
+              background: (theme) =>
+                `linear-gradient(30deg, ${varAlpha(theme.vars.palette.primary.mainChannel, 0.1)} 0%, rgba(0, 0, 0, 0) 60%, ${varAlpha(theme.vars.palette.secondary.mainChannel, 0.1)} 100%)`,
             }}
           >
             <Box
               sx={{
-                bgcolor: (t) => varAlpha(t.vars.palette.primary.mainChannel, 0.2),
+                bgcolor: (theme) => varAlpha(theme.vars.palette.primary.mainChannel, 0.2),
                 alignSelf: 'start',
                 p: 2,
                 display: 'flex',
@@ -239,12 +244,10 @@ export default function Page() {
               <Iconify icon="solar:document-add-bold" />
             </Box>
             <Link component="a" href="/swagger" target="_blank">
-              <Typography variant="h6">Swagger API Documentation</Typography>
+              <Typography variant="h6">{t('home.swagger.title')}</Typography>
             </Link>
             <Typography variant="body2" color="textSecondary">
-              Hệ thống Book Management gồm API RESTful và UI được Anh Tester xây dựng dành cho việc
-              thực hành kiểm thử API và UI. Phù hợp cho người mới học và các tester automation muốn
-              luyện tập, kiểm thử và hoàn toàn miễn phí.
+              {t('home.swagger.description')}
             </Typography>
           </Card>
 
@@ -253,8 +256,8 @@ export default function Page() {
             p={3}
             gap={2}
             sx={{
-              background: (t) =>
-                `linear-gradient(30deg, ${varAlpha(t.vars.palette.info.mainChannel, 0.1)} 0%, rgba(0, 0, 0, 0) 60%, ${varAlpha(t.vars.palette.secondary.mainChannel, 0.1)} 100%)`,
+              background: (theme) =>
+                `linear-gradient(30deg, ${varAlpha(theme.vars.palette.info.mainChannel, 0.1)} 0%, rgba(0, 0, 0, 0) 60%, ${varAlpha(theme.vars.palette.secondary.mainChannel, 0.1)} 100%)`,
             }}
           >
             {auth ? (
@@ -265,7 +268,7 @@ export default function Page() {
             ) : (
               <Box
                 sx={{
-                  bgcolor: (t) => varAlpha(t.vars.palette.info.mainChannel, 0.2),
+                  bgcolor: (theme) => varAlpha(theme.vars.palette.info.mainChannel, 0.2),
                   alignSelf: 'start',
                   p: 2,
                   display: 'flex',
@@ -287,27 +290,31 @@ export default function Page() {
               })}
             >
               <Typography variant="h6">
-                {auth ? `Welcome ${auth.name}` : 'Book management sign in'}
+                {auth ? t('home.welcome.title', { name: auth.name }) : t('home.welcome.signIn')}
               </Typography>
             </Link>
             <Typography variant="body2" color="textSecondary">
-              {auth
-                ? 'Bạn có thể quản lý thêm xóa sửa người dùng, sách và file. Cài đặt cá nhân hóa trang quản lý đổi màu và chế độ dark mode, light mode.'
-                : 'Đăng nhập vào trang quản lý sách, bao gồm tạo, cập nhật và xóa sách, tài liệu, người dùng, tệp.'}
+              {auth ? t('home.welcome.descriptionAuth') : t('home.welcome.descriptionGuest')}
             </Typography>
           </Card>
         </Box>
 
         <Grid container spacing={3} columns={{ xs: 1, sm: 2, md: 4 }}>
           <Grid size={1}>
-            <ViewCard total={totalUser} title="User mgt" unit="users" icon="ic-user" color="info" />
+            <ViewCard
+              total={totalUser}
+              title={t('home.stats.user')}
+              unit={t('home.stats.users')}
+              icon="ic-user"
+              color="info"
+            />
           </Grid>
 
           <Grid size={1}>
             <ViewCard
               total={totalBook}
-              title="Book mgt"
-              unit="books"
+              title={t('home.stats.book')}
+              unit={t('home.stats.books')}
               icon="ic-book"
               color="success"
             />
@@ -316,8 +323,8 @@ export default function Page() {
           <Grid size={1}>
             <ViewCard
               total={totalCategory}
-              title="Category mgt"
-              unit="categories"
+              title={t('home.stats.category')}
+              unit={t('home.stats.categories')}
               icon="ic-blog"
               color="error"
             />
@@ -325,8 +332,8 @@ export default function Page() {
           <Grid size={1}>
             <ViewCard
               total={totalPromotion}
-              title="Promotion mgt"
-              unit="promotions"
+              title={t('home.stats.promotion')}
+              unit={t('home.stats.promotions')}
               icon="ic-sale"
               color="warning"
             />
@@ -345,10 +352,10 @@ export default function Page() {
             })()
           )}
         >
-          <LabelBorder>Test message server</LabelBorder>
+          <LabelBorder>{t('home.testMessage.title')}</LabelBorder>
           <Stack p={3} spacing={3}>
             <Stack direction="row" alignItems="center" gap={2}>
-              <Typography>Timeout</Typography>
+              <Typography>{t('home.testMessage.timeout')}</Typography>
               <Controller
                 control={form.control}
                 name="time"
@@ -389,13 +396,17 @@ export default function Page() {
                     </li>
                   )}
                   renderInput={(params) => (
-                    <TextField {...params} label="Status Code" variant="outlined" />
+                    <TextField
+                      {...params}
+                      label={t('home.testMessage.statusCode')}
+                      variant="outlined"
+                    />
                   )}
                 />
               )}
             />
             <Button type="submit" size="large" variant="contained" sx={{ alignSelf: 'flex-end' }}>
-              Submit
+              {t('common.actions.submit')}
             </Button>
           </Stack>
         </Card>

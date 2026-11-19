@@ -12,6 +12,9 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-20-02](#2026-11-20-02) | 2026-11-20 | Màn Database xem cấu trúc bảng | **Có**: thêm `GET /api/db/schema` | **Có** | ⏳ Tuỳ chọn (mobile chưa có màn Database) |
 | [2026-11-20-03](#2026-11-20-03) | 2026-11-20 | Ảnh bìa mặc định cho sách | Không | Không | ⏳ Chưa làm |
 | [2026-11-20-04](#2026-11-20-04) | 2026-11-20 | Dữ liệu Address theo đơn vị hành chính hiện hành | Không đổi hình dạng; dữ liệu + thứ tự trả về đổi | **Có** (+ nạp dữ liệu trên VPS) | Không cần sửa code |
+| [2026-11-20-05](#2026-11-20-05) | 2026-11-20 | Khuyến mãi: giá trị có đơn vị, trạng thái theo ngày | Không | Không | ⏳ Chưa làm |
+| [2026-11-20-06](#2026-11-20-06) | 2026-11-20 | Đa ngôn ngữ vi / en + nút chuyển | Không | Không | ⏳ Chưa làm (việc lớn nhất) |
+| [2026-11-20-07](#2026-11-20-07) | 2026-11-20 | Tiêu đề tab đổi ngay khi chuyển trang | Không | Không | ⏳ Chưa làm |
 
 ---
 
@@ -125,3 +128,77 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 |---|---|---|
 | `backend/prisma/seed/vn-address.json`, `address.ts` | — | Nạp dữ liệu trên VPS |
 | `backend/src/routers/address-controller.ts` | — | Deploy backend |
+
+---
+
+<a id="2026-11-20-05"></a>
+## 2026-11-20-05 · Khuyến mãi: giá trị có đơn vị, trạng thái theo ngày
+
+**Web đã làm**
+
+- File mới `pages/promotions-mgt/utils.ts`:
+  - `formatPromotionValue(p)`: `PERCENTAGE` → `20%`, `FIXED_AMOUNT` → `50.000 ₫`, `FREE_SHIPPING` → `Free shipping` / `Miễn phí ship`.
+  - `getPromotionStatus(p)`: `isActive = false` → **Disabled / Đã tắt**; chưa tới `startDate` → **Scheduled / Sắp chạy**; quá `endDate` → **Expired / Hết hạn**; còn lại → **Running / Đang chạy**. Màu nhãn ở `PROMOTION_STATUS_COLOR`.
+- Bảng khuyến mãi (`hooks/columns-main.tsx`): cột *Active* đổi thành cột **Status** (vẫn sắp xếp theo `isActive`), cột *Value* có đơn vị, cột *Type* hiện tên dễ đọc thay vì `PERCENTAGE`.
+- Bảng khuyến mãi trong form sách (`book-mgt/columns-promotion.tsx`): cột Value và Type giống trên.
+- Sửa lỗi hiển thị: cột *Created* trước đây hiện `endDate`, nay hiện `createdAt`.
+
+**Locator cho test**: nhãn trạng thái `[data-status="disabled|scheduled|running|expired"]`, nhãn giá trị `[data-promotion-value="<số gốc>"]` (giữ giá trị số để assert không phụ thuộc định dạng).
+
+| Web (`frontend/src/`) | Mobile (`src/`) | Việc |
+|---|---|---|
+| `pages/promotions-mgt/utils.ts` | cùng đường dẫn | Chép sang |
+| `pages/promotions-mgt/hooks/columns-main.tsx` | cùng đường dẫn | Cột Status, Value, Type, Created |
+| `pages/book-mgt/columns-promotion.tsx` | cùng đường dẫn | Cột Value, Type |
+
+---
+
+<a id="2026-11-20-06"></a>
+## 2026-11-20-06 · Đa ngôn ngữ vi / en + nút chuyển
+
+**Web đã làm**
+
+- Hạ tầng `src/locales/` (không thêm thư viện): store `useLangStore`, hook `useTranslate()` → `{ t, lang, setLang }`, hàm `translate()` cho code ngoài component. Từ điển 11 namespace, mỗi namespace một cặp `en/<ns>.ts` + `vi/<ns>.ts`, khoảng 420 khoá. Khoá có kiểu chặt: sai khoá, hoặc bản `vi` thiếu/thừa khoá so với `en`, là lỗi TypeScript. Chi tiết: `memory/features/i18n.md`.
+- Ngôn ngữ chọn theo thứ tự `?lang=vi|en` → `localStorage['lang']` → mặc định **`en`**. Đổi ngôn ngữ không cần tải lại trang; đổi luôn locale của dayjs (`19 Nov 2026` / `19 Thg 11 2026`), MUI date picker và `<html lang>`.
+- Nút chuyển `layouts/components/language-popover.tsx` ở header dashboard (cạnh avatar) và header trang sign-in / sign-up.
+- Đã dịch: menu, menu tài khoản, Dashboard, 404, Sign in, Sign up, User (danh sách, form, profile, setting), Book (danh sách, lọc, sắp xếp, form, chi tiết), Category, Promotion (danh sách, form), File, Database, component dùng chung (bảng, phân trang, bộ lọc, dialog xác nhận, upload, date picker, toast mặc định).
+- **Chữ tiếng Anh giữ nguyên văn** như trước (kể cả lỗi chính tả có sẵn), để test cũ bám theo chữ không bị gãy.
+- **Không dịch**: message trả về từ backend (toast sau khi gọi API vẫn tiếng Anh ở cả hai chế độ), dữ liệu người dùng, giá trị gửi API (giá trị `?sort=` trên URL vẫn là `Newest`, `Feature`…), mã HTTP trên Dashboard, ảnh banner.
+- Chưa dịch: `components/fields/address-field.tsx` (nhãn *Division*, *Ward*), vì phiên làm phần Address đang sửa file này cùng lúc.
+- Hạn chế đã biết: thông báo validation đang hiện, hoặc dialog đang mở, giữ ngôn ngữ cũ cho tới lần validate / mở lại tiếp theo.
+- Sửa kèm: Dashboard date picker trước đây luôn hiện thứ tiếng Việt (T2…CN) kể cả ở tiếng Anh; nay theo ngôn ngữ. Đổi tên vài biến theme `t` → `theme` để không trùng `t` của i18n (ESLint `no-shadow`).
+
+**Locator cho test**: `#btn-language`, menu `#menu-language`, mục `[data-lang="en"]`, `[data-lang="vi"]`. Test muốn chạy tiếng Việt thì mở URL kèm `?lang=vi`. Locator theo `id`, `name`, `data-*` không đổi; locator theo chữ hoặc `aria-label` chỉ đúng ở ngôn ngữ đã viết. Màn Category thêm `data-action="rename|delete"` để không phụ thuộc `aria-label`.
+
+**Mobile cần làm**
+
+- Chép nguyên thư mục `src/locales/` và `layouts/components/language-popover.tsx`, đặt nút vào header của `layouts/mobile-layout` (hoặc menu tài khoản nếu header chật).
+- `app.tsx`: bỏ `dayjs.locale('vi')` cứng, `adapterLocale={lang}` (xem bản web).
+- Với từng màn đã có bên mobile (book, user, promotion, file, home, sign-in), so diff bản web và chép phần thay chuỗi; cấu trúc file giống nhau nên phần lớn chép được nguyên file, chỉ giữ lại chỗ mobile đã chỉnh layout riêng.
+- Chuỗi chỉ có ở mobile (`mobile-layout/footer.tsx`…) thì thêm khoá vào namespace `nav` hoặc `components`.
+
+| Web (`frontend/src/`) | Mobile (`src/`) | Việc |
+|---|---|---|
+| `locales/**` | `locales/**` | Chép sang |
+| `layouts/components/language-popover.tsx` | cùng đường dẫn | Chép sang, gắn vào header mobile |
+| `app.tsx`, `components/title/index.tsx` | cùng đường dẫn | Locale động, tiêu đề tab (mục 07) |
+| `layouts/nav-config-*.tsx`, `layouts/dashboard/nav.tsx`, `layouts/components/account-popover.tsx`, `layouts/auth/layout.tsx` | cùng đường dẫn | Menu dùng khoá dịch |
+| `components/{buttons,dialog-confirm,fields,grid-view,toast}/**` | cùng đường dẫn | Chép phần thay chuỗi |
+| `pages/{home,sign-in,user-mgt,book-mgt,promotions-mgt,file-mgt,not-found-view}/**` | cùng đường dẫn | Chép phần thay chuỗi |
+| `routes/hooks/use-auth-check.ts` | cùng đường dẫn | Toast "Please login first" |
+
+---
+
+<a id="2026-11-20-07"></a>
+## 2026-11-20-07 · Tiêu đề tab đổi ngay khi chuyển trang
+
+**Web đã làm**
+
+- `app.tsx` → `useRouteTitle()`: khi đổi route, đặt ngay tiêu đề theo mục menu khớp đường dẫn (vd `Book - Book UI for …`, tiếng Việt `Sách - …`), bằng `useLayoutEffect`, trước khi trang lazy tải xong. `/sign-in`, `/sign-up` có tiêu đề riêng.
+- `components/title/index.tsx`: `<Title>` của trang phụ thuộc thêm `pathname`, và vì là `useEffect` nên luôn chạy sau, ghi đè bằng tiêu đề chi tiết của trang.
+- `index.html` vẫn giữ `<title>` SEO, chỉ thấy trong tích tắc lúc tải trang lần đầu.
+
+| Web (`frontend/src/`) | Mobile (`src/`) | Việc |
+|---|---|---|
+| `app.tsx` | cùng đường dẫn | Thêm `useRouteTitle` |
+| `components/title/index.tsx` | cùng đường dẫn | Chép sang |

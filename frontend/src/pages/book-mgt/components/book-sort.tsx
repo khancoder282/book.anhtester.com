@@ -8,6 +8,8 @@ import MenuList from '@mui/material/MenuList';
 import Typography from '@mui/material/Typography';
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
@@ -19,6 +21,7 @@ type ProductSortProps = ButtonProps & {
 };
 
 export function BookSort({ options, sortBy, onSort, sx, ...other }: ProductSortProps) {
+  const { t } = useTranslate();
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
@@ -43,7 +46,7 @@ export function BookSort({ options, sortBy, onSort, sx, ...other }: ProductSortP
         sx={sx}
         {...other}
       >
-        Sort By:&nbsp;
+        {t('book.sort.label')}&nbsp;
         <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
           {options.find((option) => option.value === sortBy)?.label}
         </Typography>

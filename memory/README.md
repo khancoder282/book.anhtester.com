@@ -15,6 +15,7 @@ Cập nhật lần cuối: 2026-11-20, nhánh `deploy-vps`.
 | [features/promotion.md](features/promotion.md) | Mã khuyến mãi gắn với sách |
 | [features/file.md](features/file.md) | Upload, duyệt, đổi tên, copy, move, xoá file |
 | [features/address.md](features/address.md) | Dữ liệu tỉnh/phường Việt Nam |
+| [features/i18n.md](features/i18n.md) | Đa ngôn ngữ vi/en: `src/locales`, `useTranslate`, nút chuyển, tiêu đề tab |
 | [features/system.md](features/system.md) | `/api/status`, `/api/db/table`, Swagger, route tĩnh |
 
 ## Lưu ý (`notes/`)

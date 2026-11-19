@@ -9,6 +9,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { axios } from 'src/api/axios';
 import { useAuth } from 'src/store/auth';
+import { useTranslate } from 'src/locales';
 import { AuthLayout } from 'src/layouts/auth';
 
 import { PasswordField } from 'src/components/fields/password-field';
@@ -22,6 +23,7 @@ export function ContentFieldsLogin() {
   const redirect = search.get('redirect');
   const { setAuth } = useAuth();
   const router = useRouter();
+  const { t } = useTranslate();
 
   useEffect(() => {
     if (isSubmitSuccessful) {
@@ -44,16 +46,16 @@ export function ContentFieldsLogin() {
           mb: 5,
         }}
       >
-        <Typography variant="h3">Sign in</Typography>
+        <Typography variant="h3">{t('auth.signIn.title')}</Typography>
         <Typography
           variant="body2"
           sx={{
             color: 'text.secondary',
           }}
         >
-          Don’t have an account?
+          {t('auth.signIn.noAccount')}
           <Link component={RouterLink} href="/sign-up" variant="subtitle2" sx={{ ml: 0.5 }}>
-            Get started
+            {t('auth.signIn.getStarted')}
           </Link>
         </Typography>
       </Box>
@@ -74,12 +76,12 @@ export function ContentFieldsLogin() {
           rules={{
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: 'Invalid email address',
+              message: t('auth.validation.emailInvalid'),
             },
-            required: 'Email is required.',
+            required: t('auth.validation.emailRequired'),
             maxLength: {
               value: 250,
-              message: 'Email maximum length is 250 characters.',
+              message: t('auth.validation.emailMaxLength'),
             },
           }}
           render={({ field, fieldState: { invalid, error } }) => (
@@ -89,7 +91,7 @@ export function ContentFieldsLogin() {
               error={invalid}
               helperText={error?.message}
               fullWidth
-              label="Email address"
+              label={t('auth.signIn.emailLabel')}
               sx={{ mb: 3 }}
             />
           )}
@@ -99,10 +101,10 @@ export function ContentFieldsLogin() {
           name="password"
           defaultValue=""
           rules={{
-            required: 'Password is required.',
+            required: t('auth.validation.passwordRequired'),
             maxLength: {
               value: 250,
-              message: 'Password maximum length is 250 characters.',
+              message: t('auth.validation.passwordMaxLength'),
             },
           }}
           render={({ field, fieldState: { invalid, error } }) => (
@@ -113,7 +115,7 @@ export function ContentFieldsLogin() {
               error={invalid}
               helperText={error?.message}
               name="password"
-              label="Password"
+              label={t('auth.signIn.passwordLabel')}
               sx={{ mb: 3 }}
             />
           )}
@@ -128,7 +130,7 @@ export function ContentFieldsLogin() {
           variant="contained"
           sx={{ mb: -2 }}
         >
-          Login account
+          {t('auth.signIn.submit')}
         </Button>
       </Box>
     </AuthLayout>

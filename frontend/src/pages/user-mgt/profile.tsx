@@ -10,6 +10,7 @@ import { axios } from 'src/api/axios';
 import { useAuth } from 'src/store/auth';
 import { CONFIG } from 'src/config-global';
 import { hanldeLogout } from 'src/api/logout';
+import { translate, useTranslate } from 'src/locales';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import Title from 'src/components/title';
@@ -23,6 +24,7 @@ import { handleUpdateProfileUser } from './api/profile';
 export default function Profile() {
   const { auth, setAuth } = useAuth();
   const router = useRouter();
+  const { t } = useTranslate();
   const { isDirty, isSubmitSuccessful, isLoading } = useFormState({ control: formControl.control });
   useEffect(() => {
     if (auth) {
@@ -33,7 +35,7 @@ export default function Profile() {
         } as FileItem,
       });
     } else {
-      toast.error('Please login first', { id: 'msg' });
+      toast.error(translate('user.toast.loginFirst'), { id: 'msg' });
       router.push('/sign-in');
     }
   }, [auth, router]);
@@ -43,10 +45,10 @@ export default function Profile() {
       const value = formControl.getValues();
       if (auth?.email !== value.email || value.password) {
         formControl.reset();
-        hanldeLogout().then(()=>{
+        hanldeLogout().then(() => {
           setAuth(null);
           router.push('/sign-in');
-        })
+        });
       } else {
         axios.get('/me').then((res) => {
           setAuth(res.data);
@@ -58,16 +60,16 @@ export default function Profile() {
 
   return (
     <DashboardContent>
-      <Title>{`My profile - ${CONFIG.appName}`}</Title>
+      <Title>{`${t('user.profile.pageTitle')} - ${CONFIG.appName}`}</Title>
       <Stack spacing={2} mb={5}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          My Profile
+          {t('user.profile.title')}
         </Typography>
         <Breadcrumbs sx={{ mb: 3 }}>
           <Link component={RouterLink} href="/user-management" color="textPrimary" variant="body2">
-            User management
+            {t('user.breadcrumb.userManagement')}
           </Link>
-          <Typography variant="body2">Change my profile</Typography>
+          <Typography variant="body2">{t('user.profile.breadcrumb')}</Typography>
         </Breadcrumbs>
       </Stack>
       <Card sx={{ p: 3, pt: 4, display: 'flex', flexDirection: 'column' }}>
@@ -79,7 +81,7 @@ export default function Profile() {
             disabled={!isDirty}
             onClick={() => formControl.reset()}
           >
-            Reset
+            {t('user.profile.reset')}
           </Button>
           <Button
             size="large"
@@ -90,7 +92,7 @@ export default function Profile() {
             onClick={formControl.handleSubmit(handleUpdateProfileUser)}
             disabled={!isDirty}
           >
-            Save Profile
+            {t('user.profile.save')}
           </Button>
         </Box>
       </Card>

@@ -79,8 +79,9 @@ Prisma client được generate vào `backend/src/prisma/`, không phải `node_
 ## Cấu trúc frontend
 
 - `src/api/axios.ts`: axios với `baseURL: '/api'`, nên khi dev luôn đi qua proxy của Vite.
-- `src/pages/<feature>-mgt/`: từng màn quản lý (book, user, file, promotions, db). Mỗi màn có thư mục `api/` riêng.
+- `src/pages/<feature>-mgt/`: từng màn quản lý (book, user, category, file, promotions, db). Mỗi màn có thư mục `api/` riêng.
 - `src/routes/`, `src/layouts/`, `src/theme/`, `src/store/` (zustand).
+- `src/locales/`: đa ngôn ngữ vi/en (chốt 2026-11-20). **Mọi chữ hiển thị mới phải qua `t()`** của `useTranslate()`, thêm khoá ở `en/<ns>.ts` rồi `vi/<ns>.ts`. Mặc định `en`. Không dịch message từ backend. Chi tiết: [memory/features/i18n.md](memory/features/i18n.md).
 - Link Swagger trên trang chủ là `/swagger` (tương đối), nên Vite cần proxy `/swagger` khi dev.
 
 ## MCP để test (`.mcp.json`)

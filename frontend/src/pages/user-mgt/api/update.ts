@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios';
 
 import { axios } from 'src/api/axios';
+import { translate } from 'src/locales';
 
 import { toast } from 'src/components/toast';
 
@@ -12,7 +13,10 @@ export const handleUpdateUser = async (id: string, user: UserForm) => {
   try {
     // upload Avatar
     if (user.avatar && user.avatar instanceof File) {
-      toast.custom("Upload avatar...", "loading", { id: "upload-user", duration: Infinity });
+      toast.custom(translate('user.toast.uploadAvatar'), 'loading', {
+        id: 'upload-user',
+        duration: Infinity,
+      });
       const form = new FormData();
       const f = user.avatar;
       const randomId = Math.random().toString(36).substring(2, 6);
@@ -23,9 +27,12 @@ export const handleUpdateUser = async (id: string, user: UserForm) => {
 
       await axios.post('/file', form).then((res) => {
         user.avatarUrl = res.data.paths[0];
-      })
+      });
     }
-    toast.custom("Upload user...", "loading", { id: "upload-user", duration: Infinity });
+    toast.custom(translate('user.toast.uploadUser'), 'loading', {
+      id: 'upload-user',
+      duration: Infinity,
+    });
     await axios
       .patch(`/user/${id}`, {
         name: user.name,
@@ -37,15 +44,15 @@ export const handleUpdateUser = async (id: string, user: UserForm) => {
         isActive: user.isActive,
       })
       .then((res) => {
-        toast.success(res.data.msg, { id: "upload-user" });
+        toast.success(res.data.msg, { id: 'upload-user' });
         return res;
-      })
+      });
   } catch (err) {
     if (user.avatar instanceof File && user.avatarUrl) {
-      await axios.delete('/file', { params: { path: user.avatarUrl } })
+      await axios.delete('/file', { params: { path: user.avatarUrl } });
     }
     if (err instanceof AxiosError) {
-      toast.error(err.response?.data.msg, { id: "upload-user" });
+      toast.error(err.response?.data.msg, { id: 'upload-user' });
       if (err.response?.status === 422) {
         for (const [key, value] of Object.entries(err.response.data.fields)) {
           formControl.setError(key as keyof SignInForm, {
@@ -56,6 +63,5 @@ export const handleUpdateUser = async (id: string, user: UserForm) => {
       }
       throw err;
     }
-
   }
-}
+};

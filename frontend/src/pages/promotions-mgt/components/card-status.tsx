@@ -4,6 +4,8 @@ import { useWatch, Controller } from 'react-hook-form';
 
 import { Box, Card, Stack, Divider, Collapse, CardHeader, IconButton } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from 'src/components/iconify';
 import { DatePickerField } from 'src/components/fields/date-picker-field';
 
@@ -11,13 +13,14 @@ import { control } from '../hooks/form-control';
 
 export function CardStatus() {
   const [expen, setExpen] = useState(true);
+  const { t } = useTranslate();
   const [startDate] = useWatch({ control, name: ['startDate'] });
 
   return (
     <Card>
       <CardHeader
-        title="Status"
-        subheader="Start date, end date, active"
+        title={t('promotion.status.label')}
+        subheader={t('promotion.statusCard.subheader')}
         action={
           <IconButton onClick={() => setExpen(!expen)}>
             <Iconify
@@ -51,12 +54,12 @@ export function CardStatus() {
               name="startDate"
               defaultValue={dayjs()}
               rules={{
-                required: 'Start date is required.',
+                required: t('promotion.statusCard.startRequired'),
                 deps: ['endDate'],
               }}
               render={({ field, fieldState: { invalid, error } }) => (
                 <DatePickerField
-                  label="Start date"
+                  label={t('promotion.statusCard.startDate')}
                   {...field}
                   error={invalid}
                   helperText={error?.message}
@@ -68,12 +71,12 @@ export function CardStatus() {
               name="endDate"
               defaultValue={dayjs().add(7, 'day')}
               rules={{
-                required: 'End date is required.',
-                validate: (value) => value > startDate || 'End date must be in the future.',
+                required: t('promotion.statusCard.endRequired'),
+                validate: (value) => value > startDate || t('promotion.statusCard.endFuture'),
               }}
               render={({ field, fieldState: { invalid, error } }) => (
                 <DatePickerField
-                  label="End date"
+                  label={t('promotion.statusCard.endDate')}
                   {...field}
                   minDate={startDate}
                   error={invalid}

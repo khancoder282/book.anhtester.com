@@ -2,14 +2,16 @@ import dayjs from 'dayjs';
 
 import { Stack, Typography } from '@mui/material';
 
+import { translate } from 'src/locales';
 import { MappingType } from 'src/pages/promotions-mgt/const-type';
+import { formatPromotionValue } from 'src/pages/promotions-mgt/utils';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
 export const columns: () => Columns<PromotionType>[] = () => [
   {
-    label: 'CODE',
+    label: translate('book.promotion.columns.code'),
     sort: 'code',
     render: (row) => (
       <Typography variant="body2" textTransform="uppercase">
@@ -18,7 +20,7 @@ export const columns: () => Columns<PromotionType>[] = () => [
     ),
   },
   {
-    label: 'Name',
+    label: translate('book.promotion.columns.name'),
     sort: 'name',
     render: ({ name, description }) => (
       <Stack overflow="hidden">
@@ -32,7 +34,7 @@ export const columns: () => Columns<PromotionType>[] = () => [
     ),
   },
   {
-    label: 'Type',
+    label: translate('book.promotion.columns.type'),
     sort: 'type',
     render: (row) => (
       <Label
@@ -40,17 +42,21 @@ export const columns: () => Columns<PromotionType>[] = () => [
         startIcon={<Iconify icon={MappingType[row?.type]?.icon} />}
         sx={{ mr: 1 }}
       >
-        {row?.type}
+        {translate(`promotion.type.${row?.type}`)}
       </Label>
     ),
   },
   {
-    label: 'Value',
+    label: translate('book.promotion.columns.value'),
     sort: 'value',
-    render: (row) => <Label>{row?.value}</Label>,
+    render: (row) => (
+      <Label data-promotion-value={row?.value} sx={{ textTransform: 'none' }}>
+        {formatPromotionValue(row)}
+      </Label>
+    ),
   },
   {
-    label: 'Start',
+    label: translate('book.promotion.columns.start'),
     sort: 'startDate',
     render: (row) => {
       const day = dayjs(row?.startDate);
@@ -67,7 +73,7 @@ export const columns: () => Columns<PromotionType>[] = () => [
     },
   },
   {
-    label: 'End',
+    label: translate('book.promotion.columns.end'),
     sort: 'endDate',
     render: (row) => {
       const day = dayjs(row?.endDate);
@@ -85,36 +91,37 @@ export const columns: () => Columns<PromotionType>[] = () => [
   },
 ];
 
-export const fields: FieldType<PromotionType>[] = [
+// Hàm (không phải hằng) để nhãn dịch theo ngôn ngữ hiện tại mỗi lần render
+export const fields: () => FieldType<PromotionType>[] = () => [
   {
     name: 'name',
-    label: 'Name',
+    label: translate('book.promotion.fields.name'),
     type: 'string',
   },
   {
     name: 'code',
-    label: 'Code',
+    label: translate('book.promotion.fields.code'),
     type: 'string',
   },
   {
     name: 'type',
-    label: 'Type',
+    label: translate('book.promotion.fields.type'),
     type: 'enums',
     options: ['PERCENTAGE', 'FIXED_AMOUNT', 'FREE_SHIPPING'],
   },
   {
     name: 'value',
-    label: 'Value',
+    label: translate('book.promotion.fields.value'),
     type: 'number',
   },
   {
     name: 'startDate',
-    label: 'Start Date',
+    label: translate('book.promotion.fields.startDate'),
     type: 'date',
   },
   {
     name: 'endDate',
-    label: 'End Date',
+    label: translate('book.promotion.fields.endDate'),
     type: 'date',
   },
 ];

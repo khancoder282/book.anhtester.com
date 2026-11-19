@@ -22,6 +22,7 @@ import {
 import { useRequest } from 'src/hooks/use-request';
 
 import { useAuth } from 'src/store/auth';
+import { useTranslate } from 'src/locales';
 import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -39,10 +40,11 @@ const MAX_LENGTH = 24;
 
 type SortKey = 'name' | 'bookCount';
 
-const errorMsg = (err: any) => err?.response?.data?.msg ?? 'Something went wrong.';
-
 export default function CategoryMgt() {
   const { auth } = useAuth();
+  const { t, lang } = useTranslate();
+  // Message lỗi từ backend giữ nguyên (tiếng Anh), chỉ dịch câu dự phòng
+  const errorMsg = (err: any) => err?.response?.data?.msg ?? t('common.somethingWrong');
   const { data = [], loading, request } = useRequest(Category.get);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({
@@ -56,10 +58,10 @@ export default function CategoryMgt() {
     const factor = sort.dir === 'asc' ? 1 : -1;
     return [...filtered].sort((a, b) =>
       sort.key === 'name'
-        ? a.name.localeCompare(b.name, 'vi') * factor
+        ? a.name.localeCompare(b.name, lang) * factor
         : (a.bookCount - b.bookCount) * factor
     );
-  }, [data, search, sort]);
+  }, [data, search, sort, lang]);
 
   const totalBooks = useMemo(() => data.reduce((sum, c) => sum + c.bookCount, 0), [data]);
 
@@ -67,33 +69,36 @@ export default function CategoryMgt() {
     setSort((s) => ({ key, dir: s.key === key && s.dir === 'asc' ? 'desc' : 'asc' }));
 
   const nameRules = (current?: string) => ({
-    required: 'Category name is required',
-    maxLength: { value: MAX_LENGTH, message: `Maximum ${MAX_LENGTH} characters` },
+    required: t('category.validation.required'),
+    maxLength: {
+      value: MAX_LENGTH,
+      message: t('category.validation.maxLength', { max: MAX_LENGTH }),
+    },
     validate: {
-      notBlank: (val: string) => val.trim().length > 0 || 'Category name is required',
-      noSlash: (val: string) => !val.includes('/') || 'Category name cannot contain "/"',
-      noChange: (val: string) => val.trim() !== current || 'New name must be different',
+      notBlank: (val: string) => val.trim().length > 0 || t('category.validation.required'),
+      noSlash: (val: string) => !val.includes('/') || t('category.validation.noSlash'),
+      noChange: (val: string) => val.trim() !== current || t('category.validation.noChange'),
       unique: (val: string) =>
         !data.some(
           (c) => c.name !== current && c.name.toLowerCase() === val.trim().toLowerCase()
-        ) || 'Category already exists',
+        ) || t('category.validation.exists'),
     },
   });
 
   const openCreate = () =>
     dialog.form({
-      title: 'New category',
+      title: t('category.newCategory'),
       body: {
         name: {
           type: 'text',
-          label: 'Category name',
+          label: t('category.form.name'),
           defaultValue: '',
           rules: nameRules(),
           props: { autoFocus: true, inputProps: { id: 'category-name' } },
         },
       },
       action: {
-        children: 'Create',
+        children: t('common.actions.create'),
         startIcon: <Iconify icon="mingcute:add-line" />,
         onAction: (d) =>
           Category.create(d.name.trim())
@@ -110,18 +115,18 @@ export default function CategoryMgt() {
 
   const openRename = (row: Categories) =>
     dialog.form({
-      title: `Rename category "${row.name}"`,
+      title: t('category.form.renameTitle', { name: row.name }),
       body: {
         name: {
           type: 'text',
-          label: 'New name',
+          label: t('category.form.newName'),
           defaultValue: row.name,
           rules: nameRules(row.name),
           props: { autoFocus: true, inputProps: { id: 'category-new-name' } },
         },
       },
       action: {
-        children: 'Save',
+        children: t('common.actions.save'),
         startIcon: <Iconify icon="solar:pen-bold" />,
         onAction: (d) =>
           Category.update(row.name, d.name.trim())
@@ -139,12 +144,11 @@ export default function CategoryMgt() {
   const openDelete = (row: Categories) =>
     dialog.delete(
       <>
-        Confirm you want to delete category <b>&quot;{row.name}&quot;</b>.
+        {t('category.deleteConfirm', { name: row.name })}
         {row.bookCount > 0 && (
           <>
             <br />
-            {row.bookCount} book(s) will no longer belong to this category. The books themselves are
-            not deleted.
+            {t('category.deleteWarning', { count: row.bookCount })}
           </>
         )}
       </>,
@@ -161,11 +165,13 @@ export default function CategoryMgt() {
 
   return (
     <>
-      <Title>Category Management - {CONFIG.appName}</Title>
+      <Title>
+        {t('category.title')} - {CONFIG.appName}
+      </Title>
       <DashboardContent>
         <Box sx={{ mb: 5, display: 'flex', alignItems: 'center' }}>
           <Typography variant="h4" sx={{ flexGrow: 1 }}>
-            Category Management
+            {t('category.title')}
           </Typography>
           {auth && (
             <Button
@@ -175,7 +181,7 @@ export default function CategoryMgt() {
               startIcon={<Iconify icon="mingcute:add-line" />}
               onClick={openCreate}
             >
-              New category
+              {t('category.newCategory')}
             </Button>
           )}
         </Box>
@@ -191,7 +197,7 @@ export default function CategoryMgt() {
               size="small"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search category..."
+              placeholder={t('category.searchPlaceholder')}
               sx={{ width: { xs: 1, sm: 320 } }}
               slotProps={{
                 htmlInput: { id: 'search-category' },
@@ -206,7 +212,7 @@ export default function CategoryMgt() {
             />
             <Box flexGrow={1} />
             <Typography variant="body2" color="text.secondary" id="category-summary">
-              {data.length} categories · {totalBooks} book links
+              {t('category.summary', { count: data.length, links: totalBooks })}
             </Typography>
           </Stack>
 
@@ -220,7 +226,7 @@ export default function CategoryMgt() {
                       direction={sort.key === 'name' ? sort.dir : 'asc'}
                       onClick={() => toggleSort('name')}
                     >
-                      Name
+                      {t('category.columns.name')}
                     </TableSortLabel>
                   </TableCell>
                   <TableCell align="right" width={160}>
@@ -229,7 +235,7 @@ export default function CategoryMgt() {
                       direction={sort.key === 'bookCount' ? sort.dir : 'asc'}
                       onClick={() => toggleSort('bookCount')}
                     >
-                      Books
+                      {t('category.columns.books')}
                     </TableSortLabel>
                   </TableCell>
                   {auth && <TableCell align="right" width={120} />}
@@ -246,17 +252,19 @@ export default function CategoryMgt() {
                     </TableCell>
                     {auth && (
                       <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                        <Tooltip title="Rename">
+                        <Tooltip title={t('common.actions.rename')}>
                           <IconButton
-                            aria-label={`Rename ${row.name}`}
+                            data-action="rename"
+                            aria-label={`${t('common.actions.rename')} ${row.name}`}
                             onClick={() => openRename(row)}
                           >
                             <Iconify icon="solar:pen-bold" />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Delete">
+                        <Tooltip title={t('common.actions.delete')}>
                           <IconButton
-                            aria-label={`Delete ${row.name}`}
+                            data-action="delete"
+                            aria-label={`${t('common.actions.delete')} ${row.name}`}
                             color="error"
                             onClick={() => openDelete(row)}
                           >

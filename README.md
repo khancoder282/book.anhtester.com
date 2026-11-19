@@ -166,6 +166,7 @@ memory/                    # ghi chú làm việc
 ## Kiểm thử
 
 - Bug đã biết: [`docs/bugs/README.md`](docs/bugs/README.md). Xem trước khi báo bug mới để tránh trùng.
+- Giao diện có hai ngôn ngữ, đổi bằng nút **EN / VI** trên header (`#btn-language`), mặc định tiếng Anh. Mở thẳng tiếng Việt bằng `?lang=vi` (vd `http://localhost:3039/book-management?lang=vi`); lựa chọn được nhớ trong `localStorage` (khoá `lang`). Thông báo trả về từ API luôn là tiếng Anh.
 - Gọi API có tiếng Việt thì dùng script Bun (`fetch`) hoặc Postman. `curl` trong Git Bash trên Windows đổi chữ có dấu thành `?` trước khi gửi.
 - App mobile (repo `mobile-book.anhtester.com`) mặc định gọi API production `https://book.anhtester.com`, không gọi backend local.
 

@@ -17,6 +17,8 @@ import {
   FormControlLabel,
 } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { useDialog } from './store';
 
 type ObjectField<T = string> =
@@ -157,6 +159,7 @@ export function DialogConfirmForm<T>({
   action: { onAction, ...actionProps },
   title,
 }: DialogConfirmFormProps<T>) {
+  const { t } = useTranslate();
   const { setOpen, open } = useDialog();
   const {
     control,
@@ -214,7 +217,7 @@ export function DialogConfirmForm<T>({
           color="inherit"
           onClick={() => setOpen(false)}
         >
-          Cancel
+          {t('common.actions.cancel')}
         </Button>
         <Button
           variant="contained"

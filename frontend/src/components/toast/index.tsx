@@ -4,6 +4,8 @@ import { toast as toaster } from 'sonner';
 
 import { Box, Zoom, IconButton, Typography } from '@mui/material';
 
+import { translate } from 'src/locales';
+
 import { Iconify } from '../iconify';
 
 const iconMapping = {
@@ -149,7 +151,7 @@ export const toast = {
   success: (message: string, data?: ExternalToast & { onClose?: () => void }) =>
     action(message, 'success', data),
   error: (
-    message: string = 'Error in processing request',
+    message: string = translate('components.toast.errorDefault'),
     data?: ExternalToast & { onClose?: () => void }
   ) => action(message, 'error', data),
   warning: (message: string, data?: ExternalToast & { onClose?: () => void }) =>
@@ -163,9 +165,9 @@ export const toast = {
       success: string | ((p: any) => Promise<string> | string);
       error: string | ((p: any) => Promise<string> | string);
     } = {
-      loading: 'Loading...',
-      success: 'Success',
-      error: 'Error',
+      loading: translate('components.toast.loading'),
+      success: translate('components.toast.success'),
+      error: translate('components.toast.error'),
     }
   ) => actionLoading(callback, mappping),
   dismiss: (id: string) => toaster.dismiss(id),

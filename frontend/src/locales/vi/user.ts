@@ -1,0 +1,84 @@
+import type { Translation } from '../types';
+import type { user as en } from '../en/user';
+
+export const user: Translation<typeof en> = {
+  title: 'Quản lý người dùng',
+  newUser: 'Thêm người dùng',
+  searchPlaceholder: 'Tìm người dùng (tên, email, số điện thoại hoặc địa chỉ)',
+  deleteConfirm: 'Xác nhận bạn muốn xoá người dùng "{name}".',
+  you: 'Bạn',
+  columns: {
+    active: 'Trạng thái',
+  },
+  status: {
+    active: 'Hoạt động',
+    inactive: 'Đã khoá',
+  },
+  filter: {
+    isActive: 'Hoạt động',
+    createdAt: 'Ngày tạo',
+    updatedAt: 'Ngày cập nhật',
+  },
+  dialog: {
+    addTitle: 'Thêm người dùng',
+    updateTitle: 'Cập nhật người dùng',
+  },
+  form: {
+    information: 'Thông tin',
+    account: 'Tài khoản',
+    name: 'Tên',
+    phone: 'Số điện thoại',
+    email: 'Email',
+    oldPassword: 'Mật khẩu cũ',
+    password: 'Mật khẩu',
+    passwordConfirmation: 'Xác nhận mật khẩu',
+    activeForLogin: 'Cho phép đăng nhập',
+    inactiveForLogin: 'Khoá đăng nhập',
+  },
+  validation: {
+    avatarMaxSize: 'Ảnh đại diện phải nhỏ hơn 3MB.',
+    avatarFormat: 'Ảnh đại diện phải có định dạng *.jpeg, *.jpg, *.png, *.gif.',
+    nameRequired: 'Vui lòng nhập tên.',
+    nameMaxLength: 'Tên phải ít hơn 250 ký tự.',
+    phoneMaxLength: 'Số điện thoại dài tối đa 10 chữ số.',
+    addressMaxLength: 'Địa chỉ dài tối đa 250 ký tự.',
+    emailRequired: 'Vui lòng nhập email.',
+    emailInvalid: 'Địa chỉ email không hợp lệ',
+    emailMaxLength: 'Email phải ít hơn 250 ký tự.',
+    oldPasswordRequired: 'Vui lòng nhập mật khẩu cũ.',
+    oldPasswordMaxLength: 'Mật khẩu cũ phải ít hơn 250 ký tự.',
+    passwordRequired: 'Vui lòng nhập mật khẩu.',
+    passwordMaxLength: 'Mật khẩu phải ít hơn 250 ký tự.',
+    passwordConfirmationRequired: 'Vui lòng nhập xác nhận mật khẩu.',
+    passwordConfirmationMaxLength: 'Xác nhận mật khẩu phải ít hơn 250 ký tự.',
+    passwordConfirmationMismatch: 'Xác nhận mật khẩu không khớp.',
+  },
+  toast: {
+    uploadAvatar: 'Đang tải ảnh đại diện lên...',
+    uploadUser: 'Đang lưu người dùng...',
+    uploadProfile: 'Đang lưu hồ sơ...',
+    loginFirst: 'Vui lòng đăng nhập trước',
+  },
+  breadcrumb: {
+    userManagement: 'Quản lý người dùng',
+  },
+  profile: {
+    pageTitle: 'Hồ sơ của tôi',
+    title: 'Hồ sơ của tôi',
+    breadcrumb: 'Sửa hồ sơ của tôi',
+    reset: 'Đặt lại',
+    save: 'Lưu hồ sơ',
+  },
+  setting: {
+    title: 'Cài đặt tài khoản',
+    themeTitle: 'Giao diện',
+    themeSubheader:
+      'Chuyển giữa giao diện Sáng, Tối hoặc theo Hệ thống để có trải nghiệm phù hợp và dễ chịu.',
+    themeLight: 'Sáng',
+    themeDark: 'Tối',
+    themeSystem: 'Hệ thống',
+    colorTitle: 'Chọn màu',
+    colorSubheader: 'Chọn màu cho tài khoản của bạn.',
+    reset: 'Đặt lại',
+  },
+};

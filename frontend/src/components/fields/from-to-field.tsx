@@ -4,6 +4,8 @@ import { useState } from 'react';
 
 import { Box, TextField, Autocomplete, ClickAwayListener } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { Iconify } from '../iconify';
 
 type FromToFieldProps = Omit<TextFieldProps, 'value' | 'onChange' | 'defaultValue'> & {
@@ -17,6 +19,7 @@ export function FromToField({
   onChange,
   options,
 }: FromToFieldProps) {
+  const { t } = useTranslate();
   const [isForcus, setIsForcus] = useState(false);
 
   return (
@@ -51,7 +54,7 @@ export function FromToField({
             <TextField
               {...p}
               type="number"
-              placeholder="Price from"
+              placeholder={t('components.fromTo.priceFrom')}
               sx={{
                 '& fieldset': { border: 'none' },
               }}
@@ -77,7 +80,7 @@ export function FromToField({
             <TextField
               {...p}
               type="number"
-              placeholder="Price to"
+              placeholder={t('components.fromTo.priceTo')}
               sx={{
                 '& fieldset': { border: 'none' },
               }}

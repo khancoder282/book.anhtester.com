@@ -2,14 +2,17 @@ import dayjs from 'dayjs';
 
 import { Stack, Typography } from '@mui/material';
 
+import { translate } from 'src/locales';
 import { MappingType } from 'src/pages/promotions-mgt/const-type';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
+import { getPromotionStatus, formatPromotionValue, PROMOTION_STATUS_COLOR } from '../utils';
+
 export const columns: () => Columns<PromotionType>[] = () => [
   {
-    label: 'CODE',
+    label: translate('promotion.columns.code'),
     sort: 'code',
     render: (row) => (
       <Typography variant="body2" textTransform="uppercase" fontWeight="bold">
@@ -18,7 +21,7 @@ export const columns: () => Columns<PromotionType>[] = () => [
     ),
   },
   {
-    label: 'Name',
+    label: translate('promotion.columns.name'),
     sort: 'name',
     render: ({ name, description }) => (
       <Stack overflow="hidden">
@@ -32,7 +35,7 @@ export const columns: () => Columns<PromotionType>[] = () => [
     ),
   },
   {
-    label: 'Type',
+    label: translate('promotion.columns.type'),
     sort: 'type',
     render: (row) => (
       <Label
@@ -40,26 +43,33 @@ export const columns: () => Columns<PromotionType>[] = () => [
         startIcon={<Iconify icon={MappingType[row?.type]?.icon} />}
         sx={{ mr: 1 }}
       >
-        {row?.type}
+        {translate(`promotion.type.${row?.type}`)}
       </Label>
     ),
   },
   {
-    label: 'Active',
+    label: translate('promotion.status.label'),
     sort: 'isActive',
+    render: (row) => {
+      const status = getPromotionStatus(row);
+      return (
+        <Label color={PROMOTION_STATUS_COLOR[status]} data-status={status}>
+          {translate(`promotion.status.${status}`)}
+        </Label>
+      );
+    },
+  },
+  {
+    label: translate('promotion.columns.value'),
+    sort: 'value',
     render: (row) => (
-      <Label color={row?.isActive ? 'success' : 'error'}>
-        {row?.isActive ? 'Active' : 'Inactive'}
+      <Label data-promotion-value={row?.value} sx={{ textTransform: 'none' }}>
+        {formatPromotionValue(row)}
       </Label>
     ),
   },
   {
-    label: 'Value',
-    sort: 'value',
-    render: (row) => <Label>{row?.value}</Label>,
-  },
-  {
-    label: 'Start',
+    label: translate('promotion.columns.start'),
     sort: 'startDate',
     render: (row) => {
       const day = dayjs(row?.startDate);
@@ -82,7 +92,7 @@ export const columns: () => Columns<PromotionType>[] = () => [
     },
   },
   {
-    label: 'End',
+    label: translate('promotion.columns.end'),
     sort: 'endDate',
     render: (row) => {
       const day = dayjs(row?.endDate);
@@ -105,10 +115,10 @@ export const columns: () => Columns<PromotionType>[] = () => [
     },
   },
   {
-    label: 'Created',
+    label: translate('promotion.columns.created'),
     sort: 'createdAt',
     render: (row) => {
-      const day = dayjs(row?.endDate);
+      const day = dayjs(row?.createdAt);
       return (
         <Stack>
           <Typography variant="body2" noWrap>
@@ -123,36 +133,37 @@ export const columns: () => Columns<PromotionType>[] = () => [
   },
 ];
 
-export const fields: FieldType<PromotionType>[] = [
+/** Gọi lúc render (không để hằng số cấp module) để nhãn theo ngôn ngữ hiện tại */
+export const getFields = (): FieldType<PromotionType>[] => [
   {
     name: 'name',
-    label: 'Name',
+    label: translate('promotion.fields.name'),
     type: 'string',
   },
   {
     name: 'code',
-    label: 'Code',
+    label: translate('promotion.fields.code'),
     type: 'string',
   },
   {
     name: 'type',
-    label: 'Type',
+    label: translate('promotion.fields.type'),
     type: 'enums',
     options: ['PERCENTAGE', 'FIXED_AMOUNT', 'FREE_SHIPPING'],
   },
   {
     name: 'value',
-    label: 'Value',
+    label: translate('promotion.fields.value'),
     type: 'number',
   },
   {
     name: 'startDate',
-    label: 'Start Date',
+    label: translate('promotion.fields.startDate'),
     type: 'date',
   },
   {
     name: 'endDate',
-    label: 'End Date',
+    label: translate('promotion.fields.endDate'),
     type: 'date',
   },
 ];

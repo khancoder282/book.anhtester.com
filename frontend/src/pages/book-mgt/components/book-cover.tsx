@@ -4,6 +4,8 @@ import { Box, Typography } from '@mui/material';
 
 import { formatFilePath } from 'src/utils/format-filepath';
 
+import { useTranslate } from 'src/locales';
+
 import { SvgColor } from 'src/components/svg-color';
 
 // Cặp màu gradient cho bìa mặc định, chọn theo tên sách để mỗi sách luôn ra cùng một màu
@@ -33,6 +35,7 @@ export type BookCoverProps = {
  * Ảnh bìa sách. Không có ảnh hoặc ảnh lỗi thì hiện bìa mặc định (màu theo tên + tên sách).
  */
 export function BookCover({ src, name, sx }: BookCoverProps) {
+  const { t } = useTranslate();
   const [failed, setFailed] = useState(false);
 
   useEffect(() => setFailed(false), [src]);
@@ -60,7 +63,7 @@ export function BookCover({ src, name, sx }: BookCoverProps) {
   return (
     <Box
       role="img"
-      aria-label={`${name} (no cover image)`}
+      aria-label={t('book.noCover', { name })}
       data-cover="placeholder"
       sx={{
         width: 1,

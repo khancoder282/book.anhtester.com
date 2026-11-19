@@ -5,9 +5,13 @@ import { Box, Stack, Divider, Tooltip, Typography } from '@mui/material';
 
 import { formatFilePath } from 'src/utils/format-filepath';
 
+import { useTranslate } from 'src/locales';
+
 import { formatSize } from 'src/components/fields/upload-field';
 
 export function ViewType({ file }: { file?: FileItem }) {
+  const { t } = useTranslate();
+
   return (
     <Stack spacing={2} overflow="hidden">
       {file?.type.startsWith('image') && (
@@ -22,7 +26,7 @@ export function ViewType({ file }: { file?: FileItem }) {
             objectFit: 'contain',
             borderRadius: 1,
             bgcolor: 'background.neutral',
-            boxShadow: (t) => t.customShadows.z8,
+            boxShadow: (theme) => theme.customShadows.z8,
           }}
         />
       )}
@@ -42,29 +46,29 @@ export function ViewType({ file }: { file?: FileItem }) {
       <Divider style={{ borderStyle: 'dashed' }} />
 
       <Stack sx={{ typography: 'caption', overflow: 'hidden' }}>
-        <Typography variant="subtitle2">Properties</Typography>
+        <Typography variant="subtitle2">{t('file.previewDialog.properties')}</Typography>
         <Box>
           <Typography display="inline-block" width={80} variant="caption" color="textSecondary">
-            Size
+            {t('file.columns.size')}
           </Typography>
           {formatSize(file?.size || 0)}
         </Box>
         <Box>
           <Typography display="inline-block" width={80} variant="caption" color="textSecondary">
-            Modified
+            {t('file.columns.modified')}
           </Typography>
           {dayjs(file?.modified).format('DD MMM YYYY hh:mm A')}
         </Box>
         <Box>
           <Typography display="inline-block" width={80} variant="caption" color="textSecondary">
-            Type
+            {t('file.columns.type')}
           </Typography>
           {file?.type}
         </Box>
       </Stack>
 
       <Stack>
-        <Typography variant="subtitle2">Link path</Typography>
+        <Typography variant="subtitle2">{t('file.previewDialog.linkPath')}</Typography>
         <Tooltip title={file?.path} arrow placement="auto">
           <Typography
             variant="caption"
@@ -79,7 +83,7 @@ export function ViewType({ file }: { file?: FileItem }) {
             onClick={async () => {
               if (file?.path) {
                 navigator.clipboard.writeText(file?.path);
-                toast.success('Copied to clipboard');
+                toast.success(t('file.copiedToClipboard'));
               }
             }}
           >

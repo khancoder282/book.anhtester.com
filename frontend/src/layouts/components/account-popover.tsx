@@ -18,12 +18,13 @@ import { formatFilePath } from 'src/utils/format-filepath';
 
 import { useAuth } from 'src/store/auth';
 import { hanldeLogout } from 'src/api/logout';
+import { type TKey, useTranslate } from 'src/locales';
 
 // ----------------------------------------------------------------------
 
 export type AccountPopoverProps = IconButtonProps & {
   data?: {
-    label: string;
+    label: TKey;
     href: string;
     icon?: React.ReactNode;
     info?: React.ReactNode;
@@ -32,6 +33,7 @@ export type AccountPopoverProps = IconButtonProps & {
 
 export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps) {
   const router = useRouter();
+  const { t } = useTranslate();
   const { auth, setAuth } = useAuth();
   const [isLogout, setIsLogout] = useState(false);
 
@@ -136,7 +138,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
               onClick={() => handleClickItem(option.href)}
             >
               {option.icon}
-              {option.label}
+              {t(option.label)}
             </MenuItem>
           ))}
         </MenuList>
@@ -161,7 +163,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
                 .finally(() => setIsLogout(false));
             }}
           >
-            Logout
+            {t('nav.account.logout')}
           </Button>
         </Box>
       </Popover>

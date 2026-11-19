@@ -8,6 +8,8 @@ import {
   DialogContentText,
 } from '@mui/material';
 
+import { useTranslate } from 'src/locales';
+
 import { useDialog } from './store';
 import { Iconify } from '../iconify';
 
@@ -17,6 +19,7 @@ type DialogConfirm = {
 };
 
 export function DialogDelete({ onDelete, message }: DialogConfirm) {
+  const { t } = useTranslate();
   const [isConfirm, setIsConfirm] = useState(false);
   const { setOpen } = useDialog();
   const handleConfirm = async () => {
@@ -31,7 +34,7 @@ export function DialogDelete({ onDelete, message }: DialogConfirm) {
   };
   return (
     <>
-      <DialogTitle>Confirm delete</DialogTitle>
+      <DialogTitle>{t('components.dialog.confirmDelete')}</DialogTitle>
       <DialogContent>
         <DialogContentText>{message}</DialogContentText>
       </DialogContent>
@@ -42,7 +45,7 @@ export function DialogDelete({ onDelete, message }: DialogConfirm) {
           color="inherit"
           onClick={() => setOpen(false)}
         >
-          Cancel
+          {t('common.actions.cancel')}
         </Button>
         <Button
           id="dialog-delete-action"
@@ -52,7 +55,7 @@ export function DialogDelete({ onDelete, message }: DialogConfirm) {
           color="error"
           startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
         >
-          Delete
+          {t('common.actions.delete')}
         </Button>
       </DialogActions>
     </>

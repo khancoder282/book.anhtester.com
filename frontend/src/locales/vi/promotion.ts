@@ -1,0 +1,97 @@
+import type { Translation } from '../types';
+import type { promotion as en } from '../en/promotion';
+
+export const promotion: Translation<typeof en> = {
+  status: {
+    label: 'Trạng thái',
+    disabled: 'Đã tắt',
+    scheduled: 'Sắp chạy',
+    running: 'Đang chạy',
+    expired: 'Hết hạn',
+  },
+  type: {
+    PERCENTAGE: 'Phần trăm',
+    FIXED_AMOUNT: 'Số tiền cố định',
+    FREE_SHIPPING: 'Miễn phí vận chuyển',
+  },
+  value: {
+    freeShipping: 'Miễn phí ship',
+  },
+  title: 'Quản lý khuyến mãi',
+  newPromotion: 'Thêm khuyến mãi',
+  columns: {
+    code: 'MÃ',
+    name: 'Tên',
+    type: 'Loại',
+    value: 'Giá trị',
+    start: 'Bắt đầu',
+    end: 'Kết thúc',
+    created: 'Ngày tạo',
+  },
+  fields: {
+    name: 'Tên',
+    code: 'Mã',
+    type: 'Loại',
+    value: 'Giá trị',
+    startDate: 'Ngày bắt đầu',
+    endDate: 'Ngày kết thúc',
+  },
+  confirmDelete: 'Xác nhận bạn muốn xoá người dùng "{name}".',
+  handle: {
+    createTitle: 'Tạo khuyến mãi mới',
+    modifyTitle: 'Sửa khuyến mãi',
+    breadcrumb: 'Quản lý khuyến mãi',
+    active: 'Hoạt động',
+    inactive: 'Tắt',
+    reset: 'Đặt lại',
+    saveChanges: 'Lưu thay đổi',
+    create: 'Tạo sách',
+    deleteNote:
+      'Cuốn sách này trước đây thuộc kho hàng của bạn, hiện không còn kinh doanh và đang được bán cho người mua quan tâm tìm kiếm một món hời.',
+    deleteConfirmBefore: 'Bạn có muốn xoá ',
+    deleteConfirmAfter: '? Sau khi xoá sẽ không thể hoàn tác',
+  },
+  detail: {
+    title: 'Chi tiết',
+    subheader: 'Tiêu đề, mô tả, hình ảnh',
+    name: 'Tên khuyến mãi',
+    code: 'Mã sách',
+    description: 'Mô tả',
+    type: 'Loại',
+    value: 'Giá trị',
+    nameRequired: 'Tên là bắt buộc.',
+    nameMax: 'Tên phải ít hơn 100 ký tự.',
+    codeRequired: 'Mã là bắt buộc.',
+    codeLength: 'Mã phải gồm 6 ký tự.',
+    descriptionMax: 'Mô tả phải ít hơn 500 ký tự.',
+    typeOption: {
+      PERCENTAGE: 'Phần trăm',
+      FIXED_AMOUNT: 'Số tiền cố định',
+      FREE_SHIPPING: 'Miễn phí vận chuyển',
+    },
+  },
+  statusCard: {
+    subheader: 'Ngày bắt đầu, ngày kết thúc, hoạt động',
+    startDate: 'Ngày bắt đầu',
+    endDate: 'Ngày kết thúc',
+    startRequired: 'Ngày bắt đầu là bắt buộc.',
+    endRequired: 'Ngày kết thúc là bắt buộc.',
+    endFuture: 'Ngày kết thúc phải ở tương lai.',
+  },
+  books: {
+    title: 'Chọn sách',
+    subheader: 'Chọn sách áp dụng khuyến mãi',
+    removeAll: 'Bỏ chọn {count} sách',
+    columns: {
+      name: 'Tên',
+      price: 'Giá',
+      created: 'Ngày tạo',
+    },
+    fields: {
+      name: 'Tên',
+      description: 'Mô tả',
+      price: 'Giá',
+      created: 'Ngày tạo',
+    },
+  },
+};

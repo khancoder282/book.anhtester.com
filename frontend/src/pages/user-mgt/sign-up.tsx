@@ -6,6 +6,7 @@ import { Box, Link, Button, useTheme, Typography } from '@mui/material';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
+import { useTranslate } from 'src/locales';
 import { CONFIG } from 'src/config-global';
 import { AuthLayout } from 'src/layouts/auth';
 
@@ -17,8 +18,9 @@ import { handleRegisterUser } from './api/register';
 import { ContentUser } from './components/content-user';
 
 export default function SignUp() {
-  const t = useTheme();
+  const theme = useTheme();
   const router = useRouter();
+  const { t } = useTranslate();
   const { isSubmitSuccessful } = useFormState({ control: formControl.control });
   const { reset } = useForm({ formControl: formControl.formControl });
 
@@ -35,10 +37,10 @@ export default function SignUp() {
   return (
     <AuthLayout
       cssVars={{
-        '--layout-auth-content-width': `${t.breakpoints.values.sm}px`,
+        '--layout-auth-content-width': `${theme.breakpoints.values.sm}px`,
       }}
     >
-      <Title>{`Sign up - ${CONFIG.appName}`}</Title>
+      <Title>{`${t('auth.signUp.title')} - ${CONFIG.appName}`}</Title>
       <Box
         sx={{
           gap: 1.5,
@@ -48,16 +50,16 @@ export default function SignUp() {
           mb: 5,
         }}
       >
-        <Typography variant="h3">Sign up</Typography>
+        <Typography variant="h3">{t('auth.signUp.title')}</Typography>
         <Typography
           variant="body2"
           sx={{
             color: 'text.secondary',
           }}
         >
-          Already have an account?
+          {t('auth.signUp.haveAccount')}
           <Link component={RouterLink} href="/sign-in" variant="subtitle2" sx={{ ml: 0.5 }}>
-            Sign in
+            {t('auth.signUp.signInLink')}
           </Link>
         </Typography>
       </Box>
@@ -70,7 +72,7 @@ export default function SignUp() {
         sx={{ mt: 3, mb: -2, alignSelf: 'flex-end' }}
         onClick={formControl.handleSubmit(handleRegisterUser)}
       >
-        Register
+        {t('auth.signUp.submit')}
       </Button>
     </AuthLayout>
   );

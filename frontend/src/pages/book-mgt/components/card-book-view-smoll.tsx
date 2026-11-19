@@ -8,6 +8,7 @@ import { RouterLink } from 'src/routes/components';
 import { fShortenNumber } from 'src/utils/format-number';
 import { formatFilePath } from 'src/utils/format-filepath';
 
+import { useTranslate } from 'src/locales';
 import { MappingType } from 'src/pages/promotions-mgt/const-type';
 
 import { Label } from 'src/components/label';
@@ -17,6 +18,8 @@ import { CarouselDefault } from 'src/components/carousel/default';
 import { BookCover } from './book-cover';
 
 export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?: boolean }) {
+  const { t } = useTranslate();
+
   return (
     <Card
       id={`book-${book.id}`}
@@ -39,8 +42,8 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
       )}
       <Box
         sx={{
-          top: (t) => t.spacing(1),
-          right: (t) => t.spacing(1),
+          top: (theme) => theme.spacing(1),
+          right: (theme) => theme.spacing(1),
           width: 1,
           p: 1,
           pl: 10,
@@ -62,7 +65,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
         ))}
         {book.createdAt && dayjs(book.createdAt) > dayjs().add(-7, 'day') && (
           <Label variant="filled" color="info" sx={{}}>
-            New
+            {t('book.newLabel')}
           </Label>
         )}
       </Box>
@@ -82,8 +85,8 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
         <Avatar
           sx={{
             position: 'absolute',
-            top: (t) => t.spacing(3),
-            boxShadow: (t) => t.customShadows.z12,
+            top: (theme) => theme.spacing(3),
+            boxShadow: (theme) => theme.customShadows.z12,
           }}
           src={formatFilePath(book.auth?.avatarUrl)}
         />
@@ -146,7 +149,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
                 alignItems="center"
               >
                 <Iconify
-                  sx={{ color: (t) => t.palette.success.main, mr: 0.5 }}
+                  sx={{ color: (theme) => theme.palette.success.main, mr: 0.5 }}
                   icon="eva:arrow-ios-downward-fill"
                   width={12}
                 />
