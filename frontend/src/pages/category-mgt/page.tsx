@@ -3,9 +3,11 @@ import { useMemo, useState } from 'react';
 import {
   Box,
   Card,
+  Link,
   Table,
   Stack,
   Button,
+  Switch,
   Tooltip,
   TableRow,
   TableBody,
@@ -18,6 +20,8 @@ import {
   TableContainer,
   TableSortLabel,
 } from '@mui/material';
+
+import { RouterLink } from 'src/routes/components';
 
 import { useRequest } from 'src/hooks/use-request';
 
@@ -38,14 +42,17 @@ import { Category } from '../book-mgt/api/categorys';
 // Cùng giới hạn với ô Category trong form sách (card-property.tsx)
 const MAX_LENGTH = 24;
 
-type SortKey = 'name' | 'bookCount';
+type SortKey = 'name' | 'isActive' | 'bookCount';
+
+/** Trang Book lọc theo category qua query `category` (xem book-mgt/stores/filter.ts) */
+const bookLink = (name: string) => `/book-management?category=${encodeURIComponent(name)}`;
 
 export default function CategoryMgt() {
   const { auth } = useAuth();
   const { t, lang } = useTranslate();
   // Message lỗi từ backend giữ nguyên (tiếng Anh), chỉ dịch câu dự phòng
   const errorMsg = (err: any) => err?.response?.data?.msg ?? t('common.somethingWrong');
-  const { data = [], loading, request } = useRequest(Category.get);
+  const { data = [], loading, request, setData } = useRequest(Category.get);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({
     key: 'name',
@@ -56,11 +63,11 @@ export default function CategoryMgt() {
     const keyword = search.trim().toLowerCase();
     const filtered = keyword ? data.filter((c) => c.name.toLowerCase().includes(keyword)) : data;
     const factor = sort.dir === 'asc' ? 1 : -1;
-    return [...filtered].sort((a, b) =>
-      sort.key === 'name'
-        ? a.name.localeCompare(b.name, lang) * factor
-        : (a.bookCount - b.bookCount) * factor
-    );
+    return [...filtered].sort((a, b) => {
+      if (sort.key === 'name') return a.name.localeCompare(b.name, lang) * factor;
+      if (sort.key === 'isActive') return (Number(a.isActive) - Number(b.isActive)) * factor;
+      return (a.bookCount - b.bookCount) * factor;
+    });
   }, [data, search, sort, lang]);
 
   const totalBooks = useMemo(() => data.reduce((sum, c) => sum + c.bookCount, 0), [data]);
@@ -140,6 +147,25 @@ export default function CategoryMgt() {
             }),
       },
     });
+
+  const toggleStatus = (row: Categories) => {
+    const isActive = !row.isActive;
+    // Đổi ngay trên UI, lỗi thì tải lại danh sách để về trạng thái thật
+    setData((list) => list?.map((c) => (c.name === row.name ? { ...c, isActive } : c)));
+    Category.setStatus(row.name, isActive)
+      .then(() =>
+        toast.success(
+          t('category.statusChanged', {
+            name: row.name,
+            status: t(isActive ? 'category.status.active' : 'category.status.inactive'),
+          })
+        )
+      )
+      .catch((err) => {
+        toast.error(errorMsg(err));
+        request();
+      });
+  };
 
   const openDelete = (row: Categories) =>
     dialog.delete(
@@ -229,6 +255,17 @@ export default function CategoryMgt() {
                       {t('category.columns.name')}
                     </TableSortLabel>
                   </TableCell>
+                  <TableCell width={160}>
+                    <Tooltip title={t('category.statusHint')}>
+                      <TableSortLabel
+                        active={sort.key === 'isActive'}
+                        direction={sort.key === 'isActive' ? sort.dir : 'asc'}
+                        onClick={() => toggleSort('isActive')}
+                      >
+                        {t('category.columns.status')}
+                      </TableSortLabel>
+                    </Tooltip>
+                  </TableCell>
                   <TableCell align="right" width={160}>
                     <TableSortLabel
                       active={sort.key === 'bookCount'}
@@ -243,12 +280,76 @@ export default function CategoryMgt() {
               </TableHead>
               <TableBody>
                 {rows.map((row) => (
-                  <TableRow hover key={row.name} data-category={row.name}>
+                  <TableRow
+                    hover
+                    key={row.name}
+                    data-category={row.name}
+                    data-active={row.isActive}
+                  >
                     <TableCell>
-                      <Typography variant="subtitle2">{row.name}</Typography>
+                      <Typography
+                        variant="subtitle2"
+                        color={row.isActive ? 'text.primary' : 'text.disabled'}
+                      >
+                        {row.name}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      {auth ? (
+                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                          <Switch
+                            checked={row.isActive}
+                            onChange={() => toggleStatus(row)}
+                            slotProps={{
+                              input: {
+                                id: `status-${row.name}`,
+                                role: 'switch',
+                                'aria-label': t('category.statusToggle', { name: row.name }),
+                              },
+                            }}
+                          />
+                          <Typography
+                            variant="body2"
+                            color={row.isActive ? 'success.main' : 'text.disabled'}
+                          >
+                            {t(row.isActive ? 'category.status.active' : 'category.status.inactive')}
+                          </Typography>
+                        </Stack>
+                      ) : (
+                        <Label color={row.isActive ? 'success' : 'default'}>
+                          {t(row.isActive ? 'category.status.active' : 'category.status.inactive')}
+                        </Label>
+                      )}
                     </TableCell>
                     <TableCell align="right">
-                      <Label color={row.bookCount ? 'info' : 'default'}>{row.bookCount}</Label>
+                      <Tooltip
+                        title={t('category.viewBooks', { count: row.bookCount, name: row.name })}
+                      >
+                        <Link
+                          component={RouterLink}
+                          href={bookLink(row.name)}
+                          data-action="view-books"
+                          aria-label={t('category.viewBooks', {
+                            count: row.bookCount,
+                            name: row.name,
+                          })}
+                          underline="none"
+                          sx={{
+                            display: 'inline-flex',
+                            borderRadius: 0.75,
+                            '&:hover > span, &:focus-visible > span': {
+                              boxShadow: (theme) => `0 0 0 2px ${theme.vars.palette.info.main}`,
+                            },
+                          }}
+                        >
+                          <Label
+                            color={row.bookCount ? 'info' : 'default'}
+                            sx={{ cursor: 'pointer' }}
+                          >
+                            {row.bookCount}
+                          </Label>
+                        </Link>
+                      </Tooltip>
                     </TableCell>
                     {auth && (
                       <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
@@ -277,7 +378,7 @@ export default function CategoryMgt() {
                 ))}
                 {!loading && rows.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={auth ? 3 : 2} sx={{ py: 3 }}>
+                    <TableCell colSpan={auth ? 4 : 3} sx={{ py: 3 }}>
                       <NoData sx={{ py: 3 }} />
                     </TableCell>
                   </TableRow>

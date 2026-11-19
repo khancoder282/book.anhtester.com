@@ -3,7 +3,7 @@ import type { RowComponentProps } from 'react-window';
 
 import { create } from 'zustand';
 import { List as VirtualList } from 'react-window';
-import React, { useState, useDeferredValue } from 'react';
+import React, { useRef, useState, useEffect, useDeferredValue } from 'react';
 
 import {
   Box,
@@ -92,6 +92,18 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
   const [search, setSearch] = useState('');
 
   const categories = useDeferredValue(data.filter((c) => c.name.includes(search)));
+  const selectedTabRef = useRef<HTMLDivElement>(null);
+
+  // Tab category tải sau khi trang mở (vd đi từ link số sách ở trang Category sang),
+  // nên tự cuộn tab đang chọn vào tầm nhìn khi danh sách hoặc category đổi
+  // (chờ một nhịp: MUI hiện nút cuộn của Tabs sau lần đo đầu nên tự cuộn thiếu)
+  useEffect(() => {
+    const timer = setTimeout(
+      () => selectedTabRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' }),
+      300
+    );
+    return () => clearTimeout(timer);
+  }, [data, category]);
 
   return (
     <>
@@ -160,16 +172,19 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
           textColor="inherit"
           variant="scrollable"
           indicatorColor="primary"
-          value={category}
+          // Chưa tải xong / category không tồn tại thì không chọn tab nào (tránh cảnh báo MUI)
+          value={!category || data.some((c) => c.name === category) ? category : false}
           onChange={(_, value) => setCategory(value)}
         >
           <Tab value="" label={t('book.filter.all')} />
           {data
-            .filter((c) => c.bookCount > 0)
+            // Ẩn category đã tắt / chưa có sách, trừ category đang chọn (link từ trang Category)
+            .filter((c) => (c.bookCount > 0 && c.isActive) || c.name === category)
             .map((item) => (
               <Tab
                 key={item.name}
                 value={item.name}
+                ref={item.name === category ? selectedTabRef : undefined}
                 label={
                   <Box display="flex" gap={0.5} alignItems="center">
                     {item.name} <Label>{item.bookCount}</Label>

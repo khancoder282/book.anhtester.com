@@ -8,8 +8,17 @@ export const category: Translation<typeof en> = {
   summary: '{count} danh mục · {links} lượt gắn sách',
   columns: {
     name: 'Tên',
+    status: 'Trạng thái',
     books: 'Số sách',
   },
+  status: {
+    active: 'Bật',
+    inactive: 'Tắt',
+  },
+  viewBooks: 'Xem {count} sách thuộc "{name}"',
+  statusToggle: 'Bật/tắt trạng thái của "{name}"',
+  statusHint: 'Danh mục tắt sẽ ẩn khỏi tab lọc ở trang Sách và khỏi form sách.',
+  statusChanged: 'Danh mục "{name}" đã chuyển sang {status}.',
   form: {
     name: 'Tên danh mục',
     newName: 'Tên mới',

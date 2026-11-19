@@ -24,6 +24,8 @@ type BookForm = {
 
 type Categories = {
   name: string;
+  /** Category tắt thì ẩn khỏi tab lọc trang Book và gợi ý trong form sách */
+  isActive: boolean;
   bookCount: number;
 };
 

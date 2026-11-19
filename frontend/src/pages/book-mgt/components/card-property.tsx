@@ -38,7 +38,13 @@ export function CardProperty() {
   );
 
   const sortedCategoryNames = useMemo(
-    () => (data ? [...data].sort((a, b) => a.bookCount - b.bookCount).map((c) => c.name) : []),
+    () =>
+      data
+        ? data
+            .filter((c) => c.isActive)
+            .sort((a, b) => a.bookCount - b.bookCount)
+            .map((c) => c.name)
+        : [],
     [data]
   );
 

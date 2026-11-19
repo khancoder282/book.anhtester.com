@@ -45,6 +45,7 @@ categoryController
     const categories = await prisma.category.findMany({
       select: {
         name: true,
+        isActive: true,
         _count: {
           select: {
             books: true,
@@ -55,6 +56,7 @@ categoryController
     return {
       list: categories.map((c) => ({
         name: c.name,
+        isActive: c.isActive,
         bookCount: c._count.books,
       })),
       pagination: {
@@ -66,6 +68,7 @@ categoryController
       200: t.Object({
         list: t.Array(t.Object({
           name: t.String(),
+          isActive: t.Boolean({ description: "Inactive categories are hidden from the category tabs of the Book page and from the category picker of the book form." }),
           bookCount: t.Number(),
         })),
         pagination: t.Object({
@@ -75,7 +78,7 @@ categoryController
     },
     detail: {
       security: [],
-      description: "Get list of categories (not paginated, `pagination.total` is the number of categories)."
+      description: "Get list of categories (not paginated, `pagination.total` is the number of categories). Each item has `isActive` (status) and `bookCount`."
     }
   })
   .use(auth)
@@ -92,6 +95,7 @@ categoryController
         await prisma.category.create({
           data: {
             name,
+            isActive: body.isActive ?? true,
           },
         });
         set.status = 201;
@@ -116,6 +120,7 @@ categoryController
         name: t.String({
           description: `Category name. Trimmed; required, at most ${MAX_LENGTH} characters, must not contain '/'.`,
         }),
+        isActive: t.Optional(t.Boolean({ description: "Status. Defaults to `true` (active)." })),
       }),
       response: {
         201: msgSchema,
@@ -124,26 +129,33 @@ categoryController
         422: validationSchema,
       },
       detail: {
-        description: `Create new category. Name is trimmed, required, at most ${MAX_LENGTH} characters and must not contain '/' (422). An existing name (case-insensitive) returns 409 "Category already exists.".`,
+        description: `Create new category (\`isActive\` defaults to \`true\`). Name is trimmed, required, at most ${MAX_LENGTH} characters and must not contain '/' (422). An existing name (case-insensitive) returns 409 "Category already exists.".`,
       }
     }
   )
   .put("",
     async ({ prisma, body, set }) => {
-      const newName = body.newName.trim();
-      const error = nameError(newName);
-      if (error) {
+      if (body.newName === undefined && body.isActive === undefined) {
         set.status = 422;
-        return invalid("newName", error);
+        return invalid("newName", "Send newName and/or isActive.");
       }
+      const data: { name?: string; isActive?: boolean } = {};
+      if (body.newName !== undefined) {
+        const newName = body.newName.trim();
+        const error = nameError(newName);
+        if (error) {
+          set.status = 422;
+          return invalid("newName", error);
+        }
+        data.name = newName;
+      }
+      if (body.isActive !== undefined) data.isActive = body.isActive;
       try {
         await prisma.category.update({
           where: {
             name: body.name,
           },
-          data: {
-            name: newName,
-          },
+          data,
         });
         return {
           msg: "Category updated successfully.",
@@ -171,9 +183,12 @@ categoryController
     {
       body: t.Object({
         name: t.String({ description: "Current name of the category." }),
-        newName: t.String({
-          description: `New name. Trimmed; required, at most ${MAX_LENGTH} characters, must not contain '/'.`,
-        }),
+        newName: t.Optional(t.String({
+          description: `New name. Trimmed; at most ${MAX_LENGTH} characters, must not contain '/'. Omit to keep the current name.`,
+        })),
+        isActive: t.Optional(t.Boolean({
+          description: "New status (`true` active, `false` inactive). Omit to keep the current status.",
+        })),
       }),
       response: {
         200: msgSchema,
@@ -183,7 +198,7 @@ categoryController
         422: validationSchema,
       },
       detail: {
-        description: `Rename a category. 404 "Category not found." when \`name\` does not exist, 409 "Category already exists." when \`newName\` is taken, 422 when \`newName\` is empty, longer than ${MAX_LENGTH} characters or contains '/'.`,
+        description: `Rename a category and/or change its status. Send \`newName\`, \`isActive\` or both; sending neither returns 422 (\`fields.newName\`). 404 "Category not found." when \`name\` does not exist, 409 "Category already exists." when \`newName\` is taken, 422 when \`newName\` is empty, longer than ${MAX_LENGTH} characters or contains '/'.`,
       }
     }
   )

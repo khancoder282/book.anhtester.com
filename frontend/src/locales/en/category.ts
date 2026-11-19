@@ -5,8 +5,17 @@ export const category = {
   summary: '{count} categories · {links} book links',
   columns: {
     name: 'Name',
+    status: 'Status',
     books: 'Books',
   },
+  status: {
+    active: 'On',
+    inactive: 'Off',
+  },
+  viewBooks: 'View {count} book(s) in "{name}"',
+  statusToggle: 'Turn status of "{name}" on/off',
+  statusHint: 'Inactive categories are hidden from the Book page tabs and the book form.',
+  statusChanged: 'Category "{name}" is now {status}.',
   form: {
     name: 'Category name',
     newName: 'New name',

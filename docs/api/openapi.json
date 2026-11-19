@@ -1656,7 +1656,7 @@
           "Category Management"
         ],
         "security": [],
-        "description": "Get list of categories (not paginated, `pagination.total` is the number of categories).",
+        "description": "Get list of categories (not paginated, `pagination.total` is the number of categories). Each item has `isActive` (status) and `bookCount`.",
         "responses": {
           "200": {
             "description": "Response for status 200",
@@ -1675,11 +1675,16 @@
                         "type": "object",
                         "required": [
                           "name",
+                          "isActive",
                           "bookCount"
                         ],
                         "properties": {
                           "name": {
                             "type": "string"
+                          },
+                          "isActive": {
+                            "description": "Inactive categories are hidden from the category tabs of the Book page and from the category picker of the book form.",
+                            "type": "boolean"
                           },
                           "bookCount": {
                             "type": "number"
@@ -1710,7 +1715,7 @@
         "tags": [
           "Category Management"
         ],
-        "description": "Create new category. Name is trimmed, required, at most 24 characters and must not contain '/' (422). An existing name (case-insensitive) returns 409 \"Category already exists.\".",
+        "description": "Create new category (`isActive` defaults to `true`). Name is trimmed, required, at most 24 characters and must not contain '/' (422). An existing name (case-insensitive) returns 409 \"Category already exists.\".",
         "requestBody": {
           "required": true,
           "content": {
@@ -1724,6 +1729,10 @@
                   "name": {
                     "description": "Category name. Trimmed; required, at most 24 characters, must not contain '/'.",
                     "type": "string"
+                  },
+                  "isActive": {
+                    "description": "Status. Defaults to `true` (active).",
+                    "type": "boolean"
                   }
                 }
               }
@@ -1738,6 +1747,10 @@
                   "name": {
                     "description": "Category name. Trimmed; required, at most 24 characters, must not contain '/'.",
                     "type": "string"
+                  },
+                  "isActive": {
+                    "description": "Status. Defaults to `true` (active).",
+                    "type": "boolean"
                   }
                 }
               }
@@ -1752,6 +1765,10 @@
                   "name": {
                     "description": "Category name. Trimmed; required, at most 24 characters, must not contain '/'.",
                     "type": "string"
+                  },
+                  "isActive": {
+                    "description": "Status. Defaults to `true` (active).",
+                    "type": "boolean"
                   }
                 }
               }
@@ -1850,7 +1867,7 @@
         "tags": [
           "Category Management"
         ],
-        "description": "Rename a category. 404 \"Category not found.\" when `name` does not exist, 409 \"Category already exists.\" when `newName` is taken, 422 when `newName` is empty, longer than 24 characters or contains '/'.",
+        "description": "Rename a category and/or change its status. Send `newName`, `isActive` or both; sending neither returns 422 (`fields.newName`). 404 \"Category not found.\" when `name` does not exist, 409 \"Category already exists.\" when `newName` is taken, 422 when `newName` is empty, longer than 24 characters or contains '/'.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1858,8 +1875,7 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "name",
-                  "newName"
+                  "name"
                 ],
                 "properties": {
                   "name": {
@@ -1867,8 +1883,12 @@
                     "type": "string"
                   },
                   "newName": {
-                    "description": "New name. Trimmed; required, at most 24 characters, must not contain '/'.",
+                    "description": "New name. Trimmed; at most 24 characters, must not contain '/'. Omit to keep the current name.",
                     "type": "string"
+                  },
+                  "isActive": {
+                    "description": "New status (`true` active, `false` inactive). Omit to keep the current status.",
+                    "type": "boolean"
                   }
                 }
               }
@@ -1877,8 +1897,7 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "name",
-                  "newName"
+                  "name"
                 ],
                 "properties": {
                   "name": {
@@ -1886,8 +1905,12 @@
                     "type": "string"
                   },
                   "newName": {
-                    "description": "New name. Trimmed; required, at most 24 characters, must not contain '/'.",
+                    "description": "New name. Trimmed; at most 24 characters, must not contain '/'. Omit to keep the current name.",
                     "type": "string"
+                  },
+                  "isActive": {
+                    "description": "New status (`true` active, `false` inactive). Omit to keep the current status.",
+                    "type": "boolean"
                   }
                 }
               }
@@ -1896,8 +1919,7 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "name",
-                  "newName"
+                  "name"
                 ],
                 "properties": {
                   "name": {
@@ -1905,8 +1927,12 @@
                     "type": "string"
                   },
                   "newName": {
-                    "description": "New name. Trimmed; required, at most 24 characters, must not contain '/'.",
+                    "description": "New name. Trimmed; at most 24 characters, must not contain '/'. Omit to keep the current name.",
                     "type": "string"
+                  },
+                  "isActive": {
+                    "description": "New status (`true` active, `false` inactive). Omit to keep the current status.",
+                    "type": "boolean"
                   }
                 }
               }

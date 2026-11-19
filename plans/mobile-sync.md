@@ -20,6 +20,7 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-20-10](#2026-11-20-10) | 2026-11-20 | Sửa bug Auth + User (token, phiên, chỉ sửa chính mình) | **Có**, nhiều chỗ | **Có** | ⏳ Chưa làm — **ảnh hưởng đăng nhập của app** |
 | [2026-11-20-11](#2026-11-20-11) | 2026-11-20 | Sửa bug Book + Promotion (PATCH một phần, giá bán, validate) | **Có** | **Có** | ⏳ Chưa làm |
 | [2026-11-20-12](#2026-11-20-12) | 2026-11-20 | Sửa bug File + System + Category (đường dẫn, loại file, token) | **Có** | **Có** | ⏳ Chưa làm |
+| [2026-11-20-13](#2026-11-20-13) | 2026-11-20 | Category: Status bật/tắt, bấm số sách mở trang Book đã lọc | **Có**: thêm `isActive` (GET/POST/PUT) | **Có** (+ `prisma db push` thêm cột) | ⏳ Chưa làm |
 | [2026-11-20-14](#2026-11-20-14) | 2026-11-20 | Swagger: server mặc định theo môi trường | Không (chỉ đổi danh sách `servers` của tài liệu) | Không bắt buộc | Không cần làm |
 
 ---
@@ -333,6 +334,37 @@ Sửa 8 bug `SYSTEM EXP01`, `FILE EXP01–04`, `CATEGORY EXP01–03`, lỗi `GET
 | `frontend/src/components/fields/{upload-field,avatar-field}.tsx` | cùng đường dẫn | Bỏ `.svg` khỏi loại được chọn; ảnh avatar lỗi thì ẩn (không dùng `/$image-404.svg`) |
 | `frontend/src/pages/file-mgt/**`, `pages/home/page.tsx` | cùng đường dẫn | Màn File gửi token khi liệt kê; Dashboard bắt buộc chọn Status Code |
 | `frontend/src/pages/book-mgt/api/categorys.ts` | cùng đường dẫn | `encodeURIComponent` khi xoá category (mục 01) |
+
+---
+
+<a id="2026-11-20-13"></a>
+## 2026-11-20-13 · Category: Status bật/tắt, bấm số sách mở trang Book
+
+**Thay đổi API** (tương thích ngược, app cũ vẫn chạy)
+
+- Model `Category` thêm cột `isActive` (mặc định `true`). Trên VPS cần `bunx prisma db push` (chỉ thêm cột, không mất dữ liệu) rồi `bunx prisma generate`.
+- `GET /api/category-book`: mỗi dòng thêm `isActive`.
+- `POST /api/category-book`: nhận thêm `isActive` (tuỳ chọn, mặc định `true`).
+- `PUT /api/category-book`: `newName` thành **tuỳ chọn**, thêm `isActive` (tuỳ chọn). Gửi `{ name, isActive }` để bật/tắt; không gửi `newName` lẫn `isActive` → 422 `fields.newName`; `isActive` sai kiểu → 422 `fields.isActive`.
+
+**Web đã làm**
+
+- Màn Category: cột **Status** giữa Name và Books. Đã đăng nhập: công tắc (đổi ngay, toast `Category "<tên>" is now On/Off.`, lỗi thì tải lại); khách: nhãn On/Off. Sắp xếp được theo Status. Tên category tắt hiện màu nhạt.
+- Số ở cột **Books** là link sang `/book-management?category=<tên>` (trang Book vốn đã đọc query này). Hover có viền xanh và tooltip `View <n> book(s) in "<tên>"`.
+- Trang Book: tab lọc ẩn category đang tắt (trừ category đang chọn trên URL); tự cuộn tab đang chọn vào tầm nhìn; hết cảnh báo MUI `Tabs value invalid` lúc chưa tải.
+- Form sách: ô Categories không gợi ý category đang tắt.
+- Chữ mới qua i18n: `category.columns.status`, `category.status.{active,inactive}`, `category.viewBooks`, `category.statusToggle`, `category.statusHint`, `category.statusChanged` (en + vi).
+
+**Locator cho test**: công tắc `#status-<tên>` (role `switch`, aria-label `Turn status of "<tên>" on/off`), link số sách `a[data-action="view-books"]` (aria-label `View <n> book(s) in "<tên>"`), dòng `tr[data-category="<tên>"][data-active="true|false"]`.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `backend/prisma/schema.prisma`, `backend/src/routers/category-controller.ts` | — | Deploy backend + `prisma db push` |
+| `frontend/src/pages/category-mgt/page.tsx` | cùng đường dẫn | Cột Status (Switch), link số sách |
+| `frontend/src/pages/book-mgt/api/categorys.ts`, `stores/type.d.ts` | cùng đường dẫn | `Category.setStatus`, kiểu `Categories.isActive` |
+| `frontend/src/pages/book-mgt/components/filter-book.tsx` | cùng đường dẫn | Ẩn tab category tắt, cuộn tab đang chọn, `Tabs value` an toàn |
+| `frontend/src/pages/book-mgt/components/card-property.tsx` | cùng đường dẫn | Bỏ category tắt khỏi gợi ý |
+| `frontend/src/locales/{en,vi}/category.ts` | cùng đường dẫn | Khoá dịch mới |
 
 ---
 

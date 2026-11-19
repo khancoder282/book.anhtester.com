@@ -40,8 +40,9 @@ model UserRefreshToken {
 }
 
 model Category {
-  name  String @id
-  books Book[] @relation("BookCategories")
+  name     String  @id
+  isActive Boolean @default(true)
+  books    Book[]  @relation("BookCategories")
 }
 
 model Promotion {
