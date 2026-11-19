@@ -22,6 +22,10 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-20-12](#2026-11-20-12) | 2026-11-20 | Sửa bug File + System + Category (đường dẫn, loại file, token) | **Có** | **Có** | ⏳ Chưa làm |
 | [2026-11-20-13](#2026-11-20-13) | 2026-11-20 | Category: Status bật/tắt, bấm số sách mở trang Book đã lọc | **Có**: thêm `isActive` (GET/POST/PUT) | **Có** (+ `prisma db push` thêm cột) | ⏳ Chưa làm |
 | [2026-11-20-14](#2026-11-20-14) | 2026-11-20 | Swagger: server mặc định theo môi trường | Không (chỉ đổi danh sách `servers` của tài liệu) | Không bắt buộc | Không cần làm |
+| [2026-11-20-15](#2026-11-20-15) | 2026-11-20 | Dashboard: sửa bố cục thẻ số liệu, gắn link tên + icon thẻ, khối kiểm thử thông báo | Không | Không | ⏳ Chưa làm |
+| [2026-11-20-16](#2026-11-20-16) | 2026-11-20 | Form sách: bảng giá theo khuyến mãi, cảnh báo KM chưa áp dụng, hộp chi tiết KM | Không | Không | ⏳ Chưa làm |
+| [2026-11-20-17](#2026-11-20-17) | 2026-11-20 | Sách: 6 trường không bắt buộc (tác giả, NXB, năm, số trang, ISBN, ngôn ngữ) | **Có**: thêm trường ở POST/PATCH/GET `/api/book` | **Có** (+ `prisma db push` thêm 6 cột) | ⏳ Chưa làm |
+| [2026-11-20-18](#2026-11-20-18) | 2026-11-20 | Swagger ẩn File + Database; bật CORS `/api/*` | Không đổi endpoint; thêm header CORS | Có (để Swagger production có thay đổi) | Không cần làm |
 
 ---
 
@@ -380,3 +384,81 @@ Sửa 8 bug `SYSTEM EXP01`, `FILE EXP01–04`, `CATEGORY EXP01–03`, lỗi `GET
 **API**: không đổi endpoint, request hay response. **Locator**: không có.
 
 **Mobile**: không cần làm gì (app gọi thẳng `https://book.anhtester.com`, không dùng Swagger). Deploy backend chỉ để Swagger production có thêm dòng localhost trong ô Server, không bắt buộc.
+
+---
+
+<a id="2026-11-20-15"></a>
+## 2026-11-20-15 · Dashboard: sửa bố cục thẻ số liệu, gắn link, khối kiểm thử thông báo
+
+**Web đã làm**
+
+- 4 thẻ số liệu (Quản lý người dùng / sách / danh mục / khuyến mãi): icon trước đây `position: absolute` ở góc phải, tiêu đề tiếng Việt dài bị icon đè lên. Nay icon nằm trong ô vuông 52px **phía trên** tiêu đề (cùng kiểu hai thẻ Swagger / Xin chào), tiêu đề dài thì xuống dòng, 4 thẻ luôn cao bằng nhau.
+- Tên và icon của 4 thẻ là link (React Router, không tải lại trang) sang màn tương ứng: Người dùng → `/user-management`, Sách → `/book-management`, Danh mục → `/category-management`, Khuyến mãi → `/promotion-book-management`. Tên gạch chân khi hover, icon phóng nhẹ + nền đậm hơn khi hover. Link tên chỉ rộng bằng chữ (`inline-block`), bấm chỗ trống trong thẻ không chuyển trang.
+- Lưới thẻ: 1 cột (mobile) → 2 cột (`sm`) → 4 cột từ `lg` (trước là từ `md`, khi đó thẻ quá hẹp).
+- Khối "Kiểm thử thông báo từ server": nhãn nhỏ nằm đè lên viền thẻ đổi thành tiêu đề thẻ (`CardHeader`). Chữ "Thời gian chờ" không còn xuống 2 dòng cạnh thanh trượt.
+- Đã kiểm ở 1600px, 1280px (tiêu đề xuống 2 dòng, không đè), 375px (không tràn ngang), vi và en.
+
+**API**: không đổi. **Chữ / khoá i18n**: không đổi.
+
+**Locator cho test**: mỗi thẻ có 2 link `a[data-action="open-page"]` cùng `href`: icon (role `link`, aria-label = tên thẻ) và tên (role `link`, tên = chữ tiêu đề) — `getByRole('link', { name: 'Quản lý sách' })` khớp **2** phần tử, cần `.first()` / `.last()` hoặc lọc theo `h6` bên trong. Chữ giữ nguyên nên `getByText` vẫn chạy. Đổi thẻ HTML: tiêu đề thẻ số liệu từ `span.MuiCardHeader-title` thành `h6`; "tổng: n …" từ `span.MuiCardHeader-subheader` thành `p`; tiêu đề khối kiểm thử thông báo từ `span` (LabelBorder) thành `span.MuiCardHeader-title`.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/pages/home/page.tsx` | cùng đường dẫn | Chép `ViewCard` (prop `href` mới, link tên + icon), đổi `columns` của Grid, thay `LabelBorder` bằng `CardHeader`, chữ "Thời gian chờ" `whiteSpace: nowrap` |
+
+---
+
+<a id="2026-11-20-16"></a>
+## 2026-11-20-16 · Form sách: bảng giá theo khuyến mãi, cảnh báo, hộp chi tiết KM
+
+**Web đã làm**
+
+- Danh sách chọn KM gồm cả KM **sắp chạy** (chưa tới ngày bắt đầu). Trước đây chọn KM sắp chạy thì giá không đổi và không có lời giải thích. Nay dưới chip có bảng giá: *Giá gốc* → từng KM đã chọn (nhãn trạng thái Đang chạy / Sắp chạy / Hết hạn / Đã tắt + mức giảm; KM chưa chạy thì mức giảm gạch ngang, miễn phí ship ghi "Không đổi giá") → *Giá bán hiện tại* → *Giá khi khuyến mãi sắp chạy bắt đầu* (chỉ hiện khi khác) → khung cảnh báo vàng liệt kê KM chưa trừ vào giá kèm lý do (VD "BLACKFRIDAY30: chưa bắt đầu, áp dụng từ 25/11/2026 02:56").
+- Bấm chip KM (hoặc mã KM trong bảng giá) mở hộp **Chi tiết khuyến mãi**: mã, tên, mô tả, loại, giá trị, thời gian, mức giảm cho sách này (giá trước → sau), nút *Mở trang khuyến mãi* (tab mới), *Bỏ khỏi sách*, *Đóng*. Nút x trên chip vẫn bỏ KM như cũ.
+- Quy tắc tính giá giữ nguyên như backend (chỉ KM đang hiệu lực trừ vào giá bán).
+
+**API**: không đổi.
+
+**Locator cho test**: `[data-testid="promotion-price-summary"]`, `promotion-price-row-<CODE>`, `promotion-current-price`, `promotion-upcoming-price`, `promotion-not-applied-warning`, chip `selected-promotion-<CODE>` (role `button`), hộp `[data-testid="promotion-detail-dialog"]` (role `dialog`, tên = "Chi tiết khuyến mãi" / "Promotion details"), các dòng `promotion-detail-<code|name|description|type|value|period|discount>`. Khối giá cũ (`h6` có giá gạch ngang nằm `position: absolute`) đã thay bằng các dòng trên.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/pages/book-mgt/components/card-promotion.tsx` | cùng đường dẫn | Chép file (bỏ `handlePrice` cũ) |
+| `frontend/src/pages/book-mgt/components/promotion-detail-dialog.tsx` (mới) | cùng đường dẫn | Chép; hộp `fullWidth` nên vừa màn nhỏ |
+| `frontend/src/pages/book-mgt/utils/pricing.ts` (mới) | cùng đường dẫn | Chép |
+| `frontend/src/locales/{en,vi}/book.ts` | cùng đường dẫn | Thêm khoá `book.promotion.price.*`, `book.promotion.detail.*` |
+
+---
+
+<a id="2026-11-20-17"></a>
+## 2026-11-20-17 · Sách: 6 trường không bắt buộc
+
+**API** (cần deploy backend + `bunx prisma db push` trên VPS để thêm 6 cột nullable, không mất dữ liệu):
+
+- `POST /api/book`, `PATCH /api/book/{id}` nhận thêm (đều tuỳ chọn, `null` hoặc `""` để xoá): `author` (≤191 ký tự), `publisher` (≤191), `publishYear` (số nguyên 1000 – năm hiện tại), `pageCount` (1 – 100.000), `isbn` (ISBN-10/13, có thể có gạch ngang, phải đúng chữ số kiểm tra; lưu không gạch ngang), `language` (≤50). Lỗi → 422 `fields.publishYear` / `fields.isbn` (hoặc lỗi schema).
+- `GET /api/book` và `GET /api/book/{id}` trả thêm 6 trường (giá trị `null` khi chưa có). Tìm kiếm chuỗi thường khớp thêm `author`, `publisher`, `isbn`; `sort` nhận thêm `author`, `publisher`, `publishYear`, `pageCount`.
+- Sách cũ: cả 6 trường `null`. Seed (`bun run seed`) điền `author` cho sách mẫu.
+
+**Web đã làm**: thẻ mới **Thông tin thêm** trong form tạo / sửa sách (giữa *Thuộc tính* và *Khuyến mãi*), 6 ô không bắt buộc, lưới 2 cột (1 cột trên màn hẹp `xs`). Trang chi tiết sách hiện các trường có giá trị dưới phần mô tả.
+
+**Locator cho test**: ô nhập `input[name="author|publisher|publishYear|pageCount|isbn|language"]` — ⚠️ `[name="author"]` không kèm `input` khớp `<meta name="author">` trước. Nhãn: Tác giả / Nhà xuất bản / Năm xuất bản / Số trang / ISBN / Ngôn ngữ (en: Author / Publisher / Publish year / Pages / ISBN / Language). Trang chi tiết: `[data-testid="book-more-info"]`, giá trị `[data-testid="book-<field>"]`.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/pages/book-mgt/components/card-more-info.tsx` (mới) | cùng đường dẫn | Chép, thêm `<CardMoreInfo />` vào `add-overview.tsx` + giá trị rỗng khi `reset` tạo mới |
+| `frontend/src/pages/book-mgt/utils/book-extra.ts` (mới) | cùng đường dẫn | Chép; `create-book.ts`, `modify-book.ts` thêm `...bookExtraPayload(book)` |
+| `frontend/src/pages/book-mgt/stores/type.d.ts` | cùng đường dẫn | Thêm 6 trường vào `BookForm`, `BookView` |
+| `frontend/src/pages/book-mgt/detail.tsx` | cùng đường dẫn | Thêm khối `dl` thông tin thêm |
+| `frontend/src/locales/{en,vi}/book.ts` | cùng đường dẫn | Khoá `book.moreInfo.*`, `book.validation.{maxLength,integer,publishYearRange,pageCountRange,isbn}` |
+
+**Mobile cần**: chỉ làm sau khi backend production đã deploy. Production chưa deploy thì chưa có 6 cột, trường mới sẽ không được lưu (chưa kiểm production trả lỗi hay bỏ qua) — deploy trước rồi mới làm mobile.
+
+---
+
+<a id="2026-11-20-18"></a>
+## 2026-11-20-18 · Swagger ẩn File + Database; CORS cho `/api/*`
+
+- Swagger (`/swagger`, `docs/api/openapi.json`) không còn nhóm *File Management* và *Database*. API vẫn chạy (app dùng `/api/file` để upload ảnh sách).
+- Backend trả header CORS cho mọi `/api/*` (`Access-Control-Allow-Origin: *`, không credentials), preflight `OPTIONS` trả 204. Sửa lỗi "Failed to fetch" khi Send từ Swagger mở ở origin khác server đang chọn (VD `http://localhost:3039/swagger` gọi `http://localhost:4566`).
+
+**Mobile**: không cần làm gì (app native Capacitor gọi thẳng production). Deploy backend để Swagger production có thay đổi.

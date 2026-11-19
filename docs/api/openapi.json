@@ -2,7 +2,7 @@
   "openapi": "3.1.2",
   "info": {
     "title": "AnhTester Book Management API",
-    "description": "A comprehensive API for managing books, users, files, categories, and addresses, provided by [AnhTester](https://anhtester.com). The API is designed to be easy to use and supports a wide range of operations for book management, user management, file management, category management, and address management.             UI page to run this API: [book.anhtester.com](https://book.anhtester.com)",
+    "description": "A comprehensive API for managing books, users, categories, promotions, and addresses, provided by [AnhTester](https://anhtester.com). The API is designed to be easy to use and supports a wide range of operations for book management, user management, category management, promotion management, and address management.             UI page to run this API: [book.anhtester.com](https://book.anhtester.com)",
     "version": "1.0.0",
     "contact": {
       "name": "AnhTester Support",
@@ -20,10 +20,6 @@
       "description": "Manage user accounts, including creating, updating, and deleting user information."
     },
     {
-      "name": "File Management",
-      "description": "Support file operations such as upload, download, and file management."
-    },
-    {
       "name": "Book Management",
       "description": "Manage book information, including creating, updating, and retrieving book lists."
     },
@@ -38,10 +34,6 @@
     {
       "name": "Promotion Management",
       "description": "Manage promotions, update information, and provide promotion details."
-    },
-    {
-      "name": "Database",
-      "description": "Read-only view of the database structure (tables, columns, keys, row counts)."
     }
   ],
   "components": {
@@ -203,7 +195,7 @@
         "tags": [
           "Book Management"
         ],
-        "description": "Query list of books (pagination, filtering, sorting). `picture` only lists files that exist.\n\n**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) or any attached promotion changes, and when a promotion starts or ends.",
+        "description": "Query list of books (pagination, filtering, sorting). `picture` only lists files that exist. A plain-text `search` matches `name`, `description`, `slug`, `author`, `publisher` and `isbn`.\n\n**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) or any attached promotion changes, and when a promotion starts or ends.",
         "security": [],
         "parameters": [
           {
@@ -252,7 +244,11 @@
                 "slug",
                 "price",
                 "currentPrice",
-                "viewCount"
+                "viewCount",
+                "author",
+                "publisher",
+                "publishYear",
+                "pageCount"
               ]
             }
           },
@@ -300,6 +296,12 @@
                           "price",
                           "currentPrice",
                           "viewCount",
+                          "author",
+                          "publisher",
+                          "publishYear",
+                          "pageCount",
+                          "isbn",
+                          "language",
                           "promotions"
                         ],
                         "properties": {
@@ -400,6 +402,49 @@
                           "viewCount": {
                             "type": "number"
                           },
+                          "author": {
+                            "nullable": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "publisher": {
+                            "nullable": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "publishYear": {
+                            "nullable": true,
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "pageCount": {
+                            "nullable": true,
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "isbn": {
+                            "nullable": true,
+                            "description": "ISBN without hyphens.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "language": {
+                            "nullable": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
                           "promotions": {
                             "description": "Active, not yet expired promotions (includes scheduled ones that have not started).",
                             "type": "array",
@@ -497,7 +542,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -518,7 +564,8 @@
                     "error": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -548,7 +595,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -560,7 +608,7 @@
         "tags": [
           "Book Management"
         ],
-        "description": "Create a new book. Returns **201**.\n\n- `name` is trimmed and must not be blank; `slug` is normalized (`Đắc Nhân Tâm` → `dac-nhan-tam`) and must not end up empty.\n- `price`: integer 0 – 1,000,000,000 (default 50,000).\n- No `promotions` (or `[]`) → no promotion attached, `currentPrice = price`.\n\n**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) or any attached promotion changes, and when a promotion starts or ends.",
+        "description": "Create a new book. Returns **201**.\n\n- `name` is trimmed and must not be blank; `slug` is normalized (`Đắc Nhân Tâm` → `dac-nhan-tam`) and must not end up empty.\n- `price`: integer 0 – 1,000,000,000 (default 50,000).\n- No `promotions` (or `[]`) → no promotion attached, `currentPrice = price`.\n- `author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language` are optional (see the schema for limits); `null` or a blank string clears them.\n\n**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) or any attached promotion changes, and when a promotion starts or ends.",
         "requestBody": {
           "required": true,
           "content": {
@@ -624,8 +672,67 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "author": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Author name(s), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publisher": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Publisher, at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publishYear": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1000,
+                    "maximum": 9999,
+                    "description": "Optional. Publication year: integer from 1000 to the current year (422 `fields.publishYear` if in the future). `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "pageCount": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Optional. Number of pages: integer 1 – 100,000. `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "isbn": {
+                    "nullable": true,
+                    "maxLength": 20,
+                    "description": "Optional. ISBN-10 or ISBN-13. Hyphens and spaces are removed, `x` is upper-cased; the result must be a valid ISBN-10 (9 digits + digit or `X`) or ISBN-13 (13 digits), check digit included (422 `fields.isbn`). Stored without hyphens. Not unique. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "language": {
+                    "nullable": true,
+                    "maxLength": 50,
+                    "description": "Optional. Language of the book (e.g. `Tiếng Việt`, `English`), at most 50 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                }
+                },
+                "additionalProperties": false
               }
             },
             "application/x-www-form-urlencoded": {
@@ -688,8 +795,67 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "author": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Author name(s), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publisher": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Publisher, at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publishYear": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1000,
+                    "maximum": 9999,
+                    "description": "Optional. Publication year: integer from 1000 to the current year (422 `fields.publishYear` if in the future). `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "pageCount": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Optional. Number of pages: integer 1 – 100,000. `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "isbn": {
+                    "nullable": true,
+                    "maxLength": 20,
+                    "description": "Optional. ISBN-10 or ISBN-13. Hyphens and spaces are removed, `x` is upper-cased; the result must be a valid ISBN-10 (9 digits + digit or `X`) or ISBN-13 (13 digits), check digit included (422 `fields.isbn`). Stored without hyphens. Not unique. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "language": {
+                    "nullable": true,
+                    "maxLength": 50,
+                    "description": "Optional. Language of the book (e.g. `Tiếng Việt`, `English`), at most 50 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                }
+                },
+                "additionalProperties": false
               }
             },
             "multipart/form-data": {
@@ -752,8 +918,67 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "author": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Author name(s), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publisher": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Publisher, at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publishYear": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1000,
+                    "maximum": 9999,
+                    "description": "Optional. Publication year: integer from 1000 to the current year (422 `fields.publishYear` if in the future). `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "pageCount": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Optional. Number of pages: integer 1 – 100,000. `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "isbn": {
+                    "nullable": true,
+                    "maxLength": 20,
+                    "description": "Optional. ISBN-10 or ISBN-13. Hyphens and spaces are removed, `x` is upper-cased; the result must be a valid ISBN-10 (9 digits + digit or `X`) or ISBN-13 (13 digits), check digit included (422 `fields.isbn`). Stored without hyphens. Not unique. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "language": {
+                    "nullable": true,
+                    "maxLength": 50,
+                    "description": "Optional. Language of the book (e.g. `Tiếng Việt`, `English`), at most 50 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                }
+                },
+                "additionalProperties": false
               }
             }
           }
@@ -772,7 +997,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -790,7 +1016,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -808,7 +1035,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -826,7 +1054,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -845,7 +1074,8 @@
                       "description": "`Promotion not found.` when an id in `promotions` does not exist.",
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -865,7 +1095,7 @@
                       "type": "string"
                     },
                     "fields": {
-                      "description": "Invalid fields. Duplicate name → `name`, duplicate slug → `slug` (msg `Book name already exists.` / `Slug already exists.`), invalid new category → `categories`.",
+                      "description": "Invalid fields. Duplicate name → `name`, duplicate slug → `slug` (msg `Book name already exists.` / `Slug already exists.`), invalid new category → `categories`, future `publishYear` → `publishYear`, bad ISBN → `isbn`.",
                       "type": "object",
                       "patternProperties": {
                         "^(.*)$": {
@@ -876,7 +1106,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -915,7 +1146,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -933,7 +1165,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -951,7 +1184,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -981,7 +1215,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -1048,6 +1283,12 @@
                     "price",
                     "currentPrice",
                     "viewCount",
+                    "author",
+                    "publisher",
+                    "publishYear",
+                    "pageCount",
+                    "isbn",
+                    "language",
                     "status",
                     "createdAt",
                     "updatedAt",
@@ -1078,6 +1319,49 @@
                     },
                     "viewCount": {
                       "type": "number"
+                    },
+                    "author": {
+                      "nullable": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "publisher": {
+                      "nullable": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "publishYear": {
+                      "nullable": true,
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "pageCount": {
+                      "nullable": true,
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "isbn": {
+                      "nullable": true,
+                      "description": "ISBN without hyphens.",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "language": {
+                      "nullable": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     },
                     "status": {
                       "type": "string",
@@ -1285,7 +1569,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -1303,7 +1588,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -1321,7 +1607,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -1333,7 +1620,7 @@
         "tags": [
           "Book Management"
         ],
-        "description": "Partially update a book. **Fields not sent are kept unchanged** (no default values are applied).\n\n- `categories` and `promotions`, when sent, **replace** the whole list (`promotions: []` removes all promotions).\n- `pictures`, when sent, replaces all pictures.\n- `slug`, when sent, is normalized; changing `name` alone does not change `slug`.\n- `currentPrice` is recalculated after every update.\n\n**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) or any attached promotion changes, and when a promotion starts or ends.",
+        "description": "Partially update a book. **Fields not sent are kept unchanged** (no default values are applied).\n\n- `categories` and `promotions`, when sent, **replace** the whole list (`promotions: []` removes all promotions).\n- `pictures`, when sent, replaces all pictures.\n- `slug`, when sent, is normalized; changing `name` alone does not change `slug`.\n- `currentPrice` is recalculated after every update.\n- `author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language` are optional (see the schema for limits); `null` or a blank string clears them.\n\n**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) or any attached promotion changes, and when a promotion starts or ends.",
         "parameters": [
           {
             "name": "id",
@@ -1401,8 +1688,67 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "author": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Author name(s), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publisher": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Publisher, at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publishYear": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1000,
+                    "maximum": 9999,
+                    "description": "Optional. Publication year: integer from 1000 to the current year (422 `fields.publishYear` if in the future). `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "pageCount": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Optional. Number of pages: integer 1 – 100,000. `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "isbn": {
+                    "nullable": true,
+                    "maxLength": 20,
+                    "description": "Optional. ISBN-10 or ISBN-13. Hyphens and spaces are removed, `x` is upper-cased; the result must be a valid ISBN-10 (9 digits + digit or `X`) or ISBN-13 (13 digits), check digit included (422 `fields.isbn`). Stored without hyphens. Not unique. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "language": {
+                    "nullable": true,
+                    "maxLength": 50,
+                    "description": "Optional. Language of the book (e.g. `Tiếng Việt`, `English`), at most 50 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                }
+                },
+                "additionalProperties": false
               }
             },
             "application/x-www-form-urlencoded": {
@@ -1459,8 +1805,67 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "author": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Author name(s), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publisher": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Publisher, at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publishYear": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1000,
+                    "maximum": 9999,
+                    "description": "Optional. Publication year: integer from 1000 to the current year (422 `fields.publishYear` if in the future). `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "pageCount": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Optional. Number of pages: integer 1 – 100,000. `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "isbn": {
+                    "nullable": true,
+                    "maxLength": 20,
+                    "description": "Optional. ISBN-10 or ISBN-13. Hyphens and spaces are removed, `x` is upper-cased; the result must be a valid ISBN-10 (9 digits + digit or `X`) or ISBN-13 (13 digits), check digit included (422 `fields.isbn`). Stored without hyphens. Not unique. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "language": {
+                    "nullable": true,
+                    "maxLength": 50,
+                    "description": "Optional. Language of the book (e.g. `Tiếng Việt`, `English`), at most 50 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                }
+                },
+                "additionalProperties": false
               }
             },
             "multipart/form-data": {
@@ -1517,8 +1922,67 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "author": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Author name(s), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publisher": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Publisher, at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "publishYear": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1000,
+                    "maximum": 9999,
+                    "description": "Optional. Publication year: integer from 1000 to the current year (422 `fields.publishYear` if in the future). `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "pageCount": {
+                    "nullable": true,
+                    "multipleOf": 1,
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Optional. Number of pages: integer 1 – 100,000. `null` clears it.",
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "isbn": {
+                    "nullable": true,
+                    "maxLength": 20,
+                    "description": "Optional. ISBN-10 or ISBN-13. Hyphens and spaces are removed, `x` is upper-cased; the result must be a valid ISBN-10 (9 digits + digit or `X`) or ISBN-13 (13 digits), check digit included (422 `fields.isbn`). Stored without hyphens. Not unique. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "language": {
+                    "nullable": true,
+                    "maxLength": 50,
+                    "description": "Optional. Language of the book (e.g. `Tiếng Việt`, `English`), at most 50 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                }
+                },
+                "additionalProperties": false
               }
             }
           }
@@ -1537,7 +2001,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -1555,7 +2020,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -1573,7 +2039,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -1591,7 +2058,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -1610,7 +2078,8 @@
                       "description": "`Book not found.` or `Promotion not found.`",
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -1630,7 +2099,7 @@
                       "type": "string"
                     },
                     "fields": {
-                      "description": "Invalid fields. Duplicate name → `name`, duplicate slug → `slug`, invalid new category → `categories`.",
+                      "description": "Invalid fields. Duplicate name → `name`, duplicate slug → `slug`, invalid new category → `categories`, future `publishYear` → `publishYear`, bad ISBN → `isbn`.",
                       "type": "object",
                       "patternProperties": {
                         "^(.*)$": {
@@ -1641,7 +2110,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -2152,1155 +2622,6 @@
         "operationId": "deleteApiCategory-bookByName"
       }
     },
-    "/api/db/schema": {
-      "get": {
-        "hide": false,
-        "tags": [
-          "Database"
-        ],
-        "description": "Get database structure: every table with its row count, columns, keys and foreign keys. Row data is never returned.",
-        "responses": {
-          "200": {
-            "description": "Response for status 200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "name",
-                      "rows",
-                      "columns"
-                    ],
-                    "properties": {
-                      "name": {
-                        "description": "Tên bảng",
-                        "type": "string"
-                      },
-                      "rows": {
-                        "description": "Số dòng (COUNT(*))",
-                        "type": "number"
-                      },
-                      "columns": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "required": [
-                            "name",
-                            "type",
-                            "nullable",
-                            "key",
-                            "default",
-                            "extra",
-                            "references"
-                          ],
-                          "properties": {
-                            "name": {
-                              "type": "string"
-                            },
-                            "type": {
-                              "description": "Kiểu MySQL, VD varchar(191)",
-                              "type": "string"
-                            },
-                            "nullable": {
-                              "type": "boolean"
-                            },
-                            "key": {
-                              "description": "PRI | UNI | MUL | rỗng",
-                              "type": "string"
-                            },
-                            "default": {
-                              "nullable": true,
-                              "type": [
-                                "string",
-                                "null"
-                              ]
-                            },
-                            "extra": {
-                              "description": "VD auto_increment",
-                              "type": "string"
-                            },
-                            "references": {
-                              "nullable": true,
-                              "description": "Khoá ngoại dạng bảng.cột",
-                              "type": [
-                                "string",
-                                "null"
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "getApiDbSchema"
-      }
-    },
-    "/api/file": {
-      "delete": {
-        "tags": [
-          "File Management"
-        ],
-        "description": "Delete files or folders (repeat `path` to delete several). System items whose name starts with `$` cannot be deleted (403).",
-        "parameters": [
-          {
-            "name": "path",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "anyOf": [
-                {
-                  "description": "Path starting with '/', e.g. /photos/a.png. Repeat the parameter to delete several.",
-                  "type": "string"
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Response for status 200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Response for status 400",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Response for status 403",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Response for status 404",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Response for status 422",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg",
-                    "fields"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    },
-                    "fields": {
-                      "type": "object",
-                      "patternProperties": {
-                        "^(.*)$": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "deleteApiFile"
-      },
-      "get": {
-        "tags": [
-          "File Management"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {}
-        ],
-        "description": "If `path` is a FILE: download it, no token needed (used by <img> for book covers and avatars). Raster images (jpg, png, gif, webp, bmp) are sent inline, every other type as `Content-Disposition: attachment`; all files are sent with `X-Content-Type-Options: nosniff` and `Content-Security-Policy: ... sandbox`. If `path` is a FOLDER: list its content, **requires a Bearer token** (401 without). Paths outside the upload directory return 400.",
-        "parameters": [
-          {
-            "name": "path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "default": "/",
-              "description": "Path inside the upload directory, e.g. /$book-image/clean-code/cover.png",
-              "type": "string"
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "default": "",
-              "description": "Only for folders: filter by path, searching all sub folders. \"*\" lists everything.",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Response for status 200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "required": [
-                        "list"
-                      ],
-                      "properties": {
-                        "list": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "required": [
-                              "name",
-                              "path",
-                              "isFile",
-                              "size",
-                              "type",
-                              "modified",
-                              "created"
-                            ],
-                            "properties": {
-                              "name": {
-                                "type": "string"
-                              },
-                              "path": {
-                                "type": "string"
-                              },
-                              "isFile": {
-                                "type": "boolean"
-                              },
-                              "size": {
-                                "type": "number"
-                              },
-                              "type": {
-                                "type": "string"
-                              },
-                              "modified": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  },
-                                  {
-                                    "format": "date",
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "number"
-                                  }
-                                ]
-                              },
-                              "created": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "date-time"
-                                  },
-                                  {
-                                    "format": "date",
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "number"
-                                  }
-                                ]
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "default": "File",
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Response for status 400",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Response for status 401",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Response for status 403",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Response for status 404",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "getApiFile"
-      },
-      "post": {
-        "tags": [
-          "File Management"
-        ],
-        "description": "Upload files. Allowed types: jpg, jpeg, png, gif, webp, bmp, pdf, zip, rar, 7z, gz, tgz, bz2, tar (checked by content). Path or file names that leave the upload directory return 400 \"Invalid path.\" / \"Invalid file name.\".",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "files"
-                ],
-                "properties": {
-                  "files": {
-                    "multiple": true,
-                    "maxItems": 20,
-                    "minItems": 1,
-                    "maxSize": 5242880,
-                    "description": "1-20 files, at most 5MB each. Allowed: jpg, jpeg, png, gif, webp, bmp, pdf, zip, rar, 7z, gz, tgz, bz2, tar. The type is checked from the file content and extension, not from the Content-Type sent by the client. SVG, HTML and other types are rejected (422).",
-                    "elysiaMeta": "Files",
-                    "default": "Files",
-                    "type": "array",
-                    "items": {
-                      "multiple": true,
-                      "maxItems": 20,
-                      "minItems": 1,
-                      "maxSize": 5242880,
-                      "description": "1-20 files, at most 5MB each. Allowed: jpg, jpeg, png, gif, webp, bmp, pdf, zip, rar, 7z, gz, tgz, bz2, tar. The type is checked from the file content and extension, not from the Content-Type sent by the client. SVG, HTML and other types are rejected (422).",
-                      "default": "Files",
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  },
-                  "path": {
-                    "default": "/",
-                    "description": "Destination folder inside the upload directory, created if missing (e.g. /photos/2026).",
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Response for status 200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg",
-                    "paths"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    },
-                    "paths": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Response for status 400",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Response for status 422",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg",
-                    "fields"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    },
-                    "fields": {
-                      "type": "object",
-                      "patternProperties": {
-                        "^(.*)$": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Response for status 500",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "postApiFile"
-      }
-    },
-    "/api/file/copy": {
-      "post": {
-        "tags": [
-          "File Management"
-        ],
-        "description": "Copy file or directory.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "oldPath",
-                  "newPath"
-                ],
-                "properties": {
-                  "oldPath": {
-                    "type": "string"
-                  },
-                  "newPath": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "oldPath",
-                  "newPath"
-                ],
-                "properties": {
-                  "oldPath": {
-                    "type": "string"
-                  },
-                  "newPath": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "oldPath",
-                  "newPath"
-                ],
-                "properties": {
-                  "oldPath": {
-                    "type": "string"
-                  },
-                  "newPath": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Response for status 200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg",
-                    "newPath",
-                    "newName"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    },
-                    "newPath": {
-                      "type": "string"
-                    },
-                    "newName": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Response for status 400",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Response for status 404",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Response for status 422",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg",
-                    "fields"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    },
-                    "fields": {
-                      "type": "object",
-                      "patternProperties": {
-                        "^(.*)$": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Response for status 500",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "postApiFileCopy"
-      }
-    },
-    "/api/file/info": {
-      "get": {
-        "tags": [
-          "File Management"
-        ],
-        "security": [],
-        "description": "Get information about storage (bytes used / limit). Works on Windows and Linux.",
-        "responses": {
-          "200": {
-            "description": "Response for status 200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "usedStorage",
-                    "maxStorage"
-                  ],
-                  "properties": {
-                    "usedStorage": {
-                      "description": "Bytes used by the upload directory",
-                      "type": "number"
-                    },
-                    "maxStorage": {
-                      "description": "Storage limit in bytes",
-                      "type": "number"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "getApiFileInfo"
-      }
-    },
-    "/api/file/move": {
-      "put": {
-        "tags": [
-          "File Management"
-        ],
-        "description": "Move file or directory.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "oldPath",
-                  "newPath"
-                ],
-                "properties": {
-                  "oldPath": {
-                    "type": "string"
-                  },
-                  "newPath": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "oldPath",
-                  "newPath"
-                ],
-                "properties": {
-                  "oldPath": {
-                    "type": "string"
-                  },
-                  "newPath": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "oldPath",
-                  "newPath"
-                ],
-                "properties": {
-                  "oldPath": {
-                    "type": "string"
-                  },
-                  "newPath": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Response for status 200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Response for status 400",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Response for status 403",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Response for status 404",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Response for status 422",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg",
-                    "fields"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    },
-                    "fields": {
-                      "type": "object",
-                      "patternProperties": {
-                        "^(.*)$": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Response for status 500",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "putApiFileMove"
-      }
-    },
-    "/api/file/rename": {
-      "put": {
-        "tags": [
-          "File Management"
-        ],
-        "description": "Rename file or directory in its current folder. Names with path separators or `..` return 400 \"Invalid name.\".",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "path",
-                  "name"
-                ],
-                "properties": {
-                  "path": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "description": "New name only (no folder). Must not contain / \\ : * ? \" < > | ; a file must keep an allowed extension.",
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "path",
-                  "name"
-                ],
-                "properties": {
-                  "path": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "description": "New name only (no folder). Must not contain / \\ : * ? \" < > | ; a file must keep an allowed extension.",
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "path",
-                  "name"
-                ],
-                "properties": {
-                  "path": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "description": "New name only (no folder). Must not contain / \\ : * ? \" < > | ; a file must keep an allowed extension.",
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Response for status 200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Response for status 400",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Response for status 403",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Response for status 404",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Response for status 422",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg",
-                    "fields"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    },
-                    "fields": {
-                      "type": "object",
-                      "patternProperties": {
-                        "^(.*)$": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Response for status 500",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "msg"
-                  ],
-                  "properties": {
-                    "msg": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "putApiFileRename"
-      }
-    },
     "/api/login": {
       "post": {
         "tags": [
@@ -3348,7 +2669,8 @@
                   "password": {
                     "type": "string"
                   }
-                }
+                },
+                "additionalProperties": false
               }
             },
             "application/x-www-form-urlencoded": {
@@ -3370,7 +2692,8 @@
                   "password": {
                     "type": "string"
                   }
-                }
+                },
+                "additionalProperties": false
               }
             },
             "multipart/form-data": {
@@ -3392,7 +2715,8 @@
                   "password": {
                     "type": "string"
                   }
-                }
+                },
+                "additionalProperties": false
               }
             }
           }
@@ -3419,7 +2743,8 @@
                     "exp": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3448,7 +2773,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3466,7 +2792,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3495,7 +2822,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3542,7 +2870,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3560,7 +2889,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3578,7 +2908,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3646,7 +2977,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3664,7 +2996,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3846,7 +3179,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3864,7 +3198,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3882,7 +3217,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3900,7 +3236,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3929,7 +3266,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -5319,7 +4657,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -5337,7 +4676,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -5366,7 +4706,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -5518,7 +4859,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -5547,7 +4889,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -5576,7 +4919,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -5632,7 +4976,8 @@
                     "description": "Seconds to wait before responding: 0 to 30.",
                     "type": "number"
                   }
-                }
+                },
+                "additionalProperties": false
               }
             },
             "application/x-www-form-urlencoded": {
@@ -5672,7 +5017,8 @@
                     "description": "Seconds to wait before responding: 0 to 30.",
                     "type": "number"
                   }
-                }
+                },
+                "additionalProperties": false
               }
             },
             "multipart/form-data": {
@@ -5712,7 +5058,8 @@
                     "description": "Seconds to wait before responding: 0 to 30.",
                     "type": "number"
                   }
-                }
+                },
+                "additionalProperties": false
               }
             }
           }
@@ -5731,7 +5078,8 @@
                     "msg": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -5761,7 +5109,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }

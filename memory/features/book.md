@@ -7,7 +7,7 @@ Frontend: `src/pages/book-mgt/` (`page.tsx`, `add-page.tsx`, `detail.tsx`). Rout
 
 | Method | Path | Cần token | Ghi chú |
 |---|---|---|---|
-| GET | `/api/book` | Không | `page`, `limit`, `search`, `sort`, `sortBy`. Search chuỗi thường lọc trên `name`, `description`, `slug`; JSON thì làm `where` (qua `plugins/filterTable.ts`, chặn cột nhạy cảm). Lỗi bộ lọc → 400 `{ msg, error }`, `error` là thông báo an toàn (không phải lỗi Prisma) |
+| GET | `/api/book` | Không | `page`, `limit`, `search`, `sort`, `sortBy`. Search chuỗi thường lọc trên `name`, `description`, `slug`, `author`, `publisher`, `isbn` (2026-11-20); JSON thì làm `where` (qua `plugins/filterTable.ts`, chặn cột nhạy cảm). Lỗi bộ lọc → 400 `{ msg, error }`, `error` là thông báo an toàn (không phải lỗi Prisma) |
 | GET | `/api/book/{id}` | Không | `{id}` nhận **id hoặc slug**. Query `view=true` thì tăng `viewCount`. Trả thêm `slug` (2026-11-20) |
 | POST | `/api/book` | Có | **201**. Bắt buộc `name`, `categories`; `price` mặc định 50.000, `status` mặc định AVAILABLE |
 | PATCH | `/api/book/{id}` | Có | 200. Cập nhật một phần — xem dưới |
@@ -16,6 +16,8 @@ Frontend: `src/pages/book-mgt/` (`page.tsx`, `add-page.tsx`, `detail.tsx`). Rout
 ## Model `Book`
 
 `name` (unique), `slug` (unique), `description` (TEXT), `picture` (TEXT), `viewCount`, `price` (Int), `currentPrice` (Int), `status` (`AVAILABLE` hoặc `UNAVAILABLE`), quan hệ n-n với `Category` và `Promotion`, `authId` trỏ tới người tạo.
+
+**Thông tin thêm, không bắt buộc (2026-11-20)**, đều nullable: `author` (≤191), `publisher` (≤191), `publishYear` (Int 1000 – năm hiện tại), `pageCount` (Int 1 – 100.000), `isbn` (VarChar 13, lưu không gạch ngang), `language` (≤50). API: POST/PATCH nhận `null` hoặc chuỗi rỗng để xoá; chuỗi được trim. ISBN: bỏ khoảng trắng/gạch ngang, `x` → `X`, phải là ISBN-10 hoặc ISBN-13 **đúng chữ số kiểm tra** → sai thì 422 `fields.isbn`; `publishYear` lớn hơn năm hiện tại → 422 `fields.publishYear`. Không unique. GET list và detail trả đủ 6 trường; `sort` nhận thêm `author`, `publisher`, `publishYear`, `pageCount`. Code: `bookExtraSchemas`, `parseBookExtra` trong `book-controller.ts`. Seed đổ `author` từ `data.json`.
 
 ## Quy tắc (từ 2026-11-20, sửa bug `BOOK EXP01`–`EXP08`)
 
@@ -36,3 +38,13 @@ Frontend: `src/pages/book-mgt/` (`page.tsx`, `add-page.tsx`, `detail.tsx`). Rout
 - Tạo sách lỗi thì frontend chỉ xoá các ảnh vừa upload (trước đây xoá cả thư mục `/$book-image/<slug>`, có thể là của sách khác trùng slug). Lỗi 422 có `fields` được gán vào từng ô của form (cả tạo và sửa).
 - Bộ lọc giá: "từ" + "đến" gộp thành một điều kiện `currentPrice: { gte, lte }`; ô trống gửi `null` (bỏ điều kiện).
 - Script seed `bun run fake` trỏ tới `src/fake.ts`, nhưng trên nhánh `deploy-vps` **file này không tồn tại**.
+
+## Form sách: khuyến mãi và thông tin thêm (2026-11-20)
+
+- Thẻ **Thông tin thêm** (`components/card-more-info.tsx`) nằm giữa *Thuộc tính* và *Khuyến mãi*: 6 ô không bắt buộc. Validate phía form khớp API (năm 1000 – năm nay, số trang 1 – 100.000, ISBN đúng định dạng 10/13 ký tự); chữ số kiểm tra ISBN chỉ API kiểm, lỗi 422 gán vào ô qua `setError`. Ô trống gửi `null` (`utils/book-extra.ts`), nên PATCH luôn ghi đè 6 trường theo form.
+- ⚠️ Locator: `[name="author"]` khớp thẻ `<meta name="author">` của trang trước ô nhập → dùng `input[name="author"]` hoặc `getByLabel`.
+- Trang chi tiết (`detail.tsx`) hiện các trường có giá trị trong `dl[data-testid="book-more-info"]`, mỗi giá trị `dd[data-testid="book-<field>"]`.
+- Thẻ **Khuyến mãi** (`card-promotion.tsx`): dưới chip có bảng giá — giá gốc, từng KM (trạng thái + mức giảm; KM chưa chạy thì mức giảm gạch ngang), *Giá bán hiện tại*, *Giá khi khuyến mãi sắp chạy bắt đầu* (chỉ hiện khi khác giá hiện tại), và `Alert` cảnh báo liệt kê KM chưa trừ vào giá (sắp chạy: ghi ngày bắt đầu; hết hạn; đã tắt). Lý do: danh sách chọn KM gồm cả KM **sắp chạy** (`endDate >= now`), trước đây chọn xong giá không đổi mà không có giải thích.
+- Bấm chip KM (hoặc mã KM trong bảng giá) mở `PromotionDetailDialog` (`components/promotion-detail-dialog.tsx`): mã, tên, mô tả, loại, giá trị, thời gian, mức giảm cho sách này, nút *Mở trang khuyến mãi* (tab mới `/promotion-book-management/handle?id=`), *Bỏ khỏi sách*, *Đóng*.
+- Tính giá phía form ở `utils/pricing.ts` (`calcCurrentPrice`, `calcUpcomingPrice`, `promotionStatus`), cùng quy tắc `backend/src/utils/pricing.ts`. API detail sách không trả `isActive` của KM (chỉ trả KM đang bật) nên `promotionStatus` coi thiếu `isActive` là đang bật.
+- testid: `promotion-price-summary`, `promotion-price-row-<CODE>`, `promotion-current-price`, `promotion-upcoming-price`, `promotion-not-applied-warning`, `selected-promotion-<CODE>`, `promotion-detail-dialog`, `promotion-detail-<code|name|description|type|value|period|discount>`.

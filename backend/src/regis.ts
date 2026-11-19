@@ -5,6 +5,10 @@ import { jwtHandle } from "./plugins/jwt-app";
 
 const prisma = new PrismaClient();
 
+/** Tag của các nhóm API bị ẩn khỏi Swagger. */
+export const HIDDEN_FILE_TAG = "File Management";
+export const HIDDEN_DB_TAG = "Database";
+
 // Server đầu tiên trong danh sách là server mặc định của Swagger (Scalar).
 // Chạy `bun run dev` thì để localhost lên đầu: trang Swagger local mà gọi sang production
 // sẽ bị trình duyệt chặn CORS ("Failed to fetch"). Production (`bun run start`) giữ production lên đầu.
@@ -21,12 +25,17 @@ export const regis = new Elysia()
   .use(
     openapi({
       path: "/swagger",
+      // File Management và Database vẫn chạy (frontend dùng API file để upload ảnh sách)
+      // nhưng ẩn khỏi Swagger theo yêu cầu (2026-11-20), giống trang File / Database đã ẩn trên UI.
+      exclude: {
+        tags: [HIDDEN_FILE_TAG, HIDDEN_DB_TAG],
+      },
       documentation: {
         openapi: "3.0.0",
         info: {
           title: "AnhTester Book Management API",
           description:
-            "A comprehensive API for managing books, users, files, categories, and addresses, provided by [AnhTester](https://anhtester.com). The API is designed to be easy to use and supports a wide range of operations for book management, user management, file management, category management, and address management. \
+            "A comprehensive API for managing books, users, categories, promotions, and addresses, provided by [AnhTester](https://anhtester.com). The API is designed to be easy to use and supports a wide range of operations for book management, user management, category management, promotion management, and address management. \
             UI page to run this API: [book.anhtester.com](https://book.anhtester.com)",
           version: "1.0.0",
           contact: {
@@ -49,11 +58,6 @@ export const regis = new Elysia()
               "Manage user accounts, including creating, updating, and deleting user information."
           },
           {
-            name: "File Management",
-            description:
-              "Support file operations such as upload, download, and file management."
-          },
-          {
             name: "Book Management",
             description:
               "Manage book information, including creating, updating, and retrieving book lists."
@@ -71,10 +75,6 @@ export const regis = new Elysia()
           {
             name: "Promotion Management",
             description: "Manage promotions, update information, and provide promotion details."
-          },
-          {
-            name: "Database",
-            description: "Read-only view of the database structure (tables, columns, keys, row counts)."
           }
         ],
         components: {

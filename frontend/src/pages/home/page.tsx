@@ -33,7 +33,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { toast } from 'src/components/toast';
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
-import { LabelBorder } from 'src/components/label/label-border';
 
 const status = [
   { code: 200, msg: 'OK', color: '#4CAF50' }, // Xanh lá (Thành công)
@@ -114,38 +113,70 @@ const ViewCard = ({
   unit,
   icon,
   color,
+  href,
 }: {
   title: string;
   total: number;
   unit: string;
   icon: string;
   color: 'success' | 'warning' | 'error' | 'info' | 'primary' | 'secondary';
+  href: string;
 }) => {
   const { t } = useTranslate();
+  // Icon nằm trên tiêu đề (cùng kiểu hai thẻ phía trên), không dùng position absolute,
+  // để tiêu đề tiếng Việt dài không bị icon đè lên.
   return (
-    <Card>
-      <CardHeader
-        title={title}
-        subheader={t('home.stats.total', { count: totalBook, unit })}
+    <Card
+      component={Stack}
+      gap={2}
+      sx={{
+        p: 3,
+        height: 1,
+        background: (theme) =>
+          `linear-gradient(30deg, ${varAlpha(theme.vars.palette[color].mainChannel, 0.2)} 0%, rgba(0, 0, 0, 0) 60%)`,
+      }}
+    >
+      <Link
+        component={RouterLink}
+        href={href}
+        aria-label={title}
+        data-action="open-page"
         sx={{
-          pb: 3,
-          color: `${color}.main`,
-          background: (theme) =>
-            `linear-gradient(30deg, ${varAlpha(theme.vars.palette[color].mainChannel, 0.3)} 0%, rgba(0, 0, 0, 0) 60%)`,
+          width: 52,
+          height: 52,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          alignSelf: 'flex-start',
+          borderRadius: 1.75,
+          bgcolor: (theme) => varAlpha(theme.vars.palette[color].mainChannel, 0.16),
+          transition: (theme) => theme.transitions.create(['background-color', 'transform']),
+          '&:hover': {
+            transform: 'scale(1.06)',
+            bgcolor: (theme) => varAlpha(theme.vars.palette[color].mainChannel, 0.28),
+          },
         }}
-      />
-      <SvgColor
-        src={`/assets/icons/navbar/${icon}.svg`}
-        sx={{
-          position: 'absolute',
-          top: (theme) => theme.spacing(1),
-          right: 0,
-          transform: 'translateX(20%)',
-          height: 80,
-          width: 80,
-          color: `${color}.main`,
-        }}
-      />
+      >
+        <SvgColor
+          src={`/assets/icons/navbar/${icon}.svg`}
+          sx={{ width: 28, height: 28, color: `${color}.main` }}
+        />
+      </Link>
+      <Box>
+        <Link
+          component={RouterLink}
+          href={href}
+          color={color}
+          underline="hover"
+          data-action="open-page"
+          sx={{ display: 'inline-block' }}
+        >
+          <Typography variant="h6">{title}</Typography>
+        </Link>
+        <Typography variant="body2" sx={{ mt: 0.5, color: 'text.secondary' }}>
+          {t('home.stats.total', { count: totalBook, unit })}
+        </Typography>
+      </Box>
     </Card>
   );
 };
@@ -300,13 +331,14 @@ export default function Page() {
           </Card>
         </Box>
 
-        <Grid container spacing={3} columns={{ xs: 1, sm: 2, md: 4 }}>
+        <Grid container spacing={3} columns={{ xs: 1, sm: 2, lg: 4 }}>
           <Grid size={1}>
             <ViewCard
               total={totalUser}
               title={t('home.stats.user')}
               unit={t('home.stats.users')}
               icon="ic-user"
+              href="/user-management"
               color="info"
             />
           </Grid>
@@ -317,6 +349,7 @@ export default function Page() {
               title={t('home.stats.book')}
               unit={t('home.stats.books')}
               icon="ic-book"
+              href="/book-management"
               color="success"
             />
           </Grid>
@@ -327,6 +360,7 @@ export default function Page() {
               title={t('home.stats.category')}
               unit={t('home.stats.categories')}
               icon="ic-blog"
+              href="/category-management"
               color="error"
             />
           </Grid>
@@ -336,6 +370,7 @@ export default function Page() {
               title={t('home.stats.promotion')}
               unit={t('home.stats.promotions')}
               icon="ic-sale"
+              href="/promotion-book-management"
               color="warning"
             />
           </Grid>
@@ -353,10 +388,12 @@ export default function Page() {
             })()
           )}
         >
-          <LabelBorder>{t('home.testMessage.title')}</LabelBorder>
+          <CardHeader title={t('home.testMessage.title')} />
           <Stack p={3} spacing={3}>
-            <Stack direction="row" alignItems="center" gap={2}>
-              <Typography>{t('home.testMessage.timeout')}</Typography>
+            <Stack direction="row" alignItems="center" gap={3}>
+              <Typography sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+                {t('home.testMessage.timeout')}
+              </Typography>
               <Controller
                 control={form.control}
                 name="time"

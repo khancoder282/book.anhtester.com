@@ -5,6 +5,7 @@ import { translate } from 'src/locales';
 
 import { toast } from 'src/components/toast';
 
+import { bookExtraPayload } from '../utils/book-extra';
 import { setError, getFieldState } from '../stores/form-add';
 
 export const handleUpdateBook = async (idBook: string, book: BookForm) => {
@@ -17,6 +18,7 @@ export const handleUpdateBook = async (idBook: string, book: BookForm) => {
       slug: book.slug,
       price: Number(book.price),
       pictures: paths,
+      ...bookExtraPayload(book),
       // PATCH thay thế cả danh sách khuyến mãi. Form chỉ nạp khuyến mãi còn hiệu lực, nên chỉ gửi khi
       // người dùng có đổi — tránh gỡ mất khuyến mãi đang tắt / đã hết hạn mà form không hiển thị.
       ...(getFieldState('promotions').isDirty && {

@@ -25,11 +25,17 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 
 | # | Việc | Trạng thái | Ghi chú |
 |---|---|---|---|
-| 2.1 | Dashboard: thu nhỏ banner, thẻ số liệu bấm được để mở màn tương ứng | ⏳ | |
+| 2.0 | Dashboard: sửa bố cục — tiêu đề thẻ số liệu không còn đè icon (VI), "Thời gian chờ" không xuống dòng, khối "Kiểm thử thông báo từ server" có tiêu đề thẻ | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-15](mobile-sync.md#2026-11-20-15) |
+| 2.1 | Dashboard: thẻ số liệu bấm được (tên + icon) để mở màn tương ứng | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-15](mobile-sync.md#2026-11-20-15) |
+| 2.1b | Dashboard: thu nhỏ banner | ⏳ | Tách từ 2.1 |
 | 2.2 | Dashboard: biểu đồ (sách xem nhiều, khuyến mãi sắp hết hạn), hoạt động gần đây | ⏳ | Có thể cần API thống kê |
 | 2.3 | Màn Book: nút chuyển dạng thẻ / dạng bảng | ⏳ | |
 | 2.4 | Màn Book: lọc theo khoảng giá, trạng thái, ngày; giữ bộ lọc trên URL | ⏳ | |
 | 2.5 | Thao tác hàng loạt (chọn nhiều dòng để xoá / khoá / bật) ở User, Book, Promotion | ⏳ | Có thể cần API bulk |
+| 2.6 | Form sách: bảng giá theo khuyến mãi (giá hiện tại, giá khi KM sắp chạy bắt đầu), cảnh báo KM chưa trừ vào giá, bấm chip KM xem chi tiết chương trình | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-16](mobile-sync.md#2026-11-20-16) |
+| 2.7 | Sách có thêm thông tin không bắt buộc: tác giả, NXB, năm xuất bản, số trang, ISBN, ngôn ngữ (DB + API + form + trang chi tiết) | ✅ 2026-11-20 | Thêm 6 cột (`prisma db push`). Chi tiết: [mobile-sync.md#2026-11-20-17](mobile-sync.md#2026-11-20-17) |
+| 2.8 | Swagger: ẩn nhóm File Management và Database (API vẫn chạy) | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-18](mobile-sync.md#2026-11-20-18) |
+| 2.9 | Bật CORS cho `/api/*` (không credentials): hết "Failed to fetch" khi Send từ Swagger khác origin (VD `localhost:3039/swagger`) | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-18](mobile-sync.md#2026-11-20-18) |
 
 ## Đợt 3: Tính năng mới
 

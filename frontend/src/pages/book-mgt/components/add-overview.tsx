@@ -30,6 +30,7 @@ import { dialog } from 'src/components/dialog-confirm/confirm';
 import { getBook } from '../api/get-book';
 import { CardDetail } from './card-detail';
 import { CardProperty } from './card-property';
+import { CardMoreInfo } from './card-more-info';
 import { deleteBook } from '../api/delete-book';
 import { CardPromotion } from './card-promotion';
 import { handleCreateBook } from '../api/create-book';
@@ -72,6 +73,12 @@ export function AddOverview() {
         slug: '',
         price: '',
         picture: [],
+        author: '',
+        publisher: '',
+        publishYear: '',
+        pageCount: '',
+        isbn: '',
+        language: '',
       });
     } else {
       getBook(id)
@@ -117,6 +124,7 @@ export function AddOverview() {
         <Stack spacing={4} component="form" noValidate>
           <CardDetail />
           <CardProperty />
+          <CardMoreInfo />
           <CardPromotion />
           <Box display="flex" flexWrap="wrap" gap={2}>
             <Controller

@@ -36,5 +36,5 @@ App này là API cho tester thực hành, nên một số điểm có thể là 
 
 ## 4. Khác
 
-- `elysia-rate-limit` và `@elysiajs/cors` đã bị gỡ trên nhánh `deploy-vps`, nên hiện **không có rate limit** cho `/api/login`.
+- `elysia-rate-limit` và `@elysiajs/cors` đã bị gỡ trên nhánh `deploy-vps`, nên hiện **không có rate limit** cho `/api/login`. CORS được viết tay trong `index.ts` từ 2026-11-20: `Allow-Origin: *`, **không** cho credentials (cookie `refetchToken` không đi cross-origin) — xem `features/system.md`.
 - JWT dùng `"secret-key"` nếu thiếu biến `JWT_SECRET` mà không báo lỗi gì. Trên server phải kiểm tra kỹ biến này.

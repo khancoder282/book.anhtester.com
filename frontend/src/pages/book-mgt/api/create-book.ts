@@ -4,6 +4,7 @@ import { translate } from 'src/locales';
 import { toast } from 'src/components/toast';
 
 import { setError } from '../stores/form-add';
+import { bookExtraPayload } from '../utils/book-extra';
 
 export const slugify = (s: string) =>
   s
@@ -53,6 +54,7 @@ export const handleCreateBook = async (book: BookForm) => {
         price: Number(book.price),
         pictures: paths,
         promotions: book.promotions?.map((x) => x.id) ?? [],
+        ...bookExtraPayload(book),
       })
       .then((res) => {
         toast.success(res.data.msg, { id, duration: 3000 });

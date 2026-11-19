@@ -158,6 +158,7 @@ async function main() {
         name: b.name,
         slug: b.slug,
         description: `Tác giả: ${b.author}. ${b.description}`,
+        author: b.author,
         picture: pictures.join(","),
         price: b.price,
         currentPrice: currentPrice(b.price, bookPromos),

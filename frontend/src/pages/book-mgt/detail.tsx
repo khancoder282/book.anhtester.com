@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import { useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { Fragment, useCallback } from 'react';
 
 import {
   Box,
@@ -43,6 +43,17 @@ export default function BookDetail() {
   const router = useRouter();
   // Bỏ phần tử ảnh rỗng (API chi tiết trả về 1 "ảnh" path rỗng khi sách không có ảnh)
   const pictures = (data.picture ?? []).map((item) => (item as FileItem).path).filter(Boolean);
+  // Thông tin thêm (không bắt buộc): chỉ hiện dòng có giá trị
+  const moreInfo = (
+    [
+      ['author', data.author],
+      ['publisher', data.publisher],
+      ['publishYear', data.publishYear],
+      ['pageCount', data.pageCount],
+      ['isbn', data.isbn],
+      ['language', data.language],
+    ] as const
+  ).filter(([, value]) => value !== null && value !== undefined && value !== '');
 
   return (
     <DashboardContent>
@@ -114,6 +125,30 @@ export default function BookDetail() {
             <Typography variant="body2" color="textSecondary" textAlign="justify">
               {data.description}
             </Typography>
+
+            {moreInfo.length > 0 && (
+              <Box
+                component="dl"
+                data-testid="book-more-info"
+                sx={{
+                  m: 0,
+                  display: 'grid',
+                  gridTemplateColumns: 'max-content 1fr',
+                  columnGap: 2,
+                  rowGap: 1,
+                  typography: 'body2',
+                  '& dt': { color: 'text.secondary' },
+                  '& dd': { m: 0, wordBreak: 'break-word' },
+                }}
+              >
+                {moreInfo.map(([key, value]) => (
+                  <Fragment key={key}>
+                    <dt>{t(`book.moreInfo.${key}`)}</dt>
+                    <dd data-testid={`book-${key}`}>{value}</dd>
+                  </Fragment>
+                ))}
+              </Box>
+            )}
 
             <Typography variant="h6" color="textPrimary" position="relative" mt={5}>
               {typeof data.currentPrice === 'number' &&

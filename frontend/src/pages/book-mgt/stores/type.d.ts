@@ -7,6 +7,13 @@ type BookForm = {
   price: number | '';
   categories: Categories['name'][];
   promotions: PromotionType[];
+  // Thông tin thêm, không bắt buộc. API trả null khi chưa có; form dùng '' cho ô trống.
+  author?: string | null;
+  publisher?: string | null;
+  publishYear?: number | '' | null;
+  pageCount?: number | '' | null;
+  isbn?: string | null;
+  language?: string | null;
   // for edit
   pictureDel?: FileItem[];
   id?: string;
@@ -43,6 +50,12 @@ type BookView = {
   updatedAt: string;
   currentPrice: number;
   viewCount: number;
+  author: string | null;
+  publisher: string | null;
+  publishYear: number | null;
+  pageCount: number | null;
+  isbn: string | null;
+  language: string | null;
   auth: {
     name: string;
     avatarUrl: string;

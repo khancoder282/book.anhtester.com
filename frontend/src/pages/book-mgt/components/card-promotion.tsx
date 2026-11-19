@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { useWatch } from 'react-hook-form';
 import { useMemo, useState, useCallback } from 'react';
 
@@ -5,9 +6,11 @@ import {
   Box,
   Card,
   Chip,
+  Alert,
   Stack,
   Avatar,
   Divider,
+  Tooltip,
   Collapse,
   CardHeader,
   IconButton,
@@ -18,8 +21,10 @@ import { useRequest } from 'src/hooks/use-request';
 
 import { useTranslate } from 'src/locales';
 import { MappingType } from 'src/pages/promotions-mgt/const-type';
+import { PROMOTION_STATUS_COLOR } from 'src/pages/promotions-mgt/utils';
 import { getPromotion } from 'src/pages/promotions-mgt/api/get-promotion';
 
+import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { useTable } from 'src/components/grid-view/hook/use-table';
 import { TableView } from 'src/components/grid-view/components/table-view';
@@ -28,6 +33,14 @@ import { TablePaginationView } from 'src/components/grid-view/components/table-p
 
 import { fields, columns } from '../columns-promotion';
 import { control, setValue } from '../stores/form-add';
+import { PromotionDetailDialog } from './promotion-detail-dialog';
+import {
+  formatVnd,
+  promotionStatus,
+  calcCurrentPrice,
+  calcUpcomingPrice,
+  promotionDiscount,
+} from '../utils/pricing';
 
 function formatValue(str: string) {
   try {
@@ -45,35 +58,18 @@ function formatValue(str: string) {
   }
 }
 
-// Cùng quy tắc với backend (`backend/src/utils/pricing.ts`): chỉ khuyến mãi đang hiệu lực,
-// cộng dồn mức giảm, làm tròn, giữ trong [0, price].
-function handlePrice(price: number, promotions: PromotionType[]) {
-  const now = Date.now();
-  let pricePromotion = 0;
-  promotions.forEach((p) => {
-    const effective =
-      p.isActive !== false &&
-      new Date(p.startDate).getTime() <= now &&
-      new Date(p.endDate).getTime() >= now;
-    if (!effective) return;
-    if (p.type === 'PERCENTAGE') {
-      pricePromotion += (price * p.value) / 100;
-    }
-    if (p.type === 'FIXED_AMOUNT') {
-      pricePromotion += p.value;
-    }
-  });
-  return Math.min(Math.max(Math.round(price - pricePromotion), 0), price);
-}
-
 export function CardPromotion() {
   const { t, lang } = useTranslate();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const filterFields = useMemo(() => fields(), [lang]);
   const [expen, setExpen] = useState(false);
+  const [viewing, setViewing] = useState<PromotionType | null>(null);
   const [selected = [], _price = 0] = useWatch({ control, name: ['promotions', 'price'] });
   const price = Number(_price || 0);
-  const currentPrice = useMemo(() => handlePrice(price, selected), [price, selected]);
+  const currentPrice = useMemo(() => calcCurrentPrice(price, selected), [price, selected]);
+  const upcomingPrice = useMemo(() => calcUpcomingPrice(price, selected), [price, selected]);
+  // Khuyến mãi đã chọn nhưng chưa được trừ vào giá bán (sắp chạy / hết hạn / đã tắt)
+  const notApplied = selected.filter((p) => promotionStatus(p) !== 'running');
 
   const setSelected = (row: PromotionType[]) =>
     setValue('promotions', row, {
@@ -154,27 +150,31 @@ export function CardPromotion() {
           {selected.length > 0 && (
             <>
               <Divider />
-              <Box p={2} display="flex" flexWrap="unset" gap={1}>
+              <Box p={2} display="flex" flexWrap="wrap" gap={1}>
                 {selected.map((item) => (
-                  <Chip
-                    avatar={
-                      <Avatar
-                        sx={{
-                          bgcolor: `${MappingType[item.type].color}.main`,
-                          color: '#fff !important',
-                        }}
-                      >
-                        <Iconify width={0.6} icon={MappingType[item.type].icon} />
-                      </Avatar>
-                    }
-                    key={item.id}
-                    label={
-                      <>
-                        <b>[{item.code}]</b> {item.name}
-                      </>
-                    }
-                    onDelete={() => setSelected(selected.filter((i) => i.id !== item.id))}
-                  />
+                  <Tooltip key={item.id} title={t('book.promotion.price.viewDetail')}>
+                    <Chip
+                      avatar={
+                        <Avatar
+                          sx={{
+                            bgcolor: `${MappingType[item.type].color}.main`,
+                            color: '#fff !important',
+                          }}
+                        >
+                          <Iconify width={0.6} icon={MappingType[item.type].icon} />
+                        </Avatar>
+                      }
+                      clickable
+                      onClick={() => setViewing(item)}
+                      data-testid={`selected-promotion-${item.code}`}
+                      label={
+                        <>
+                          <b>[{item.code}]</b> {item.name}
+                        </>
+                      }
+                      onDelete={() => setSelected(selected.filter((i) => i.id !== item.id))}
+                    />
+                  </Tooltip>
                 ))}
                 {selected.length > 1 && (
                   <Chip
@@ -187,37 +187,135 @@ export function CardPromotion() {
               </Box>
             </>
           )}
-          <Box p={2}>
-            <Typography variant="h6" color="textPrimary" position="relative" textAlign="right">
-              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'vnd' }).format(
-                currentPrice
-              )}
-              {currentPrice !== price && (
-                <Typography
-                  sx={{ textDecoration: 'line-through' }}
-                  position="absolute"
-                  bottom="100%"
-                  right={0}
-                  variant="body2"
-                  color="textDisabled"
-                  display="flex"
-                  alignItems="center"
-                >
-                  <Iconify
-                    sx={{ color: (theme) => theme.palette.success.main, mr: 0.5 }}
-                    icon="eva:arrow-ios-downward-fill"
-                    width={12}
-                  />
-                  {new Intl.NumberFormat('vi-VN', {
-                    style: 'currency',
-                    currency: 'vnd',
-                  }).format(price)}
+          <Stack p={2} spacing={1} data-testid="promotion-price-summary">
+            {selected.length > 0 && (
+              <>
+                <PriceRow label={t('book.promotion.price.original')} value={formatVnd(price)} />
+                {selected.map((item) => {
+                  const status = promotionStatus(item);
+                  const discount = promotionDiscount(price, item);
+                  const applied = status === 'running';
+                  return (
+                    <Stack
+                      key={item.id}
+                      direction="row"
+                      alignItems="center"
+                      spacing={1}
+                      data-testid={`promotion-price-row-${item.code}`}
+                    >
+                      <Tooltip title={t('book.promotion.price.viewDetail')}>
+                        <Typography
+                          component="button"
+                          type="button"
+                          variant="body2"
+                          onClick={() => setViewing(item)}
+                          sx={{
+                            p: 0,
+                            border: 0,
+                            bgcolor: 'transparent',
+                            cursor: 'pointer',
+                            color: 'text.secondary',
+                            textAlign: 'left',
+                            textDecoration: 'underline dotted',
+                            '&:hover': { color: 'primary.main' },
+                          }}
+                        >
+                          [{item.code}] {item.name}
+                        </Typography>
+                      </Tooltip>
+                      <Label color={PROMOTION_STATUS_COLOR[status]}>
+                        {t(`promotion.status.${status}`)}
+                      </Label>
+                      <Box flex={1} />
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        color={applied && discount > 0 ? 'success.main' : 'text.disabled'}
+                        sx={{ textDecoration: applied || discount === 0 ? 'none' : 'line-through' }}
+                      >
+                        {discount > 0
+                          ? `−${formatVnd(discount)}`
+                          : t('book.promotion.price.noPriceChange')}
+                      </Typography>
+                    </Stack>
+                  );
+                })}
+                <Divider sx={{ borderStyle: 'dashed' }} />
+              </>
+            )}
+            <PriceRow
+              label={t('book.promotion.price.current')}
+              strike={currentPrice !== price ? formatVnd(price) : undefined}
+              value={
+                <Typography variant="h6" component="span" data-testid="promotion-current-price">
+                  {formatVnd(currentPrice)}
                 </Typography>
-              )}
-            </Typography>
-          </Box>
+              }
+            />
+            {upcomingPrice !== currentPrice && (
+              <PriceRow
+                label={t('book.promotion.price.upcoming')}
+                value={
+                  <Typography
+                    variant="subtitle1"
+                    component="span"
+                    color="info.main"
+                    data-testid="promotion-upcoming-price"
+                  >
+                    {formatVnd(upcomingPrice)}
+                  </Typography>
+                }
+              />
+            )}
+            {notApplied.length > 0 && (
+              <Alert severity="warning" data-testid="promotion-not-applied-warning">
+                {t('book.promotion.price.warning')}
+                <Box component="ul" sx={{ m: 0, mt: 0.5, pl: 2 }}>
+                  {notApplied.map((p) => (
+                    <li key={p.id}>
+                      <b>{p.code}</b>:{' '}
+                      {t(`book.promotion.detail.notApplied.${promotionStatus(p)}`, {
+                        date: dayjs(p.startDate).format('DD/MM/YYYY HH:mm'),
+                      })}
+                    </li>
+                  ))}
+                </Box>
+              </Alert>
+            )}
+          </Stack>
         </Stack>
       </Collapse>
+      <PromotionDetailDialog
+        promotion={viewing}
+        price={price}
+        onClose={() => setViewing(null)}
+        onRemove={(p) => setSelected(selected.filter((i) => i.id !== p.id))}
+      />
     </Card>
+  );
+}
+
+function PriceRow({
+  label,
+  value,
+  strike,
+}: {
+  label: string;
+  value: React.ReactNode;
+  strike?: string;
+}) {
+  return (
+    <Stack direction="row" alignItems="baseline" spacing={1}>
+      <Typography variant="body2" color="text.secondary">
+        {label}
+      </Typography>
+      <Box flex={1} />
+      {strike && (
+        <Typography variant="body2" color="text.disabled" sx={{ textDecoration: 'line-through' }}>
+          {strike}
+        </Typography>
+      )}
+      <Box sx={{ typography: 'body2', textAlign: 'right' }}>{value}</Box>
+    </Stack>
   );
 }

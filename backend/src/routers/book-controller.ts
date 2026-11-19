@@ -68,6 +68,100 @@ const priceSchema = t.Number({
 });
 const promotionsSchema = t.Array(t.String(), { description: "Promotion ids. Every id must exist (404 otherwise)." });
 
+// ---- Thông tin thêm của sách, đều KHÔNG bắt buộc (2026-11-20) --------------------------------
+// Gửi `null` hoặc chuỗi rỗng để xoá giá trị. Chuỗi được trim; chuỗi rỗng sau trim lưu thành null.
+const MIN_PUBLISH_YEAR = 1000;
+const MAX_PAGE_COUNT = 100_000;
+const bookExtraSchemas = {
+  author: t.Nullable(t.String({ maxLength: 191, description: 'Optional. Author name(s), at most 191 characters. `null` / `""` clears it.' })),
+  publisher: t.Nullable(t.String({ maxLength: 191, description: 'Optional. Publisher, at most 191 characters. `null` / `""` clears it.' })),
+  publishYear: t.Nullable(t.Number({
+    multipleOf: 1,
+    minimum: MIN_PUBLISH_YEAR,
+    maximum: 9999,
+    description: `Optional. Publication year: integer from ${MIN_PUBLISH_YEAR} to the current year (422 \`fields.publishYear\` if in the future). \`null\` clears it.`,
+  })),
+  pageCount: t.Nullable(t.Number({
+    multipleOf: 1,
+    minimum: 1,
+    maximum: MAX_PAGE_COUNT,
+    description: `Optional. Number of pages: integer 1 – ${MAX_PAGE_COUNT.toLocaleString("en-US")}. \`null\` clears it.`,
+  })),
+  isbn: t.Nullable(t.String({
+    maxLength: 20,
+    description:
+      "Optional. ISBN-10 or ISBN-13. Hyphens and spaces are removed, `x` is upper-cased; the result must be a valid ISBN-10 " +
+      "(9 digits + digit or `X`) or ISBN-13 (13 digits), check digit included (422 `fields.isbn`). Stored without hyphens. Not unique. " +
+      '`null` / `""` clears it.',
+  })),
+  language: t.Nullable(t.String({ maxLength: 50, description: 'Optional. Language of the book (e.g. `Tiếng Việt`, `English`), at most 50 characters. `null` / `""` clears it.' })),
+};
+const bookExtraResponse = {
+  author: t.Nullable(t.String()),
+  publisher: t.Nullable(t.String()),
+  publishYear: t.Nullable(t.Number()),
+  pageCount: t.Nullable(t.Number()),
+  isbn: t.Nullable(t.String({ description: "ISBN without hyphens." })),
+  language: t.Nullable(t.String()),
+};
+const bookExtraSelect = {
+  author: true,
+  publisher: true,
+  publishYear: true,
+  pageCount: true,
+  isbn: true,
+  language: true,
+} as const;
+const BOOK_EXTRA_RULE =
+  "- `author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language` are optional (see the schema for limits); " +
+  "`null` or a blank string clears them.";
+
+type BookExtra = {
+  author?: string | null;
+  publisher?: string | null;
+  publishYear?: number | null;
+  pageCount?: number | null;
+  isbn?: string | null;
+  language?: string | null;
+};
+
+function isValidIsbn(isbn: string) {
+  if (/^\d{9}[\dX]$/.test(isbn)) {
+    const sum = isbn
+      .split("")
+      .reduce((acc, ch, i) => acc + (ch === "X" ? 10 : Number(ch)) * (10 - i), 0);
+    return sum % 11 === 0;
+  }
+  if (/^\d{13}$/.test(isbn)) {
+    const sum = isbn.split("").reduce((acc, ch, i) => acc + Number(ch) * (i % 2 === 0 ? 1 : 3), 0);
+    return sum % 10 === 0;
+  }
+  return false;
+}
+
+/** Chuẩn hoá thông tin thêm. Chỉ trả về trường có gửi lên (PATCH giữ nguyên trường không gửi). */
+function parseBookExtra(body: BookExtra, fields: Record<string, string[]>): BookExtra {
+  const data: BookExtra = {};
+  const text = (v: string | null | undefined) => (v == null ? null : v.trim() || null);
+  if (body.author !== undefined) data.author = text(body.author);
+  if (body.publisher !== undefined) data.publisher = text(body.publisher);
+  if (body.language !== undefined) data.language = text(body.language);
+  if (body.pageCount !== undefined) data.pageCount = body.pageCount;
+  if (body.publishYear !== undefined) {
+    const year = body.publishYear;
+    if (year !== null && year > new Date().getFullYear()) {
+      fields.publishYear = ["Publish year must not be in the future."];
+    } else data.publishYear = year;
+  }
+  if (body.isbn !== undefined) {
+    const isbn = body.isbn == null ? "" : body.isbn.replace(/[\s-]/g, "").toUpperCase();
+    if (!isbn) data.isbn = null;
+    else if (!isValidIsbn(isbn)) fields.isbn = ["ISBN must be a valid ISBN-10 or ISBN-13."];
+    else data.isbn = isbn;
+  }
+  return data;
+}
+
 const bodyBookCreate = t.Object({
   name: nameSchema,
   slug: t.Optional(slugSchema),
@@ -83,6 +177,12 @@ const bodyBookCreate = t.Object({
     description: `Regular price in VND: integer, 0 – ${MAX_BOOK_PRICE.toLocaleString("en-US")}. Default 50,000.`,
   })),
   promotions: t.Optional(promotionsSchema),
+  author: t.Optional(bookExtraSchemas.author),
+  publisher: t.Optional(bookExtraSchemas.publisher),
+  publishYear: t.Optional(bookExtraSchemas.publishYear),
+  pageCount: t.Optional(bookExtraSchemas.pageCount),
+  isbn: t.Optional(bookExtraSchemas.isbn),
+  language: t.Optional(bookExtraSchemas.language),
 });
 
 // PATCH: mọi trường đều tuỳ chọn và KHÔNG có giá trị mặc định (Elysia sẽ điền mặc định nếu có).
@@ -100,6 +200,12 @@ const bodyBookUpdate = t.Object({
   promotions: t.Optional(t.Array(t.String(), {
     description: "Replaces the whole promotion list (not merged). `[]` removes all promotions. Every id must exist (404 otherwise).",
   })),
+  author: t.Optional(bookExtraSchemas.author),
+  publisher: t.Optional(bookExtraSchemas.publisher),
+  publishYear: t.Optional(bookExtraSchemas.publishYear),
+  pageCount: t.Optional(bookExtraSchemas.pageCount),
+  isbn: t.Optional(bookExtraSchemas.isbn),
+  language: t.Optional(bookExtraSchemas.language),
 });
 
 const msgSchema = t.Object({ msg: t.String() });
@@ -201,7 +307,7 @@ bookController
       } = query;
 
       try {
-        const where = filterTable(search, ["name", "description", "slug"]);
+        const where = filterTable(search, ["name", "description", "slug", "author", "publisher", "isbn"]);
 
         // Khuyến mãi tới hạn / hết hạn theo thời gian: cập nhật giá bán đã lưu trước khi lọc, sort.
         await prisma.$transaction((tx) => syncStaleBookPrices(tx));
@@ -233,6 +339,7 @@ bookController
               status: true,
               picture: true,
               viewCount: true,
+              ...bookExtraSelect,
               createdAt: true,
               updatedAt: true,
               promotions: {
@@ -301,6 +408,10 @@ bookController
               "price",
               "currentPrice",
               "viewCount",
+              "author",
+              "publisher",
+              "publishYear",
+              "pageCount",
             ],
             { default: "updatedAt" }
           ),
@@ -331,6 +442,7 @@ bookController
               price: t.Number(),
               currentPrice: t.Number({ description: "Selling price after promotions in effect. Always between 0 and `price`." }),
               viewCount: t.Number(),
+              ...bookExtraResponse,
               promotions: t.Array(
                 t.Object({
                   name: t.String(),
@@ -363,7 +475,7 @@ bookController
         422: validationSchema,
       },
       detail: {
-        description: `Query list of books (pagination, filtering, sorting). \`picture\` only lists files that exist.\n\n${PRICING_RULE}`,
+        description: `Query list of books (pagination, filtering, sorting). \`picture\` only lists files that exist. A plain-text \`search\` matches \`name\`, \`description\`, \`slug\`, \`author\`, \`publisher\` and \`isbn\`.\n\n${PRICING_RULE}`,
         tags: ["Book Management"],
         security: [],
       },
@@ -393,6 +505,7 @@ bookController
           createdAt: true,
           updatedAt: true,
           viewCount: true,
+          ...bookExtraSelect,
           auth: {
             select: {
               name: true,
@@ -483,6 +596,7 @@ bookController
           price: t.Number(),
           currentPrice: t.Number({ description: "Selling price after promotions in effect. Always between 0 and `price`." }),
           viewCount: t.Number(),
+          ...bookExtraResponse,
           status: t.Union([
             t.Literal('AVAILABLE'),
             t.Literal('UNAVAILABLE'),
@@ -554,6 +668,10 @@ bookController
         return invalid(set, { slug: ["Slug must contain at least one letter or digit."] });
       }
 
+      const extraErrors: Fields = {};
+      const extra = parseBookExtra(body, extraErrors);
+      if (Object.keys(extraErrors).length) return invalid(set, extraErrors);
+
       try {
         const cat = await checkCategories(prisma, body.categories);
         if (cat.errors.length) return invalid(set, { categories: cat.errors });
@@ -589,6 +707,7 @@ bookController
               description: body.description ?? "",
               status: body.status ?? "AVAILABLE",
               price,
+              ...extra,
               picture: (body.pictures ?? []).filter(Boolean).join(","),
               currentPrice: calcCurrentPrice(price, promotions),
               promotions: { connect: promotionIds.map((id) => ({ id })) },
@@ -630,7 +749,7 @@ bookController
         422: t.Object({
           msg: t.String(),
           fields: t.Record(t.String(), t.Array(t.String()), {
-            description: "Invalid fields. Duplicate name → `name`, duplicate slug → `slug` (msg `Book name already exists.` / `Slug already exists.`), invalid new category → `categories`.",
+            description: "Invalid fields. Duplicate name → `name`, duplicate slug → `slug` (msg `Book name already exists.` / `Slug already exists.`), invalid new category → `categories`, future `publishYear` → `publishYear`, bad ISBN → `isbn`.",
           }),
         }),
       },
@@ -639,7 +758,8 @@ bookController
           "Create a new book. Returns **201**.\n\n" +
           "- `name` is trimmed and must not be blank; `slug` is normalized (`Đắc Nhân Tâm` → `dac-nhan-tam`) and must not end up empty.\n" +
           `- \`price\`: integer 0 – ${MAX_BOOK_PRICE.toLocaleString("en-US")} (default 50,000).\n` +
-          "- No `promotions` (or `[]`) → no promotion attached, `currentPrice = price`.\n\n" +
+          "- No `promotions` (or `[]`) → no promotion attached, `currentPrice = price`.\n" +
+          BOOK_EXTRA_RULE + "\n\n" +
           PRICING_RULE,
       }
     }
@@ -670,6 +790,7 @@ bookController
           if (!slug) fields.slug = ["Slug must contain at least one letter or digit."];
           else data.slug = slug;
         }
+        Object.assign(data, parseBookExtra(body, fields));
         let categories: string[] | undefined;
         if (body.categories !== undefined) {
           const cat = await checkCategories(prisma, body.categories);
@@ -753,7 +874,7 @@ bookController
         422: t.Object({
           msg: t.String(),
           fields: t.Record(t.String(), t.Array(t.String()), {
-            description: "Invalid fields. Duplicate name → `name`, duplicate slug → `slug`, invalid new category → `categories`.",
+            description: "Invalid fields. Duplicate name → `name`, duplicate slug → `slug`, invalid new category → `categories`, future `publishYear` → `publishYear`, bad ISBN → `isbn`.",
           }),
         }),
       },
@@ -764,7 +885,8 @@ bookController
           "- `categories` and `promotions`, when sent, **replace** the whole list (`promotions: []` removes all promotions).\n" +
           "- `pictures`, when sent, replaces all pictures.\n" +
           "- `slug`, when sent, is normalized; changing `name` alone does not change `slug`.\n" +
-          "- `currentPrice` is recalculated after every update.\n\n" +
+          "- `currentPrice` is recalculated after every update.\n" +
+          BOOK_EXTRA_RULE + "\n\n" +
           PRICING_RULE,
       }
     }

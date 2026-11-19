@@ -28,10 +28,30 @@ const decodeOnce = (s: string) => {
   }
 };
 
+/**
+ * CORS cho `/api/*` (2026-11-20): trang Swagger mở ở origin khác server đang chọn (VD `localhost:3039/swagger`
+ * qua proxy Vite, hoặc trang production gọi `localhost:4566`) bị trình duyệt chặn ở preflight → "Failed to fetch".
+ * `Allow-Origin: *` nên trình duyệt KHÔNG gửi cookie cross-origin: cookie `refetchToken` không lộ cho site khác,
+ * gọi API bằng header `Authorization: Bearer` vẫn chạy.
+ */
+function corsHeaders(request: Request): Record<string, string> {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers":
+      request.headers.get("access-control-request-headers") ?? "Content-Type, Authorization, Accept",
+    "Access-Control-Max-Age": "600",
+  };
+}
+
 new Elysia()
-  .onRequest(({ request }) => {
+  .onRequest(({ request, set }) => {
     const url = new URL(request.url)
     if (url.pathname.startsWith("/api")) {
+      Object.assign(set.headers, corsHeaders(request));
+      if (request.method === "OPTIONS") {
+        return new Response(null, { status: 204, headers: corsHeaders(request) });
+      }
       console.log(`[${dayjs().format("DD/MM/YYYY HH:mm:ss")}] ${request.method.padEnd(6)}: ${url.pathname} `);
     }
   })
