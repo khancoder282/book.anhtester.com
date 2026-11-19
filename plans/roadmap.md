@@ -17,6 +17,7 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 1.7 | Tiêu đề tab đổi ngay khi chuyển trang | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-07](mobile-sync.md#2026-11-20-07) |
 | 1.9 | **Ẩn màn File và Database** khỏi menu và route (URL ra 404), giữ code và API | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-08](mobile-sync.md#2026-11-20-08) |
 | 1.10 | Trang **Cần trợ giúp?** (`/help`): thông tin liên hệ Anh Tester, mở từ link ở header trang đăng nhập / đăng ký | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-09](mobile-sync.md#2026-11-20-09) |
+| 1.12 | Swagger: ô **Server** mặc định theo môi trường (dev → `localhost:4566`, production → `book.anhtester.com`), hết lỗi "Failed to fetch" khi Send từ Swagger local | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-14](mobile-sync.md#2026-11-20-14) |
 | 1.8 | Dữ liệu **Address** đúng đơn vị hành chính hiện hành (34 tỉnh/thành, 3.321 phường/xã/đặc khu), API trả theo thứ tự mã hành chính | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-04](mobile-sync.md#2026-11-20-04) |
 
 ## Đợt 2: Giao diện

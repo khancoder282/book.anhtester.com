@@ -7,6 +7,7 @@
 - **Bun**: ban đầu máy chưa có, đã cài bằng `npm install -g bun` (bản 1.4.5). Backend bắt buộc dùng Bun vì code gọi `Bun.env`, `Bun.password`, `Bun.randomUUIDv7`.
 - **MySQL**: lấy của WAMP (`C:\wamp64\bin\mysql\mysql8.4.13`), chạy sẵn ở `127.0.0.1:3306`, user `root`, không mật khẩu. Client: `C:\wamp64\bin\mysql\mysql8.4.13\bin\mysql.exe`.
 - Database: `book_anhtester` (utf8mb4).
+- **phpMyAdmin** (chỗ user quản lý DB chính): `http://localhost/phpmyadmin/`, đăng nhập `root`, mật khẩu trống, chọn DB `book_anhtester`. Cần Apache của WAMP. Ngày 2026-11-20: service `wampapache64` / `wampmysqld64` để Manual và đang Stopped, "Start All Services" của WAMP không bật hết được, trong khi `mysqld.exe` vẫn chạy ngoài service. Bật Apache không cần quyền admin: kiểm tra `C:\wamp64\bin\apache\apache2.4.70\bin\httpd.exe -t`, rồi chạy `Start-Process` file đó với `-WindowStyle Hidden`. Tiến trình mất khi khởi động lại máy. Lần đầu tải phpMyAdmin có thể chậm vài giây.
 
 ## `backend/.env` (gitignore)
 

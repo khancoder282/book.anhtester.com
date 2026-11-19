@@ -28,7 +28,16 @@ if (!res.ok) {
   process.exit(1);
 }
 
-const spec = (await res.json()) as { paths?: Record<string, Record<string, unknown>> };
+const spec = (await res.json()) as {
+  paths?: Record<string, Record<string, unknown>>;
+  servers?: { url: string }[];
+};
+
+// Khi chạy `bun run dev`, Swagger để localhost lên đầu (xem regis.ts). File tài liệu thì luôn
+// để production lên đầu, để diff không đổi theo người xuất.
+if (spec.servers) {
+  spec.servers.sort((a, b) => Number(b.url.startsWith("https://")) - Number(a.url.startsWith("https://")));
+}
 
 // Sắp xếp path và method để diff giữa các lần xuất ổn định
 const sortObject = <T>(obj: Record<string, T>) =>

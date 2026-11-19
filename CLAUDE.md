@@ -99,5 +99,5 @@ Prisma client được generate vào `backend/src/prisma/`, không phải `node_
 - **Bug đã biết:** xem [`docs/bugs/README.md`](docs/bugs/README.md) (30 bug, đợt 2026-11-20) trước khi báo bug mới, để tránh trùng.
 - Test có tiếng Việt thì gọi API bằng script Bun, không dùng curl trong Git Bash (bị đổi ký tự có dấu thành `?`). Xem [memory/notes/testing-pitfalls.md](memory/notes/testing-pitfalls.md).
 
-- Swagger mặc định chọn Server `https://book.anhtester.com` (production). Muốn thử API trên máy thì đổi Server sang `http://localhost:4566`.
+- Server mặc định của Swagger (2026-11-20): chạy `bun run dev` thì là `http://localhost:4566`, chạy `bun run start` (production) thì là `https://book.anhtester.com`; cả hai luôn có trong ô Server. Trang Swagger local mà gọi sang production sẽ bị CORS chặn ("Failed to fetch"). Không dùng URL server tương đối: `/` sinh `//api/...` (404), `""` làm code mẫu mất host.
 - Tài khoản test local: `admin@example.com` / `123456`. Sau khi seed có thêm 8 user `*@example.com` cùng mật khẩu `123456` (2 user bị khoá).

@@ -17,7 +17,7 @@ Code: `backend/src/index.ts`, `backend/src/regis.ts`, `backend/src/routers/datab
 ## Swagger
 
 - Scalar được tải từ CDN `cdn.jsdelivr.net`, nên **máy phải có mạng** thì Swagger mới hiện.
-- Ô Server mặc định là `https://book.anhtester.com` (production). Muốn "Try it" trên máy thì đổi sang `http://localhost:4566`.
+- Ô Server (2026-11-20): `regis.ts` xếp server theo `Bun.env.npm_lifecycle_event` — `bun run dev` để `http://localhost:<PORT>` lên đầu (mặc định), còn lại (`bun run start`) để `https://book.anhtester.com` lên đầu. Trước đó chỉ có production, nên Send từ Swagger local bị CORS chặn ("Failed to fetch"). Đã thử URL tương đối: `/` → Scalar ghép `//api/login` (404); `""` gọi được nhưng code mẫu thành `curl /api/login`. `swagger:export` luôn xếp production lên đầu trong `docs/api/openapi.json`.
 - Link "Swagger API Documentation" trên trang chủ là `/swagger` (đường dẫn tương đối). Khi dev ở cổng 3039, Vite phải proxy `/swagger` thì link này mới chạy (đã thêm 2026-11-20).
 
 ## Xử lý lỗi chung

@@ -5,6 +5,17 @@ import { jwtHandle } from "./plugins/jwt-app";
 
 const prisma = new PrismaClient();
 
+// Server đầu tiên trong danh sách là server mặc định của Swagger (Scalar).
+// Chạy `bun run dev` thì để localhost lên đầu: trang Swagger local mà gọi sang production
+// sẽ bị trình duyệt chặn CORS ("Failed to fetch"). Production (`bun run start`) giữ production lên đầu.
+// Không dùng URL tương đối ("/" ra `//api/...` bị 404, "" làm code mẫu mất host).
+const productionServer = { url: "https://book.anhtester.com", description: "Production Server" };
+const localServer = {
+  url: `http://localhost:${Bun.env.PORT ?? 4566}`,
+  description: "Local development server"
+};
+const isDevRun = Bun.env.npm_lifecycle_event === "dev";
+const swaggerServers = isDevRun ? [localServer, productionServer] : [productionServer, localServer];
 
 export const regis = new Elysia()
   .use(
@@ -80,12 +91,7 @@ export const regis = new Elysia()
             BearerAuth: []
           }
         ],
-        servers: [
-          {
-            url: "https://book.anhtester.com",
-            description: "Production Server"
-          }
-        ]
+        servers: swaggerServers
       },
     })
   )

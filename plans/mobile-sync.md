@@ -20,6 +20,7 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-20-10](#2026-11-20-10) | 2026-11-20 | Sửa bug Auth + User (token, phiên, chỉ sửa chính mình) | **Có**, nhiều chỗ | **Có** | ⏳ Chưa làm — **ảnh hưởng đăng nhập của app** |
 | [2026-11-20-11](#2026-11-20-11) | 2026-11-20 | Sửa bug Book + Promotion (PATCH một phần, giá bán, validate) | **Có** | **Có** | ⏳ Chưa làm |
 | [2026-11-20-12](#2026-11-20-12) | 2026-11-20 | Sửa bug File + System + Category (đường dẫn, loại file, token) | **Có** | **Có** | ⏳ Chưa làm |
+| [2026-11-20-14](#2026-11-20-14) | 2026-11-20 | Swagger: server mặc định theo môi trường | Không (chỉ đổi danh sách `servers` của tài liệu) | Không bắt buộc | Không cần làm |
 
 ---
 
@@ -332,3 +333,18 @@ Sửa 8 bug `SYSTEM EXP01`, `FILE EXP01–04`, `CATEGORY EXP01–03`, lỗi `GET
 | `frontend/src/components/fields/{upload-field,avatar-field}.tsx` | cùng đường dẫn | Bỏ `.svg` khỏi loại được chọn; ảnh avatar lỗi thì ẩn (không dùng `/$image-404.svg`) |
 | `frontend/src/pages/file-mgt/**`, `pages/home/page.tsx` | cùng đường dẫn | Màn File gửi token khi liệt kê; Dashboard bắt buộc chọn Status Code |
 | `frontend/src/pages/book-mgt/api/categorys.ts` | cùng đường dẫn | `encodeURIComponent` khi xoá category (mục 01) |
+
+---
+
+<a id="2026-11-20-14"></a>
+## 2026-11-20-14 · Swagger: server mặc định theo môi trường
+
+**Web đã làm**
+
+- Trước đây `servers` của Swagger chỉ có `https://book.anhtester.com`. Mở Swagger ở `localhost:4566` rồi bấm *Send* thì trình duyệt gọi sang production, bị CORS chặn → "Failed to fetch".
+- `backend/src/regis.ts`: `servers` có cả `http://localhost:<PORT>` và `https://book.anhtester.com`. Chạy `bun run dev` thì localhost lên đầu (mặc định), chạy `bun run start` thì production lên đầu.
+- `backend/scripts/export-openapi.ts`: file `docs/api/openapi.json` luôn xếp production lên đầu.
+
+**API**: không đổi endpoint, request hay response. **Locator**: không có.
+
+**Mobile**: không cần làm gì (app gọi thẳng `https://book.anhtester.com`, không dùng Swagger). Deploy backend chỉ để Swagger production có thêm dòng localhost trong ô Server, không bắt buộc.
