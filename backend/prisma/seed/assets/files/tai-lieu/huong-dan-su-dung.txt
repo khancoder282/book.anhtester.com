@@ -1,0 +1,8 @@
+HƯỚNG DẪN NHANH - BOOK ANHTESTER
+
+1. Đăng nhập bằng tài khoản được cấp.
+2. Vào "Book Management" để xem, thêm, sửa, xoá sách.
+3. Vào "Promotion Management" để tạo mã khuyến mãi và gắn với sách.
+4. Vào "File Management" để quản lý ảnh và tài liệu.
+
+Đây là file mẫu dùng để thực hành kiểm thử.

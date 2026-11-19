@@ -36,8 +36,11 @@ Lần đầu:
 
 ```
 cd backend && bun install && bunx prisma generate && bunx prisma db push
+cd backend && bun run seed --yes   # dữ liệu mẫu, XOÁ hết trừ admin
 cd frontend && bun install
 ```
+
+Dữ liệu mẫu: `backend/prisma/seed/` (`data.json`, ảnh trong `assets/`, script `seed.ts`). Chi tiết ở [memory/notes/seed-data.md](memory/notes/seed-data.md).
 
 Dev (2 terminal):
 
@@ -83,4 +86,4 @@ Prisma client được generate vào `backend/src/prisma/`, không phải `node_
 - Test có tiếng Việt thì gọi API bằng script Bun, không dùng curl trong Git Bash (bị đổi ký tự có dấu thành `?`). Xem [memory/notes/testing-pitfalls.md](memory/notes/testing-pitfalls.md).
 
 - Swagger mặc định chọn Server `https://book.anhtester.com` (production). Muốn thử API trên máy thì đổi Server sang `http://localhost:4566`.
-- Tài khoản test local: `admin@example.com` / `123456` (tạo qua `POST /api/register`).
+- Tài khoản test local: `admin@example.com` / `123456`. Sau khi seed có thêm 8 user `*@example.com` cùng mật khẩu `123456` (2 user bị khoá).

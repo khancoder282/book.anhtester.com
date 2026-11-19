@@ -1,0 +1,68 @@
+{
+  "admin": {
+    "email": "admin@example.com",
+    "name": "Admin",
+    "password": "123456"
+  },
+  "defaultPassword": "123456",
+  "categories": [
+    "Văn học",
+    "Thiếu nhi",
+    "Kỹ năng sống",
+    "Tâm lý",
+    "Kinh tế",
+    "Khoa học",
+    "Lịch sử",
+    "Công nghệ thông tin",
+    "Ngoại ngữ"
+  ],
+  "users": [
+    { "key": "an", "name": "Nguyễn Văn An", "email": "an.nguyen@example.com", "phone": "0901234567", "address": "12 Lý Thường Kiệt, Phường Cửa Nam, Thành phố Hà Nội", "avatar": "avatar-2.webp", "isActive": true },
+    { "key": "binh", "name": "Trần Thị Bình", "email": "binh.tran@example.com", "phone": "0912345678", "address": "45 Lê Lợi, Phường Bến Thành, Thành phố Hồ Chí Minh", "avatar": "avatar-3.webp", "isActive": true },
+    { "key": "cuong", "name": "Lê Hoàng Cường", "email": "cuong.le@example.com", "phone": "0935123456", "address": "88 Bạch Đằng, Phường Hải Châu, Thành phố Đà Nẵng", "avatar": "avatar-4.webp", "isActive": true },
+    { "key": "dung", "name": "Phạm Thu Dung", "email": "dung.pham@example.com", "phone": "0987654321", "address": "21 Điện Biên Phủ, Phường Hồng Bàng, Thành phố Hải Phòng", "avatar": "avatar-5.webp", "isActive": true },
+    { "key": "duc", "name": "Hoàng Minh Đức", "email": "duc.hoang@example.com", "phone": "0978112233", "address": "7 Hai Bà Trưng, Phường Ninh Kiều, Thành phố Cần Thơ", "avatar": "avatar-6.webp", "isActive": true },
+    { "key": "ha", "name": "Vũ Ngọc Hà", "email": "ha.vu@example.com", "phone": "0965443322", "address": "3 Lê Lợi, Phường Thuận Hóa, Thành phố Huế", "avatar": "avatar-7.webp", "isActive": true },
+    { "key": "huy", "name": "Đặng Quốc Huy", "email": "huy.dang@example.com", "phone": "0944556677", "address": "100 Xuân Thủy, Phường Cầu Giấy, Thành phố Hà Nội", "avatar": "avatar-8.webp", "isActive": false },
+    { "key": "huong", "name": "Bùi Lan Hương", "email": "huong.bui@example.com", "phone": "", "address": "", "avatar": "", "isActive": false }
+  ],
+  "books": [
+    { "name": "Đắc Nhân Tâm", "slug": "dac-nhan-tam", "author": "Dale Carnegie", "categories": ["Kỹ năng sống", "Tâm lý"], "price": 86000, "status": "AVAILABLE", "owner": "admin", "cover": 5, "back": 14, "views": 1520, "description": "Cuốn sách kinh điển về nghệ thuật giao tiếp và ứng xử. Tác giả đưa ra những nguyên tắc đơn giản để tạo thiện cảm, thuyết phục người khác và xây dựng các mối quan hệ bền vững trong công việc lẫn cuộc sống." },
+    { "name": "Nhà Giả Kim", "slug": "nha-gia-kim", "author": "Paulo Coelho", "categories": ["Văn học"], "price": 79000, "status": "AVAILABLE", "owner": "an", "cover": 1, "back": 19, "views": 1311, "description": "Hành trình của chàng chăn cừu Santiago đi tìm kho báu và học cách lắng nghe trái tim mình. Một câu chuyện ngụ ngôn ngắn gọn về ước mơ, định mệnh và sự kiên trì." },
+    { "name": "Tuổi Trẻ Đáng Giá Bao Nhiêu", "slug": "tuoi-tre-dang-gia-bao-nhieu", "author": "Rosie Nguyễn", "categories": ["Kỹ năng sống"], "price": 90000, "status": "AVAILABLE", "owner": "binh", "cover": 7, "back": 20, "views": 874, "description": "Những chia sẻ gần gũi về học tập, đọc sách, đi xa và làm việc dành cho người trẻ đang loay hoay tìm hướng đi cho bản thân." },
+    { "name": "Cho Tôi Xin Một Vé Đi Tuổi Thơ", "slug": "cho-toi-xin-mot-ve-di-tuoi-tho", "author": "Nguyễn Nhật Ánh", "categories": ["Văn học", "Thiếu nhi"], "price": 80000, "status": "AVAILABLE", "owner": "binh", "cover": 17, "back": 2, "views": 962, "description": "Thế giới tuổi thơ hồn nhiên qua góc nhìn của cậu bé Mũi và nhóm bạn. Cuốn sách khiến người lớn bật cười rồi lặng đi khi nhớ lại thời thơ ấu của chính mình." },
+    { "name": "Mắt Biếc", "slug": "mat-biec", "author": "Nguyễn Nhật Ánh", "categories": ["Văn học"], "price": 110000, "status": "AVAILABLE", "owner": "an", "cover": 22, "back": 12, "views": 1188, "description": "Câu chuyện tình đơn phương kéo dài nhiều năm của Ngạn dành cho Hà Lan, gắn với làng Đo Đo yên bình và những đổi thay khi con người rời quê lên phố." },
+    { "name": "Dế Mèn Phiêu Lưu Ký", "slug": "de-men-phieu-luu-ky", "author": "Tô Hoài", "categories": ["Thiếu nhi", "Văn học"], "price": 55000, "status": "AVAILABLE", "owner": "cuong", "cover": 10, "back": 8, "views": 745, "description": "Cuộc phiêu lưu của chú Dế Mèn qua thế giới loài vật, từ một chàng dế kiêu căng trở thành người bạn biết sống vì người khác." },
+    { "name": "Sapiens: Lược Sử Loài Người", "slug": "sapiens-luoc-su-loai-nguoi", "author": "Yuval Noah Harari", "categories": ["Lịch sử", "Khoa học"], "price": 299000, "status": "AVAILABLE", "owner": "admin", "cover": 16, "back": 15, "views": 1043, "description": "Hành trình hàng chục nghìn năm của loài người, qua các cuộc cách mạng nhận thức, nông nghiệp và khoa học đã định hình thế giới hiện đại." },
+    { "name": "Lược Sử Thời Gian", "slug": "luoc-su-thoi-gian", "author": "Stephen Hawking", "categories": ["Khoa học"], "price": 145000, "status": "AVAILABLE", "owner": "duc", "cover": 24, "back": 6, "views": 512, "description": "Giới thiệu dễ hiểu về vũ trụ, từ Vụ Nổ Lớn, hố đen đến bản chất của thời gian, dành cho người đọc không chuyên." },
+    { "name": "Tư Duy Nhanh Và Chậm", "slug": "tu-duy-nhanh-va-cham", "author": "Daniel Kahneman", "categories": ["Tâm lý", "Kinh tế"], "price": 239000, "status": "AVAILABLE", "owner": "dung", "cover": 3, "back": 21, "views": 603, "description": "Hai hệ thống tư duy chi phối cách con người phán đoán và ra quyết định, cùng những thiên kiến khiến ta sai lầm mà không hề hay biết." },
+    { "name": "Cha Giàu Cha Nghèo", "slug": "cha-giau-cha-ngheo", "author": "Robert Kiyosaki", "categories": ["Kinh tế"], "price": 115000, "status": "AVAILABLE", "owner": "dung", "cover": 18, "back": 23, "views": 1397, "description": "Bài học về tài chính cá nhân qua hai người cha với hai tư duy khác nhau về tiền bạc, tài sản và đầu tư." },
+    { "name": "Nghĩ Giàu Làm Giàu", "slug": "nghi-giau-lam-giau", "author": "Napoleon Hill", "categories": ["Kinh tế", "Kỹ năng sống"], "price": 120000, "status": "AVAILABLE", "owner": "cuong", "cover": 23, "back": 13, "views": 688, "description": "Những nguyên tắc về khát vọng, niềm tin và sự kiên trì được đúc kết từ việc quan sát những người thành công." },
+    { "name": "Clean Code", "slug": "clean-code", "author": "Robert C. Martin", "categories": ["Công nghệ thông tin"], "price": 350000, "status": "AVAILABLE", "owner": "admin", "cover": 21, "back": 16, "views": 830, "description": "Cách viết mã nguồn dễ đọc, dễ bảo trì: đặt tên, viết hàm, xử lý lỗi, kiểm thử đơn vị và tái cấu trúc mã." },
+    { "name": "Nhập Môn Kiểm Thử Phần Mềm", "slug": "nhap-mon-kiem-thu-phan-mem", "author": "Nhiều tác giả", "categories": ["Công nghệ thông tin"], "price": 150000, "status": "AVAILABLE", "owner": "admin", "cover": 15, "back": 3, "views": 421, "description": "Sách mẫu cho người mới học kiểm thử: vòng đời phần mềm, thiết kế test case, kiểm thử API và nhập môn automation." },
+    { "name": "Lập Trình Hướng Đối Tượng Với Java", "slug": "lap-trinh-huong-doi-tuong-voi-java", "author": "Nhiều tác giả", "categories": ["Công nghệ thông tin"], "price": 180000, "status": "UNAVAILABLE", "owner": "huy", "cover": 12, "back": 24, "views": 97, "description": "Sách mẫu về lập trình hướng đối tượng: lớp, đối tượng, kế thừa, đa hình và các nguyên tắc thiết kế cơ bản. Hiện tạm hết hàng." },
+    { "name": "Đất Rừng Phương Nam", "slug": "dat-rung-phuong-nam", "author": "Đoàn Giỏi", "categories": ["Văn học", "Thiếu nhi"], "price": 98000, "status": "AVAILABLE", "owner": "ha", "cover": 14, "back": 10, "views": 566, "description": "Hành trình lưu lạc của cậu bé An giữa thiên nhiên và con người miền Tây Nam Bộ trong những năm kháng chiến." },
+    { "name": "Số Đỏ", "slug": "so-do", "author": "Vũ Trọng Phụng", "categories": ["Văn học"], "price": 72000, "status": "AVAILABLE", "owner": "ha", "cover": 11, "back": 4, "views": 389, "description": "Tiểu thuyết trào phúng về con đường tiến thân của Xuân Tóc Đỏ, phơi bày lối sống chạy theo văn minh rởm của xã hội thành thị thời bấy giờ." },
+    { "name": "Việt Nam Sử Lược", "slug": "viet-nam-su-luoc", "author": "Trần Trọng Kim", "categories": ["Lịch sử"], "price": 189000, "status": "AVAILABLE", "owner": "duc", "cover": 13, "back": 9, "views": 274, "description": "Bộ sử viết bằng chữ quốc ngữ, trình bày tiến trình lịch sử Việt Nam từ thời dựng nước đến cuối thế kỷ XIX." },
+    { "name": "Hoàng Tử Bé", "slug": "hoang-tu-be", "author": "Antoine de Saint-Exupéry", "categories": ["Thiếu nhi", "Văn học"], "price": 65000, "status": "AVAILABLE", "owner": "an", "cover": 19, "back": 22, "views": 1002, "description": "Cuộc gặp gỡ giữa người phi công và cậu hoàng tử đến từ một tiểu tinh cầu, gợi lại những điều giản dị mà người lớn thường quên." },
+    { "name": "Atomic Habits", "slug": "atomic-habits", "author": "James Clear", "categories": ["Kỹ năng sống"], "price": 159000, "status": "AVAILABLE", "owner": "binh", "cover": 9, "back": 7, "views": 1255, "description": "Thay đổi nhỏ mỗi ngày tạo nên kết quả lớn: cách xây dựng thói quen tốt, bỏ thói quen xấu bằng những bước cụ thể." },
+    { "name": "Tâm Lý Học Đám Đông", "slug": "tam-ly-hoc-dam-dong", "author": "Gustave Le Bon", "categories": ["Tâm lý"], "price": 99000, "status": "UNAVAILABLE", "owner": "cuong", "cover": 20, "back": 1, "views": 158, "description": "Phân tích cách cá nhân thay đổi khi hoà vào đám đông và vì sao đám đông dễ bị dẫn dắt. Hiện tạm hết hàng." }
+  ],
+  "promotions": [
+    { "code": "SALE10", "name": "Giảm 10% sách văn học", "description": "Giảm 10% cho một số đầu sách văn học trong nước và nước ngoài.", "type": "PERCENTAGE", "value": 10, "startOffsetDays": -7, "endOffsetDays": 60, "isActive": true, "books": ["nha-gia-kim", "mat-biec", "so-do", "dat-rung-phuong-nam"] },
+    { "code": "GIAM20K", "name": "Giảm 20.000đ sách chuyên ngành", "description": "Giảm trực tiếp 20.000đ cho sách khoa học, tâm lý và công nghệ thông tin.", "type": "FIXED_AMOUNT", "value": 20000, "startOffsetDays": -3, "endOffsetDays": 30, "isActive": true, "books": ["sapiens-luoc-su-loai-nguoi", "tu-duy-nhanh-va-cham", "clean-code"] },
+    { "code": "THIEUNHI15", "name": "Giảm 15% sách thiếu nhi", "description": "Ưu đãi 15% cho sách thiếu nhi.", "type": "PERCENTAGE", "value": 15, "startOffsetDays": -2, "endOffsetDays": 45, "isActive": true, "books": ["cho-toi-xin-mot-ve-di-tuoi-tho", "de-men-phieu-luu-ky", "hoang-tu-be"] },
+    { "code": "FREESHIP", "name": "Miễn phí vận chuyển", "description": "Miễn phí giao hàng cho các đầu sách kinh tế và kỹ năng. Không làm thay đổi giá bán.", "type": "FREE_SHIPPING", "value": 0, "startOffsetDays": -1, "endOffsetDays": 90, "isActive": true, "books": ["dac-nhan-tam", "cha-giau-cha-ngheo", "nghi-giau-lam-giau"] },
+    { "code": "BLACKFRIDAY30", "name": "Black Friday giảm 30%", "description": "Chương trình sắp diễn ra: giảm 30% trong tuần Black Friday.", "type": "PERCENTAGE", "value": 30, "startOffsetDays": 5, "endOffsetDays": 12, "isActive": true, "books": ["tuoi-tre-dang-gia-bao-nhieu", "atomic-habits"] },
+    { "code": "TET2026", "name": "Khuyến mãi Tết 2026", "description": "Chương trình đã kết thúc.", "type": "PERCENTAGE", "value": 20, "startOffsetDays": -330, "endOffsetDays": -300, "isActive": true, "books": ["luoc-su-thoi-gian", "viet-nam-su-luoc"] },
+    { "code": "SUMMER25", "name": "Hè rực rỡ giảm 25%", "description": "Chương trình đang tạm tắt.", "type": "PERCENTAGE", "value": 25, "startOffsetDays": -10, "endOffsetDays": 20, "isActive": false, "books": ["nhap-mon-kiem-thu-phan-mem"] }
+  ],
+  "addresses": {
+    "Thành phố Hà Nội": ["Phường Ba Đình", "Phường Hoàn Kiếm", "Phường Cửa Nam", "Phường Cầu Giấy", "Phường Đống Đa", "Phường Tây Hồ", "Phường Hai Bà Trưng"],
+    "Thành phố Hồ Chí Minh": ["Phường Sài Gòn", "Phường Bến Thành", "Phường Tân Định", "Phường Bàn Cờ", "Phường Xuân Hòa", "Phường Thủ Đức", "Phường Gò Vấp"],
+    "Thành phố Đà Nẵng": ["Phường Hải Châu", "Phường Hòa Cường", "Phường Thanh Khê", "Phường Sơn Trà", "Phường Ngũ Hành Sơn", "Phường Hội An"],
+    "Thành phố Hải Phòng": ["Phường Hồng Bàng", "Phường Lê Chân", "Phường Ngô Quyền", "Phường Hải An"],
+    "Thành phố Cần Thơ": ["Phường Ninh Kiều", "Phường Cái Khế", "Phường Tân An", "Phường Bình Thủy"],
+    "Thành phố Huế": ["Phường Thuận Hóa", "Phường Phú Xuân", "Phường Kim Long"]
+  }
+}
