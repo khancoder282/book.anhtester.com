@@ -10,9 +10,9 @@ export const home = {
     title: 'Welcome {name}',
     signIn: 'Book management sign in',
     descriptionAuth:
-      'You can manage users, books and files: add, edit and delete them. Personalize the management page with colors and dark mode or light mode.',
+      'You can manage users, books, categories and promotions: add, edit and delete them. Personalize the management page with colors and dark mode or light mode.',
     descriptionGuest:
-      'Sign in to the book management page, including creating, updating and deleting books, documents, users and files.',
+      'Sign in to the book management page, including creating, updating and deleting books, categories, promotions and users.',
   },
   stats: {
     total: 'total: {count} {unit}',

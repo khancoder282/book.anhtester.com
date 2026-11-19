@@ -3,6 +3,7 @@ import type { RouteObject } from 'react-router';
 import { lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 
+import { isHiddenPath } from 'src/config-global';
 import DashboardLayout from 'src/layouts/dashboard';
 
 import { CheckAuth } from './components/check-auth';
@@ -82,4 +83,10 @@ const routesSection: RouteObject[] = [
   { path: '*', Component: lazy(() => import('src/pages/not-found-view/index')) },
 ];
 
-export default routesSection;
+// Bỏ route của màn đang ẩn (CONFIG.hiddenPaths) → mở URL ra trang 404
+const withoutHidden = (routes: RouteObject[]): RouteObject[] =>
+  routes
+    .filter((r) => !isHiddenPath(r.path))
+    .map((r) => (r.children ? { ...r, children: withoutHidden(r.children) } : r));
+
+export default withoutHidden(routesSection);

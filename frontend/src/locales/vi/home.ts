@@ -12,9 +12,9 @@ export const home: Translation<typeof en> = {
     title: 'Xin chào {name}',
     signIn: 'Đăng nhập trang quản lý sách',
     descriptionAuth:
-      'Bạn có thể quản lý thêm xóa sửa người dùng, sách và file. Cài đặt cá nhân hóa trang quản lý đổi màu và chế độ dark mode, light mode.',
+      'Bạn có thể quản lý thêm xóa sửa người dùng, sách, danh mục và khuyến mãi. Cài đặt cá nhân hóa trang quản lý đổi màu và chế độ dark mode, light mode.',
     descriptionGuest:
-      'Đăng nhập vào trang quản lý sách, bao gồm tạo, cập nhật và xóa sách, tài liệu, người dùng, tệp.',
+      'Đăng nhập vào trang quản lý sách, bao gồm tạo, cập nhật và xóa sách, danh mục, khuyến mãi và người dùng.',
   },
   stats: {
     total: 'tổng: {count} {unit}',

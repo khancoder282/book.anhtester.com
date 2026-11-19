@@ -1,5 +1,7 @@
 import type { TKey } from 'src/locales';
 
+import { isHiddenPath } from 'src/config-global';
+
 import { SvgColor } from 'src/components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -13,7 +15,7 @@ export type NavItem = {
   info?: React.ReactNode;
 };
 
-export const navData: NavItem[] = [
+const allNavData: NavItem[] = [
   {
     title: 'nav.dashboard',
     path: '/',
@@ -50,3 +52,6 @@ export const navData: NavItem[] = [
     icon: icon('ic-db'),
   },
 ];
+
+// Màn trong CONFIG.hiddenPaths không hiện trên menu
+export const navData: NavItem[] = allNavData.filter((item) => !isHiddenPath(item.path));
