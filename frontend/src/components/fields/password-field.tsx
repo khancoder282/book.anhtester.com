@@ -15,7 +15,7 @@ const usePassword = create<{
   setShowPassword: (showPassword: boolean) => set({ showPassword }),
 }));
 export const PasswordField = forwardRef<HTMLDivElement, PasswordFieldProps>(
-  function PasswordField(props, ref) {
+  function PasswordFieldInner(props, ref) {
     const { showPassword, setShowPassword } = usePassword();
     useEffect(() => () => {
       if (showPassword) setShowPassword(false);

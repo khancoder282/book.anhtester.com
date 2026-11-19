@@ -49,6 +49,10 @@ export default defineConfig({
         target: `http://localhost:4566`,
         changeOrigin: true,
       },
+      '/swagger': {
+        target: `http://localhost:4566`,
+        changeOrigin: true,
+      },
     },
   },
   preview: { port: PORT, host: true },
