@@ -40,3 +40,4 @@ POST category khoảng trắng  400 {"msg":"Category already exists."}
 
 | Ngày | Build | Kết quả | Retest report | Ghi chú |
 |---|---|---|---|---|
+| 20-11-2026 | deploy-vps (chưa commit) | ✅ FIXED | — | `POST/PUT /api/category-book` trim tên, rỗng / chỉ khoảng trắng → **422** `fields.name: ["Name is required."]` (không còn báo nhầm "already exists"); thêm giới hạn 24 ký tự, cấm `/`; trùng → 409. Bước 1 (tạo sách với `categories: [""]`) do thay đổi của module Book → 422 `categories/0`, danh sách category không còn tên rỗng. Retest: `{"name":""}`, `{"name":"   "}` → 422; tên 25 ký tự → 422 |

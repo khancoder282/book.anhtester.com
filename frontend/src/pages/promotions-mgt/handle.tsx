@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useWatch, Controller, useFormState } from 'react-hook-form';
 
@@ -19,6 +19,7 @@ import {
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 import { useAuthCheck } from 'src/routes/hooks/use-auth-check';
+import { renderFallback } from 'src/routes/components/fallback';
 
 import { useTranslate } from 'src/locales';
 import { CONFIG } from 'src/config-global';
@@ -31,15 +32,38 @@ import { dialog } from 'src/components/dialog-confirm/confirm';
 import { CardBook } from './components/card-book';
 import { CardDetail } from './components/card-detail';
 import { CardStatus } from './components/card-status';
-import { deleteBook } from '../book-mgt/api/delete-book';
 import { createPromotion } from './api/create-promotion';
-import { reset, control, setFocus, getValues, handleSubmit } from './hooks/form-control';
+import { updatePromotion } from './api/update-promotion';
+import { deletePromotion } from './api/delete-promotion';
+import { getPromotionDetail } from './api/get-promotion-detail';
+import {
+  reset,
+  control,
+  setFocus,
+  getValues,
+  handleSubmit,
+  type PromotionForm,
+} from './hooks/form-control';
+
+const emptyPromotion = (): PromotionForm => ({
+  name: '',
+  code: '',
+  description: '',
+  type: 'FIXED_AMOUNT',
+  value: '',
+  startDate: dayjs(),
+  endDate: dayjs().add(7, 'day'),
+  isActive: true,
+  books: [],
+});
 
 export default function Handle() {
   const [s] = useSearchParams();
   const id = s.get('id');
-  const rootName = getValues('name');
   const router = useRouter();
+  const [loading, setLoading] = useState(!!id);
+  // Mã cũ của khuyến mãi đang sửa: được giữ nguyên dù không đủ 6 ký tự (dữ liệu mẫu có mã dài hơn)
+  const [originalCode, setOriginalCode] = useState<string>();
   const { t } = useTranslate();
   const [endDate] = useWatch({ control, name: ['endDate'] });
   const { isSubmitted, errors, isSubmitSuccessful } = useFormState({ control });
@@ -62,11 +86,30 @@ export default function Handle() {
   }, [errors, isSubmitted]);
 
   useEffect(() => {
+    if (!id) {
+      setOriginalCode(undefined);
+      reset(emptyPromotion());
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getPromotionDetail(id)
+      .then((data) => {
+        reset(data);
+        setOriginalCode(data.code);
+      })
+      .catch(() => router.push('/promotion-book-management'))
+      .finally(() => setLoading(false));
+  }, [id, router]);
+
+  useEffect(() => {
     if (isSubmitSuccessful) {
       reset();
       router.back('/promotion-book-management');
     }
   }, [isSubmitSuccessful, router]);
+
+  if (loading) return renderFallback();
 
   return (
     <DashboardContent>
@@ -86,12 +129,21 @@ export default function Handle() {
           >
             {t('promotion.handle.breadcrumb')}
           </Link>
-          <Typography variant="body2">{t('promotion.handle.createTitle')}</Typography>
+          <Typography variant="body2">
+            {id ? t('promotion.handle.modifyTitle') : t('promotion.handle.createTitle')}
+          </Typography>
         </Breadcrumbs>
       </Stack>
       <Container maxWidth="md">
-        <Stack spacing={4} component="form" noValidate onSubmit={handleSubmit(createPromotion)}>
-          <CardDetail />
+        <Stack
+          spacing={4}
+          component="form"
+          noValidate
+          onSubmit={handleSubmit((data) =>
+            id ? updatePromotion(id, data) : createPromotion(data)
+          )}
+        >
+          <CardDetail originalCode={originalCode} />
           <CardStatus />
           <CardBook />
           <Box display="flex" flexWrap="wrap" gap={2}>
@@ -149,12 +201,12 @@ export default function Handle() {
                   dialog.delete(
                     <>
                       {t('promotion.handle.deleteConfirmBefore')}
-                      <b>{rootName}</b>
+                      <b>{getValues('name')}</b>
                       {t('promotion.handle.deleteConfirmAfter')}
                     </>,
                     () =>
-                      deleteBook(id).then(() => {
-                        router.back('/book-management');
+                      deletePromotion(id).then((ok) => {
+                        if (ok) router.push('/promotion-book-management');
                       })
                   )
                 }

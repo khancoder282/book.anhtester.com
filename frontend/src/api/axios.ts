@@ -16,6 +16,8 @@ const processQueue = <T>(error: T, token = null) => {
   failedQueue = [];
 };
 
+const NO_REFRESH_URLS = ['/login', '/register', '/refetch-token'];
+
 // Tạo instance Axios
 const axios = rootAxios.create({
   baseURL: '/api',
@@ -25,7 +27,6 @@ const axios = rootAxios.create({
 // Interceptor cho request
 axios.interceptors.request.use(
   (config) => {
-
     const token = localStorage.getItem('accessToken');
     if (token) {
       try {
@@ -52,11 +53,15 @@ axios.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Kiểm tra lỗi 401 và chưa retry
+    // Kiểm tra lỗi 401 và chưa retry.
+    // 401 của /login (sai email/mật khẩu) hay /refetch-token không phải do access token hết hạn,
+    // nên không làm mới token cho các request này.
     if (
       error.response?.status === 401 &&
+      originalRequest &&
       !originalRequest._retry &&
-      !originalRequest.skipAuth
+      !originalRequest.skipAuth &&
+      !NO_REFRESH_URLS.includes(originalRequest.url)
     ) {
       originalRequest._retry = true;
 
@@ -109,6 +114,4 @@ axios.interceptors.response.use(
   }
 );
 
-
 export { axios };
-

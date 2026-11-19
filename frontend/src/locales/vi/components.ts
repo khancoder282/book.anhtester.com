@@ -75,4 +75,18 @@ export const components: Translation<typeof en> = {
     success: 'Thành công',
     error: 'Lỗi',
   },
+  address: {
+    title: 'Địa chỉ',
+    division: 'Tỉnh / Thành phố',
+    ward: 'Phường / Xã',
+    detail: 'Số nhà, tên đường',
+  },
+  // Chữ mặc định của mọi MUI Autocomplete (đặt trong theme ở app.tsx)
+  autocomplete: {
+    noOptions: 'Không có lựa chọn',
+    loading: 'Đang tải…',
+    open: 'Mở',
+    close: 'Đóng',
+    clear: 'Xoá',
+  },
 };

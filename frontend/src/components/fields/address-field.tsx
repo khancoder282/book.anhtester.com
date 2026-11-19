@@ -5,6 +5,7 @@ import { Stack, TextField, Autocomplete, FormHelperText, type TextFieldProps } f
 import { useRequest } from 'src/hooks/use-request';
 
 import { axios } from 'src/api/axios';
+import { useTranslate } from 'src/locales';
 
 import { LabelBorder } from '../label/label-border';
 
@@ -37,7 +38,7 @@ const decodeAddress = (address: string) => {
 };
 
 const encodeAddress = (address: string, ward: string, div: string) =>
-  [address, ward, div].filter(x=>x.trim()).join(', ');
+  [address, ward, div].filter((x) => x.trim()).join(', ');
 
 export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
   ({ value, onChange, disabled, error, helperText }, ref) => {
@@ -45,6 +46,7 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
     const [ward, setWard] = useState<string>('');
     const [address, setAddress] = useState<string>('');
     const flagUserHandle = useRef<boolean>(false);
+    const { t } = useTranslate();
 
     const { data: listDiv = [], loading: isLoadingDiv } = useRequest(() =>
       axios.get('/address').then((res) => res.data as string[])
@@ -96,7 +98,7 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
             }),
           }}
         >
-          <LabelBorder error={error}>Address</LabelBorder>
+          <LabelBorder error={error}>{t('components.address.title')}</LabelBorder>
           <Autocomplete
             id="address-division"
             value={div}
@@ -109,7 +111,12 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
             options={listDiv}
             loading={isLoadingDiv}
             renderInput={(params) => (
-              <TextField error={error} {...params} fullWidth label="Division" />
+              <TextField
+                error={error}
+                {...params}
+                fullWidth
+                label={t('components.address.division')}
+              />
             )}
           />
 
@@ -124,7 +131,9 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
             options={listWard}
             loading={isLoadingWard}
             disabled={!div}
-            renderInput={(params) => <TextField error={error} {...params} fullWidth label="Ward" />}
+            renderInput={(params) => (
+              <TextField error={error} {...params} fullWidth label={t('components.address.ward')} />
+            )}
           />
 
           <TextField
@@ -139,7 +148,7 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
             multiline
             minRows={2}
             fullWidth
-            label="Address"
+            label={t('components.address.detail')}
           />
         </Stack>
         {helperText && (

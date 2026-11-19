@@ -18,7 +18,7 @@ import { Iconify } from 'src/components/iconify';
 
 import { control, TypePromotion } from '../hooks/form-control';
 
-export function CardDetail() {
+export function CardDetail({ originalCode }: { originalCode?: string }) {
   const [expen, setExpen] = useState(true);
   const { t, lang } = useTranslate();
   // Chữ thường + CSS viết hoa từng từ chỉ hợp với tiếng Anh; tiếng Việt đã viết sẵn đúng hoa thường
@@ -75,7 +75,10 @@ export function CardDetail() {
             defaultValue=""
             rules={{
               required: t('promotion.detail.codeRequired'),
-              validate: (value) => value.length === 6 || t('promotion.detail.codeLength'),
+              validate: (value) =>
+                value.length === 6 ||
+                (!!originalCode && value === originalCode) ||
+                t('promotion.detail.codeLength'),
             }}
             render={({ field, fieldState: { invalid, error } }) => (
               <TextField
@@ -120,6 +123,7 @@ export function CardDetail() {
               control={control}
               name="type"
               defaultValue="FIXED_AMOUNT"
+              rules={{ deps: ['value'] }}
               render={({ field, fieldState: { invalid, error } }) => (
                 <TextField
                   fullWidth
@@ -132,7 +136,7 @@ export function CardDetail() {
                   helperText={error?.message}
                 >
                   {TypePromotion.map((option) => (
-                    <MenuItem value={option} sx={{ textTransform: typeTextTransform }}>
+                    <MenuItem key={option} value={option} sx={{ textTransform: typeTextTransform }}>
                       {t(`promotion.detail.typeOption.${option}`)}
                     </MenuItem>
                   ))}
@@ -142,6 +146,21 @@ export function CardDetail() {
             <Controller
               control={control}
               name="value"
+              rules={{
+                validate: (value) => {
+                  if (type === 'FREE_SHIPPING') return true;
+                  if (value === '' || value === undefined || value === null) {
+                    return t('promotion.detail.valueRequired');
+                  }
+                  const n = Number(value);
+                  if (type === 'PERCENTAGE' && !(n > 0 && n <= 100)) {
+                    return t('promotion.detail.valuePercent');
+                  }
+                  if (type === 'FIXED_AMOUNT' && !(n > 0))
+                    return t('promotion.detail.valuePositive');
+                  return true;
+                },
+              }}
               render={({ field, fieldState: { invalid, error } }) => (
                 <TextField
                   disabled={type === 'FREE_SHIPPING'}

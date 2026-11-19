@@ -8,15 +8,22 @@ import { toast } from 'src/components/toast';
 import { useRouter } from './use-router';
 import { usePathname } from './use-pathname';
 
+/**
+ * Chuyển sang trang Sign in khi chưa đăng nhập.
+ * Chờ lần gọi `/me` đầu tiên xong (`checked`) rồi mới quyết định, để mở thẳng URL / F5
+ * không bị đẩy về Sign in trong lúc thông tin user còn đang tải.
+ */
 export const useAuthCheck = () => {
-  const { auth } = useAuth();
+  const { auth, checked } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!auth) {
-      toast.error(translate('user.toast.loginFirst'));
+    if (checked && !auth) {
+      toast.error(translate('user.toast.loginFirst'), { id: 'msg' });
       router.replace(`/sign-in?redirect=${pathname}`);
     }
-  }, [auth, pathname, router]);
+  }, [auth, checked, pathname, router]);
+
+  return { auth, checked };
 };

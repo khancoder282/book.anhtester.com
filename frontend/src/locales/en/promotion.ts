@@ -35,7 +35,7 @@ export const promotion = {
     startDate: 'Start Date',
     endDate: 'End Date',
   },
-  confirmDelete: 'Confirm you want to delete user "{name}".',
+  confirmDelete: 'Confirm you want to delete promotion "{name}".',
   // Form thêm / sửa
   handle: {
     createTitle: 'Create a new promotion',
@@ -45,17 +45,17 @@ export const promotion = {
     inactive: 'Inactive',
     reset: 'Reset',
     saveChanges: 'Save changes',
-    create: 'Create book',
+    create: 'Create promotion',
     deleteNote:
-      'This book, previously part of your business inventory, is no longer in active commerce and is now available for sale to interested buyers looking for a great deal.',
+      'Deleting this promotion removes it from every book it applies to and recalculates their selling price.',
     deleteConfirmBefore: 'Do you want delete ',
     deleteConfirmAfter: ", after delete you can't undo",
   },
   detail: {
     title: 'Detail',
-    subheader: 'Title, description, picture',
+    subheader: 'Name, code, description, type, value',
     name: 'Promotion name',
-    code: 'Code book',
+    code: 'Promotion code',
     description: 'Description',
     type: 'Type',
     value: 'Value',
@@ -64,6 +64,9 @@ export const promotion = {
     codeRequired: 'Code is required.',
     codeLength: 'Code must be 6 characters.',
     descriptionMax: 'Description must be less than 500 characters.',
+    valueRequired: 'Value is required.',
+    valuePercent: 'Percentage must be greater than 0 and at most 100.',
+    valuePositive: 'Value must be greater than 0.',
     // Chữ trong ô chọn loại, giữ nguyên chữ thường như bản cũ (CSS viết hoa chữ cái đầu)
     typeOption: {
       PERCENTAGE: 'percentage',
@@ -77,12 +80,12 @@ export const promotion = {
     endDate: 'End date',
     startRequired: 'Start date is required.',
     endRequired: 'End date is required.',
-    endFuture: 'End date must be in the future.',
+    endFuture: 'End date must be after start date.',
   },
   books: {
     title: 'Select book',
     subheader: 'Select book apply promotion',
-    removeAll: 'Remove {count} book',
+    removeAll: 'Remove {count} books',
     columns: {
       name: 'Name',
       price: 'Price',

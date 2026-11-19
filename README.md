@@ -85,6 +85,7 @@ cd frontend && bun run dev     # http://localhost:3039
 
 - Web: <http://localhost:3039>. Vite chuyển tiếp `/api` và `/swagger` sang backend.
 - Swagger: <http://localhost:4566/swagger>. Trang Swagger mặc định chọn server production `https://book.anhtester.com`; muốn gọi API trên máy thì đổi Server sang `http://localhost:4566`.
+- Xuất Swagger ra file (khi backend đang chạy): `cd backend && bun run swagger:export` ghi [`docs/api/openapi.json`](docs/api/openapi.json). File này được commit cùng code, nên xem diff là biết API đổi gì. Import được vào Postman.
 - Vite cần khoảng 10 giây để khởi động lần đầu; mở trình duyệt sớm quá thì tải lại trang.
 
 ## Dữ liệu mẫu

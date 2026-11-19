@@ -19,6 +19,26 @@ import { UploadField } from 'src/components/fields/upload-field';
 import { uploadFile } from '../api/upload-file';
 import { useDialogUpload } from '../store/use-dialog-upload';
 
+// Cùng danh sách với backend (utils/upload-security.ts). API kiểm tra thêm nội dung tệp;
+// SVG/HTML bị từ chối vì có thể chứa script.
+const ALLOWED_EXT = [
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.webp',
+  '.bmp',
+  '.pdf',
+  '.zip',
+  '.rar',
+  '.7z',
+  '.gz',
+  '.tgz',
+  '.bz2',
+  '.tar',
+];
+const MAX_FILES = 20;
+
 type UploadForm = {
   path: string;
   files: File[];
@@ -97,7 +117,12 @@ export function DialogUpload({ reload }: { reload: () => void }) {
                 maxFileSize: (files) =>
                   files.every((file) => file.size < 1024 * 1024 * 5) ||
                   t('file.upload.maxFileSize'),
-                maxLength: (files) => files.length <= 30 || t('file.upload.maxFiles'),
+                // Khớp giới hạn của API POST /api/file (tối đa 20 tệp, chỉ các loại trong ALLOWED_EXT)
+                maxLength: (files) => files.length <= MAX_FILES || t('file.upload.maxFiles'),
+                allowedType: (files) =>
+                  files.every((file) =>
+                    ALLOWED_EXT.includes(file.name.slice(file.name.lastIndexOf('.')).toLowerCase())
+                  ) || t('file.upload.typeNotAllowed', { types: ALLOWED_EXT.join(', ') }),
               },
             }}
             render={({ field, fieldState: { error, invalid } }) => (

@@ -116,7 +116,7 @@ export default function BookDetail() {
             </Typography>
 
             <Typography variant="h6" color="textPrimary" position="relative" mt={5}>
-              {data.currentPrice &&
+              {typeof data.currentPrice === 'number' &&
                 new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'vnd' }).format(
                   data.currentPrice
                 )}
@@ -136,7 +136,7 @@ export default function BookDetail() {
                     icon="eva:arrow-ios-downward-fill"
                     width={12}
                   />
-                  {data.price &&
+                  {typeof data.price === 'number' &&
                     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'vnd' }).format(
                       data.price
                     )}

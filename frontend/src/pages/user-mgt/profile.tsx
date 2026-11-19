@@ -5,16 +5,15 @@ import { Box, Card, Link, Stack, Button, Typography, Breadcrumbs } from '@mui/ma
 
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
+import { useAuthCheck } from 'src/routes/hooks/use-auth-check';
 
 import { axios } from 'src/api/axios';
 import { useAuth } from 'src/store/auth';
+import { useTranslate } from 'src/locales';
 import { CONFIG } from 'src/config-global';
-import { hanldeLogout } from 'src/api/logout';
-import { translate, useTranslate } from 'src/locales';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import Title from 'src/components/title';
-import { toast } from 'src/components/toast';
 import { Iconify } from 'src/components/iconify';
 
 import { formControl } from './store/form';
@@ -26,6 +25,9 @@ export default function Profile() {
   const router = useRouter();
   const { t } = useTranslate();
   const { isDirty, isSubmitSuccessful, isLoading } = useFormState({ control: formControl.control });
+  // Chưa đăng nhập thì chuyển sang Sign in (chờ /me tải xong rồi mới quyết định)
+  useAuthCheck();
+
   useEffect(() => {
     if (auth) {
       formControl.reset({
@@ -34,21 +36,18 @@ export default function Profile() {
           path: auth.avatarUrl,
         } as FileItem,
       });
-    } else {
-      toast.error(translate('user.toast.loginFirst'), { id: 'msg' });
-      router.push('/sign-in');
     }
-  }, [auth, router]);
+  }, [auth]);
 
   useEffect(() => {
     if (isSubmitSuccessful) {
       const value = formControl.getValues();
       if (auth?.email !== value.email || value.password) {
+        // Đổi email / mật khẩu: backend đã thu hồi mọi phiên, chỉ cần dọn phía client
         formControl.reset();
-        hanldeLogout().then(() => {
-          setAuth(null);
-          router.push('/sign-in');
-        });
+        localStorage.removeItem('accessToken');
+        setAuth(null);
+        router.push('/sign-in');
       } else {
         axios.get('/me').then((res) => {
           setAuth(res.data);

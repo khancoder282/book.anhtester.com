@@ -48,3 +48,4 @@ Kế hoạch phát triển ở [`plans/roadmap.md`](../plans/roadmap.md). Mỗi 
 - Quy tắc user đã xác nhận (2026-11-20): ghi ngay vào `CLAUDE.md` **và** bộ nhớ, không để chỉ nằm trong một phiên chat.
 - Hướng dẫn cho người dùng repo (cài đặt, chạy, `.env`, seed, tài khoản, build) ghi vào `README.md` ở gốc repo (2026-11-20). `memory/` chỉ giữ ghi chú làm việc.
 - Chỉnh tính năng / UI / API (2026-11-20): cùng lúc cập nhật Swagger + `features/<tính-năng>.md`, trạng thái trong `plans/roadmap.md`, và thêm mục vào `plans/mobile-sync.md`.
+- Build Swagger (2026-11-20): đổi code API thì `cd backend && bun run swagger:export` (backend đang chạy) để xuất lại `docs/api/openapi.json`, commit cùng code.

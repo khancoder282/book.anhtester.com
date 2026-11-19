@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 
 import { Box, Card, Stack, Button, MenuItem, Typography } from '@mui/material';
 
+import { useRouter } from 'src/routes/hooks';
+
 import { useDebounce } from 'src/hooks/use-debound';
 
 import { axios } from 'src/api/axios';
@@ -30,7 +32,8 @@ export function ViewUser() {
 
   const [users, setUsers] = useState<User[]>([]);
   const [total, setTotal] = useState(0);
-  const { auth } = useAuth();
+  const { auth, setAuth } = useAuth();
+  const router = useRouter();
   const { t } = useTranslate();
   const { orderBy, order, page, rowsPerPage, filter } = config;
 
@@ -113,19 +116,10 @@ export function ViewUser() {
               ? (row) =>
                   row && (
                     <Stack>
+                      {/* Mỗi user chỉ sửa / xoá được chính mình (API trả 403 với user khác) */}
                       <MenuItem
-                        disabled={row?.id === auth?.id}
-                        onClick={() => {
-                          formControl.reset({
-                            ...row,
-                            avatar: {
-                              path: row.avatarUrl,
-                            } as FileItem,
-                          });
-                          dialog.custom(() => <AddUserDialog callback={loadUsers} />, {
-                            maxWidth: 'md',
-                          });
-                        }}
+                        disabled={row?.id !== auth?.id}
+                        onClick={() => router.push('/user-management/my-profile')}
                       >
                         <Iconify icon="solar:pen-bold" />
                         {t('common.actions.edit')}
@@ -133,10 +127,17 @@ export function ViewUser() {
 
                       <MenuItem
                         sx={{ color: 'error.main' }}
-                        disabled={row?.id === auth?.id}
+                        disabled={row?.id !== auth?.id}
                         onClick={() =>
                           dialog.delete(t('user.deleteConfirm', { name: row.name }), async () => {
-                            await handleDelete(row.id);
+                            const deleted = await handleDelete(row.id);
+                            if (deleted && row.id === auth?.id) {
+                              // Tự xoá tài khoản: phiên đã mất theo user, dọn phía client rồi về Sign in
+                              localStorage.removeItem('accessToken');
+                              setAuth(null);
+                              router.push('/sign-in');
+                              return;
+                            }
                             loadUsers();
                           })
                         }

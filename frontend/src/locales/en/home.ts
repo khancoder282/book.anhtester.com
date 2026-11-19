@@ -29,6 +29,7 @@ export const home = {
     title: 'Test message server',
     timeout: 'Timeout',
     statusCode: 'Status Code',
+    statusCodeRequired: 'Status Code is required',
     loading: 'Loading ...',
   },
   notFound: {

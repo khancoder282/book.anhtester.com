@@ -38,3 +38,4 @@ DELETE category có '/' (encode)   404 {"msg":"Category not found."}
 
 | Ngày | Build | Kết quả | Retest report | Ghi chú |
 |---|---|---|---|---|
+| 20-11-2026 | deploy-vps (chưa commit) | ✅ FIXED | — | Tạo / đổi tên chứa `/` → **422** `Name must not contain '/'.` (tên là khoá chính và nằm trong URL). DELETE lấy tên từ URL gốc và giải mã đúng 1 lần (Elysia giữ nguyên `%2F` trong path param) nên category cũ có `/` vẫn xoá được. Retest: `POST {"name":"Tâm lý / Kỹ năng"}` → 422; category cũ `auto_cat_* a/b` tạo trước khi sửa → `DELETE` (encode) **200**; tên có `& é#?` → tạo 201, xoá 200 |

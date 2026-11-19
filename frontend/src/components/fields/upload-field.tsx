@@ -41,13 +41,13 @@ export const getIcon = (type: string) => {
 };
 
 export const formatType = (type: string) => type.split('/').pop()?.split(';')[0] || type;
+// Khớp danh sách API nhận (backend/src/utils/upload-security.ts). SVG bị API từ chối (có thể chứa script).
 export const defaultValueAccep = {
   'image/jpeg': ['.jpeg', '.jpg'],
   'image/png': ['.png'],
   'image/gif': ['.gif'],
   'image/webp': ['.webp'],
   'image/bmp': ['.bmp'],
-  'image/svg+xml': ['.svg'],
   'application/zip': ['.zip'],
   'application/x-zip-compressed': ['.zip'],
   'application/x-rar-compressed': ['.rar'],
@@ -65,7 +65,6 @@ export const accepImg = {
   'image/gif': ['.gif'],
   'image/webp': ['.webp'],
   'image/bmp': ['.bmp'],
-  'image/svg+xml': ['.svg'],
 };
 
 type UploadFieldProps = {

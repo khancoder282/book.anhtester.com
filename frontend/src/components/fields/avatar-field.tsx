@@ -91,8 +91,10 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
                 borderRadius: '50%',
                 bgcolor: error ? 'error.lighter' : 'divider',
               }}
+              // Ảnh lỗi thì ẩn đi, lộ ô chọn ảnh bên dưới. Không dùng /$image-404.svg vì file đó
+              // chỉ có trong backend/upload (gitignore), máy mới clone không có.
               onError={(e) => {
-                e.currentTarget.setAttribute('src', formatFilePath('/$image-404.svg'));
+                e.currentTarget.style.visibility = 'hidden';
               }}
             />
           </Box>

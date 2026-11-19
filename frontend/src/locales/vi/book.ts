@@ -87,6 +87,8 @@ export const book: Translation<typeof en> = {
   validation: {
     nameRequired: 'Tên là bắt buộc.',
     nameMaxLength: 'Tên phải ít hơn 100 ký tự.',
+    slugRequired: 'Slug là bắt buộc.',
+    slugMaxLength: 'Slug phải ít hơn 100 ký tự.',
     descriptionMaxLength: 'Mô tả phải ít hơn 500 ký tự.',
     fileSize: 'Kích thước tệp phải nhỏ hơn 5MB',
     maxFiles: 'Chỉ được tải lên tối đa 30 tệp',
@@ -95,6 +97,7 @@ export const book: Translation<typeof en> = {
     priceMin: 'Giá phải lớn hơn 1000 VNĐ.',
     priceMax: 'Giá phải nhỏ hơn 1 tỷ VNĐ.',
     priceNumber: 'Giá phải là số.',
+    priceInteger: 'Giá phải là số nguyên.',
     categoryRequired: 'Vui lòng chọn ít nhất một danh mục',
     categoryMaxLength: 'Mỗi tên danh mục phải ít hơn 25 ký tự',
   },

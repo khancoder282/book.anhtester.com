@@ -228,7 +228,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
               rowComponent={Row}
               rowCount={categories.length}
               rowHeight={52}
-              rowProps={{ list: data, request, setData }}
+              rowProps={{ list: categories, request, setData }}
             />
           </Stack>
         </DialogContent>

@@ -21,19 +21,20 @@ export function ContentFieldsLogin() {
   const { isLoading, isSubmitSuccessful } = useFormState({ control: formControl.control });
   const [search] = useSearchParams();
   const redirect = search.get('redirect');
-  const { setAuth } = useAuth();
+  const { setAuth, setChecked } = useAuth();
   const router = useRouter();
   const { t } = useTranslate();
 
   useEffect(() => {
     if (isSubmitSuccessful) {
-      axios.get('/api/me').then((res) => {
+      axios.get('/me').then((res) => {
         setAuth(res.data);
+        setChecked(true);
         formControl.reset();
       });
       router.replace(redirect ?? '/');
     }
-  }, [isSubmitSuccessful, redirect, router, setAuth]);
+  }, [isSubmitSuccessful, redirect, router, setAuth, setChecked]);
 
   return (
     <AuthLayout>
@@ -80,7 +81,7 @@ export function ContentFieldsLogin() {
             },
             required: t('auth.validation.emailRequired'),
             maxLength: {
-              value: 250,
+              value: 191,
               message: t('auth.validation.emailMaxLength'),
             },
           }}

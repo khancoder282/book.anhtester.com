@@ -35,19 +35,17 @@ export default function TableRowView<T>({
     () => select?.selected?.some((item) => item[keyName] === row[keyName]),
     [keyName, row, select?.selected]
   );
-  
+
   const handleCheckbox = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       if (isCheck) {
-        select?.setSelected?.(
-          select.selected.filter((item) => JSON.stringify(item) !== JSON.stringify(row))
-        );
+        select?.setSelected?.(select.selected.filter((item) => item[keyName] !== row[keyName]));
       } else {
         select?.setSelected?.([...select.selected, row]);
       }
     },
-    [isCheck, row, select]
+    [isCheck, keyName, row, select]
   );
   return (
     <TableRow

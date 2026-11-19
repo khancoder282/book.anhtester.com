@@ -18,8 +18,11 @@ export const auth = {
   validation: {
     emailInvalid: 'Invalid email address',
     emailRequired: 'Email is required.',
-    emailMaxLength: 'Email maximum length is 250 characters.',
+    emailMaxLength: 'Email maximum length is 191 characters.',
     passwordRequired: 'Password is required.',
     passwordMaxLength: 'Password maximum length is 250 characters.',
+  },
+  toast: {
+    networkError: 'Cannot connect to the server. Please try again.',
   },
 };

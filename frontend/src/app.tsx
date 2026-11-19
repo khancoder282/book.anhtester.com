@@ -30,12 +30,24 @@ type AppProps = {
 export default function App({ children }: AppProps) {
   useScrollToTop();
   useRouteTitle();
-  const { lang } = useTranslate();
+  const { lang, t } = useTranslate();
   const { primary = '#42BC40' } = useThemeData();
 
   return (
     <ThemeProvider
       themeOverrides={{
+        // Chữ mặc định của MUI theo ngôn ngữ đang chọn (mọi ô Autocomplete)
+        components: {
+          MuiAutocomplete: {
+            defaultProps: {
+              noOptionsText: t('components.autocomplete.noOptions'),
+              loadingText: t('components.autocomplete.loading'),
+              openText: t('components.autocomplete.open'),
+              closeText: t('components.autocomplete.close'),
+              clearText: t('components.autocomplete.clear'),
+            },
+          },
+        },
         colorSchemes: {
           dark: {
             palette: {

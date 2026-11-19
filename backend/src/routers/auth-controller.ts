@@ -2,7 +2,17 @@ import Elysia, { t } from "elysia";
 import dayjs from "dayjs";
 import { AppMain } from "../regis";
 import { PrismaClientKnownRequestError } from "../prisma/runtime/library";
-import { auth } from "../plugins/auth";
+import {
+  auth,
+  AuthUser,
+  hashRefreshToken,
+  newRefreshToken,
+  NAME_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  REFRESH_TOKEN_DAYS,
+  REFRESH_TOKEN_MAX_AGE,
+  validateUserInput,
+} from "../plugins/auth";
 import { User } from "../prisma";
 
 const authController = new Elysia({
@@ -12,6 +22,39 @@ const authController = new Elysia({
 export default authController;
 
 // ***************************************************************************
+
+/** Lỗi chung: `fields` chỉ có ở lỗi gắn với từng trường. */
+const errorSchema = t.Object({
+  msg: t.String(),
+  fields: t.Optional(t.Record(t.String(), t.Array(t.String()))),
+});
+const msgSchema = t.Object({ msg: t.String() });
+
+const INVALID_LOGIN = "Invalid email or password.";
+
+// Hash giả để login với email không tồn tại cũng tốn thời gian như sai mật khẩu
+const dummyPasswordHash = Bun.password.hash("dummy-password-for-timing");
+
+const nameSchema = t.String({
+  minLength: 1,
+  maxLength: NAME_MAX_LENGTH,
+  description: "Must not be empty or whitespace only (trimmed before saving).",
+});
+const emailSchema = t.String({
+  format: "email",
+  maxLength: 191,
+  examples: ["user@example.com"],
+});
+
+function clientInfo(headers: Record<string, string | undefined>) {
+  return {
+    deviceInfo: JSON.stringify({
+      userAgent: headers["user-agent"] || "unknown",
+      platform: headers["sec-ch-ua-platform"] || "unknown",
+    }),
+    ipAddress: headers["x-forwarded-for"]?.split(",")[0] || "unknown",
+  };
+}
 
 authController
   .post(
@@ -32,16 +75,23 @@ authController
         },
       });
 
-      if (!user) {
-        set.status = 404;
+      // Sai email hay sai mật khẩu đều trả cùng một thông báo (không lộ email nào tồn tại)
+      const passwordOk = user
+        ? await Bun.password.verify(password, user.password)
+        : (await Bun.password.verify(password, await dummyPasswordHash), false);
+
+      if (!user || !passwordOk) {
+        set.status = 401;
         return {
-          msg: "User not found.",
+          msg: INVALID_LOGIN,
           fields: {
-            email: ["Email not found, please register."],
-          }
+            email: [INVALID_LOGIN],
+            password: [INVALID_LOGIN],
+          },
         };
       }
 
+      // Trạng thái khoá chỉ báo khi mật khẩu đã đúng
       if (!user.isActive) {
         set.status = 403;
         return {
@@ -49,51 +99,34 @@ authController
         };
       }
 
-      if (await Bun.password.verify(password, user.password)) {
-        const token = await jwt.sign({ id: user.id, jit: Bun.randomUUIDv7() });
-        // cơ chế accesstoken refetch
-        const deviceInfo = JSON.stringify({
-          userAgent: headers["user-agent"] || "unknown",
-          platform: headers["sec-ch-ua-platform"] || "unknown",
-        });
-        const ipAddress =
-          headers["x-forwarded-for"]?.split(",")[0] || "unknown";
-        const userRefreshToken = await prisma.userRefreshToken.create({
-          data: {
-            tokenHash: await Bun.password.hash(token),
-            userId: user.id,
-            expiresAt: dayjs().add(7, "day").toDate(),
-            deviceInfo,
-            ipAddress,
-          },
-        });
+      const refreshToken = newRefreshToken();
+      const session = await prisma.userRefreshToken.create({
+        data: {
+          tokenHash: hashRefreshToken(refreshToken),
+          userId: user.id,
+          expiresAt: dayjs().add(REFRESH_TOKEN_DAYS, "day").toDate(),
+          ...clientInfo(headers),
+        },
+      });
+      const token = await jwt.sign({ id: user.id, sid: session.id });
 
-        refetchToken.value = userRefreshToken.tokenHash;
-        refetchToken.maxAge = dayjs(userRefreshToken.expiresAt).unix();
-        refetchToken.httpOnly = true;
-        refetchToken.secure = true;
-        refetchToken.sameSite = "strict";
+      refetchToken.value = refreshToken;
+      refetchToken.maxAge = REFRESH_TOKEN_MAX_AGE;
+      refetchToken.httpOnly = true;
+      refetchToken.secure = true;
+      refetchToken.sameSite = "strict";
 
-        accessToken.value = token;
+      accessToken.value = token;
 
-        return {
-          msg: "Login successfully.",
-          accessToken: token,
-          exp: Bun.env.EXPTOKEN || "30m",
-        };
-      }
-
-      set.status = 400;
       return {
-        msg: "Invalid password.",
-        fields: {
-          password: ["Invalid password, please try again."],
-        }
+        msg: "Login successfully.",
+        accessToken: token,
+        exp: Bun.env.EXPTOKEN || "30m",
       };
     },
     {
       body: t.Object({
-        email: t.String({ format: "email", default: "user@example.com" }),
+        email: emailSchema,
         password: t.String(),
       }),
       response: {
@@ -102,25 +135,16 @@ authController
           accessToken: t.String(),
           exp: t.String(),
         }),
-        400: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        }),
-        403: t.Object({
-          msg: t.String(),
-        }),
-        404: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        }),
-        422: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        }),
+        401: errorSchema,
+        403: msgSchema,
+        422: errorSchema,
       },
       detail: {
         security: [],
-        description: "Login to access the system.",
+        description:
+          "Login to access the system. Wrong email and wrong password both return the same 401 \"Invalid email or password.\". " +
+          "A disabled account returns 403 only when the password is correct. " +
+          "Sets cookie `refetchToken` (HttpOnly, Max-Age 7 days = 604800s) used by `/refetch-token`.",
       },
       cookie: t.Cookie({
         refetchToken: t.Optional(t.String()),
@@ -131,10 +155,16 @@ authController
   .post(
     "/register",
     async ({ body, prisma, set }) => {
+      const fields = validateUserInput(body, { passwordRequired: true });
+      if (fields) {
+        set.status = 422;
+        return { msg: "Invalid data.", fields };
+      }
       try {
         await prisma.user.create({
           data: {
             ...body,
+            name: body.name.trim(),
             address: body.address ?? "",
             avatarUrl: body.avatarUrl ?? "",
             password: await Bun.password.hash(body.password),
@@ -152,76 +182,74 @@ authController
               msg: "Email already exists.",
               fields: {
                 email: ["Email already exists."],
-              }
+              },
             };
           }
         }
-        set.status = 400
+        set.status = 400;
         return {
-          msg: "Invalid data."
-        }
+          msg: "Invalid data.",
+        };
       }
     },
     {
       body: t.Object({
-        name: t.String(),
-        email: t.String({ format: "email", default: "user@example.com" }),
-        password: t.String(),
+        name: nameSchema,
+        email: emailSchema,
+        password: t.String({ minLength: PASSWORD_MIN_LENGTH }),
         avatarUrl: t.Optional(t.String()),
         phone: t.Optional(t.String()),
         address: t.Optional(t.String()),
       }),
       response: {
-        201: t.Object({
-          msg: t.String(),
-        }),
-        400: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        }),
-        422: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        }),
+        201: msgSchema,
+        400: errorSchema,
+        422: errorSchema,
       },
       detail: {
         security: [],
-        description: "Register new user account.",
+        description:
+          "Register new user account. `name` must not be blank, `password` at least 6 characters. " +
+          "Validation errors and duplicated email return 422 with `fields`.",
       },
     }
   )
   .post(
     "/refetch-token",
     async ({ cookie: { refetchToken }, prisma, set, jwt, headers }) => {
-      const deviceInfo = JSON.stringify({
-        userAgent: headers["user-agent"] || "unknown",
-        platform: headers["sec-ch-ua-platform"] || "unknown",
-      });
-      const ipAddress = headers["x-forwarded-for"]?.split(",")[0] || "unknown";
-      const user = await prisma.userRefreshToken.findUnique({
+      const session = await prisma.userRefreshToken.findFirst({
         where: {
-          tokenHash: refetchToken.value,
+          tokenHash: hashRefreshToken(refetchToken.value),
+          revoked: false,
           expiresAt: {
             gt: dayjs().toDate(),
           },
-          deviceInfo,
-          ipAddress,
+          ...clientInfo(headers),
         },
         select: {
+          id: true,
           userId: true,
+          user: { select: { isActive: true } },
         },
       });
 
-      if (!user) {
+      if (!session) {
         set.status = 404;
         return {
           msg: "Invalid token.",
         };
       }
 
+      if (!session.user.isActive) {
+        set.status = 403;
+        return {
+          msg: "User account is disabled.",
+        };
+      }
+
       return {
         msg: "Refetch token successfully.",
-        accessToken: await jwt.sign({ id: user.userId }),
+        accessToken: await jwt.sign({ id: session.userId, sid: session.id }),
         exp: Bun.env.EXPTOKEN || "30m",
       };
     },
@@ -232,16 +260,9 @@ authController
           accessToken: t.String(),
           exp: t.String(),
         }),
-        404: t.Object({
-          msg: t.String(),
-        }),
-        400: t.Object({
-          msg: t.String(),
-        }),
-        422: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        }),
+        403: msgSchema,
+        404: msgSchema,
+        422: errorSchema,
       },
       cookie: t.Cookie(
         {
@@ -255,195 +276,199 @@ authController
       ),
       detail: {
         security: [],
-        description: "Refresh token to get new access token.",
+        description:
+          "Refresh token to get new access token. Reads cookie `refetchToken` set by `/login`. " +
+          "Returns 404 \"Invalid token.\" when the refresh token is unknown, expired, revoked (after logout / password or email change) " +
+          "or used from another device; 403 when the account is disabled; 422 when the cookie is missing.",
       },
     }
   )
   .use(auth)
   .patch(
     "/profile",
-    async ({ prisma, body, set, cookie: { refetchToken, accessToken }, auth: user }) => {
-      // Check if user exists
+    async ({
+      prisma,
+      body,
+      set,
+      cookie: { refetchToken, accessToken },
+      auth: user,
+    }) => {
       if (!user || !user.id) {
-        set.status = 400;
-        return { msg: 'Unauthorized. User not authenticated.' };
+        set.status = 401;
+        return { msg: "Unauthorized. User not authenticated." };
       }
+
+      const fields = validateUserInput(body);
+      if (fields) {
+        set.status = 422;
+        return { msg: "Invalid data.", fields };
+      }
+
+      // Chỉ cập nhật trường client thật sự gửi
+      const data: Partial<User> = {};
+      if (body.name !== undefined) data.name = body.name.trim();
+      if (body.email !== undefined) data.email = body.email;
+      if (body.avatarUrl !== undefined) data.avatarUrl = body.avatarUrl;
+      if (body.phone !== undefined) data.phone = body.phone;
+      if (body.address !== undefined) data.address = body.address;
+
+      if (body.password) {
+        if (!body.password_old) {
+          set.status = 400;
+          return { msg: "Old password is required when updating password." };
+        }
+        if (!(await Bun.password.verify(body.password_old, user.password))) {
+          set.status = 400;
+          return { msg: "Old password is incorrect." };
+        }
+        data.password = await Bun.password.hash(body.password);
+      }
+
+      // Đổi email hoặc mật khẩu thì thu hồi mọi phiên (refresh token + access token)
+      const shouldRevokeTokens =
+        (body.email !== undefined && body.email !== user.email) ||
+        !!body.password;
 
       try {
-        const data: Partial<User> = {
-          email: body.email,
-          name: body.name,
-          avatarUrl: body.avatarUrl,
-          phone: body.phone,
-          address: body.address,
-        }
-        // Check old password when updating new password
-        if (body.password) {
-          if (!body.password_old) {
-            set.status = 400;
-            return { msg: 'Old password is required when updating password.' };
-          }
-          if (!user.password || !(await Bun.password.verify(body.password_old, user.password))) {
-            set.status = 400;
-            return { msg: 'Old password is incorrect.' };
-          }
-          // Hash new password
-          data.password = await Bun.password.hash(body.password);
-        }
-
-        // Revoke tokens only if email or password has changed
-        const shouldRevokeTokens = (body.email && user.email !== body.email) || body.password;
-        if (shouldRevokeTokens) {
-          await prisma.userRefreshToken.updateMany({
-            where: {
-              userId: user.id,
-              revoked: false,
-            },
+        await prisma.$transaction(async (tx) => {
+          await tx.user.update({
+            where: { id: user.id },
             data: {
-              revoked: true,
+              ...data,
+              ...(body.config !== undefined && { config: body.config }),
             },
           });
-          // Remove tokens if they exist
-          refetchToken?.remove();
-          accessToken?.remove();
-        }
-
-        // Update user information
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            ...data,
-            config: body.config
+          if (shouldRevokeTokens) {
+            await tx.userRefreshToken.updateMany({
+              where: { userId: user.id, revoked: false },
+              data: { revoked: true },
+            });
           }
         });
-
-        set.status = 200;
-        return { msg: 'Updated profile successfully.' };
       } catch (err) {
-        // Handle Prisma errors
         if (err instanceof PrismaClientKnownRequestError) {
-          if (err.code === 'P2002') {
-            set.status = 400;
-            return { msg: 'Email is already in use.' };
+          if (err.code === "P2002") {
+            set.status = 422;
+            return {
+              msg: "Email is already in use.",
+              fields: { email: ["Email is already in use."] },
+            };
           }
-          if (err.code === 'P2005') {
+          if (err.code === "P2025") {
             set.status = 404;
-            return { msg: 'User not found.' };
+            return { msg: "User not found." };
           }
         }
-        // Handle general errors
         set.status = 400;
-        return { msg: 'Invalid data.' };
+        return { msg: "Invalid data." };
       }
+
+      if (shouldRevokeTokens) {
+        refetchToken?.remove();
+        accessToken?.remove();
+      }
+
+      set.status = 200;
+      return {
+        msg: "Updated profile successfully.",
+        requireLogin: shouldRevokeTokens,
+      };
     },
     {
       body: t.Partial(
         t.Object({
-          name: t.String(),
-          email: t.String({ format: "email", default: "user@example.com" }),
-          password: t.String(),
+          name: nameSchema,
+          email: emailSchema,
+          password: t.String({
+            description: `New password, at least ${PASSWORD_MIN_LENGTH} characters. Requires \`password_old\`. Empty string = keep current password.`,
+          }),
           password_old: t.String(),
           avatarUrl: t.String(),
-          phone: t.Optional(t.String()),
-          address: t.Optional(t.String()),
-          config: t.Optional(t.Any()),
+          phone: t.String(),
+          address: t.String(),
+          config: t.Any(),
         })
       ),
       response: {
         200: t.Object({
           msg: t.String(),
+          requireLogin: t.Boolean({
+            description:
+              "true when email or password changed: every session of the user was revoked, the current access token no longer works and the user must login again.",
+          }),
         }),
-        400: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        }),
-        401: t.Object({
-          msg: t.String(),
-        }),
-        403: t.Object({
-          msg: t.String(),
-        }),
-        404: t.Object({
-          msg: t.String(),
-        }),
-        422: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        }),
+        400: errorSchema,
+        401: msgSchema,
+        403: msgSchema,
+        404: msgSchema,
+        422: errorSchema,
       },
       detail: {
-        description: "Update user profile.",
+        description:
+          "Update the profile of the current user. Only fields sent in the body are updated. " +
+          "Changing password requires `password_old` (400 when missing or wrong). " +
+          "Changing email or password revokes every session (refresh tokens and access tokens) and returns `requireLogin: true`. " +
+          "Blank name, short password or duplicated email return 422 with `fields`.",
       },
     }
   )
-  .get("/me", async ({ auth: user }) => ({
-    id: user!.id,
-    name: user!.name,
-    email: user!.email,
-    avatarUrl: user!.avatarUrl,
-    phone: user!.phone,
-    address: user!.address,
-    config: user!.config,
-  }), {
-    response: {
-      200: t.Object({
-        id: t.String(),
-        name: t.String(),
-        email: t.String(),
-        avatarUrl: t.String(),
-        phone: t.String(),
-        address: t.String(),
-        config: t.Optional(t.Any()),
-      }),
-      401: t.Object({
-        msg: t.String(),
-      }),
-      403: t.Object({
-        msg: t.String(),
-      }),
-      404: t.Object({
-        msg: t.String(),
-      }),
-      422: t.Object({
-        msg: t.String(),
-        fields: t.Record(t.String(), t.Array(t.String())),
-      }),
-    },
-    detail: {
-      description: "Get current user information.",
-    },
-  })
+  .get(
+    "/me",
+    async ({ auth: user }) => ({
+      id: user!.id,
+      name: user!.name,
+      email: user!.email,
+      avatarUrl: user!.avatarUrl,
+      phone: user!.phone,
+      address: user!.address,
+      config: user!.config,
+    }),
+    {
+      response: {
+        200: t.Object({
+          id: t.String(),
+          name: t.String(),
+          email: t.String(),
+          avatarUrl: t.String(),
+          phone: t.String(),
+          address: t.String(),
+          config: t.Optional(t.Any()),
+        }),
+        401: msgSchema,
+        403: msgSchema,
+      },
+      detail: {
+        description:
+          "Get current user information. 401 when the access token is missing, expired or revoked (logout, password/email change).",
+      },
+    }
+  )
   .delete(
     "/logout",
-    async ({ cookie: { refetchToken, accessToken }, prisma, set }) => {
-      try {
-        await prisma.userRefreshToken.updateMany({
-          where: {
-            tokenHash: refetchToken.value as string,
-            revoked: false,
-          },
-          data: {
-            revoked: true,
-          },
-        });
-        refetchToken.remove();
-        accessToken.remove();
-        return {
-          msg: "Logout successfully.",
-        };
-      } catch (err) {
-        const e = err as PrismaClientKnownRequestError;
-        if (e.code === "P2025") {
-          set.status = 404;
-          return {
-            msg: "User not found.",
-          };
-        }
-        set.status = 400;
-        return {
-          msg: "Invalid data.",
-        };
+    async ({ cookie: { refetchToken, accessToken }, prisma, auth: user }) => {
+      const current = user as AuthUser;
+      // Thu hồi phiên của access token đang dùng (+ phiên của cookie refetchToken nếu có)
+      const sessions: { id?: string; tokenHash?: string }[] = [
+        { id: current.sid },
+      ];
+      if (refetchToken.value) {
+        sessions.push({ tokenHash: hashRefreshToken(refetchToken.value) });
       }
+      await prisma.userRefreshToken.updateMany({
+        where: {
+          userId: current.id,
+          revoked: false,
+          OR: sessions,
+        },
+        data: {
+          revoked: true,
+        },
+      });
+      refetchToken.remove();
+      accessToken.remove();
+      return {
+        msg: "Logout successfully.",
+      };
     },
     {
       cookie: t.Cookie({
@@ -451,28 +476,13 @@ authController
         accessToken: t.Optional(t.String()),
       }),
       response: {
-        200: t.Object({
-          msg: t.String(),
-        }),
-        401: t.Object({
-
-        }),
-        403: t.Object({
-          msg: t.String(),
-        }),
-        404: t.Object({
-          msg: t.String(),
-        }),
-        400: t.Object({
-          msg: t.String(),
-        }),
-        422: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        }),
+        200: msgSchema,
+        401: msgSchema,
+        403: msgSchema,
       },
       detail: {
-        description: "Logout from the system",
-      }
+        description:
+          "Logout from the system: revokes the current session, so both the access token and the `refetchToken` cookie stop working immediately.",
+      },
     }
   );

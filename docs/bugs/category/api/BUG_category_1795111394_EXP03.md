@@ -38,3 +38,4 @@ PUT đổi tên category không tồn tại    400 {"msg":"Invalid data."}
 
 | Ngày | Build | Kết quả | Retest report | Ghi chú |
 |---|---|---|---|---|
+| 20-11-2026 | deploy-vps (chưa commit) | ✅ FIXED | — | Nhánh catch của `PUT` phân biệt mã Prisma: P2025 → **404** `Category not found.`, P2002 → **409** `Category already exists.` (POST trùng cũng đổi 400 → 409). Retest: `PUT {name:auto_cat_A,newName:auto_cat_B}` (B đã có) → 409; `PUT {name:KhongCo_*,newName:Moi}` → 404; `newName` rỗng hoặc có `/` → 422 |

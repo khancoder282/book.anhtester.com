@@ -12,6 +12,7 @@ export const file: Translation<typeof en> = {
   maximum: 'Tối đa',
   unselectAll: 'Bỏ chọn tất cả ({count})',
   copiedToClipboard: 'Đã sao chép vào bộ nhớ tạm',
+  signInRequired: 'Đăng nhập để xem và quản lý tệp.',
   columns: {
     name: 'Tên',
     size: 'Kích thước',
@@ -51,17 +52,18 @@ export const file: Translation<typeof en> = {
   },
   delete: {
     confirmFile: 'Bạn có muốn xoá tệp "{name}" không?',
-    confirmFolder: 'Bạn có muốn xoá thư mục "{name}" không?',
+    confirmFolder: 'Bạn có muốn xoá thư mục "{name}" và toàn bộ nội dung bên trong không?',
   },
   upload: {
     title: 'Tải tệp lên',
     folder: 'Thư mục tải lên',
     folderPlaceholder: 'Nhập tên thư mục hoặc dùng thư mục hiện tại',
-    pathInvalid: 'Đường dẫn chỉ được chứa ký tự a-z, A-Z, 0-9, _, - và /, không bắt đầu bằng /',
+    pathInvalid: 'Đường dẫn chỉ được chứa ký tự a-z, A-Z, 0-9, _, - và /',
     uploadIn: 'Tải lên vào: {path}',
     fileRequired: 'Vui lòng chọn tệp',
     maxFileSize: 'Mỗi tệp phải nhỏ hơn 5MB',
-    maxFiles: 'Chỉ được tải lên tối đa 30 tệp',
+    maxFiles: 'Chỉ được tải lên tối đa 20 tệp',
+    typeNotAllowed: 'Chỉ được tải lên các loại tệp: {types}',
     removeAll: 'Xoá tất cả',
   },
 };

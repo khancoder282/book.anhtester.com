@@ -14,9 +14,13 @@ Runtime là **Bun** cho cả hai phần (backend dùng `Bun.env`, `Bun.password`
 - Quy tắc nào user đã xác nhận thì ghi **ngay** vào cả hai nơi: `CLAUDE.md` (mục phù hợp) và bộ nhớ (`memory/` trong repo + auto-memory của Claude). Không chỉ làm theo trong phiên rồi để mất.
 - **Hướng dẫn cho người dùng repo** (cài đặt, chạy, `.env`, dữ liệu mẫu, tài khoản, build/deploy) ghi vào [`README.md`](README.md). Đổi cách cài/chạy thì cập nhật README cùng lúc. `CLAUDE.md` và `memory/` chỉ giữ ghi chú cho Claude.
 - **Mỗi lần chỉnh tính năng / UI / API** (chốt 2026-11-20), làm cùng lúc:
-  1. Cập nhật tài liệu API: Swagger (`detail`, `response` trong controller; tag mới thì khai ở `regis.ts`) và `memory/features/<tính-năng>.md`.
+  1. Cập nhật tài liệu API: Swagger (`body`, `response`, `detail` trong controller; tag mới thì khai ở `regis.ts`) và `memory/features/<tính-năng>.md`. **Build Swagger** (chốt 2026-11-20): backend đang chạy thì `cd backend && bun run swagger:export` để xuất lại [`docs/api/openapi.json`](docs/api/openapi.json), kiểm tra diff rồi commit cùng code. Swagger được sinh lúc chạy từ schema trong controller, nên không có bước build nào khác.
   2. Cập nhật kế hoạch ở [`plans/roadmap.md`](plans/roadmap.md) (trạng thái + ngày).
   3. Thêm mục vào [`plans/mobile-sync.md`](plans/mobile-sync.md): API đổi gì, UI đổi gì, locator mới, file tương ứng bên repo `../mobile-book.anhtester.com`, mobile cần làm gì, có cần deploy backend không (app mobile gọi API production).
+
+## Báo cáo tiến độ
+
+- Việc dài (nhiều bước, có agent chạy nền) thì **chủ động báo tiến độ định kỳ** (chốt 2026-11-20), không chờ user hỏi: mỗi khi xong một mốc (một agent / một nhóm việc xong) và trong lúc chờ lâu. Báo dạng bảng ngắn: đã xong / đang làm / còn lại, kèm con số (vd 12/30 bug), và nói rõ phần nào chưa kiểm chứng.
 
 ## Quy tắc git
 

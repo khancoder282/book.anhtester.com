@@ -8,6 +8,13 @@ import { useTranslate } from 'src/locales';
 
 import { Iconify } from '../iconify';
 
+/** Ô trống / không phải số → `null` (bỏ điều kiện), không phải `0`. */
+const toNumberOrNull = (v: string | number | null): number | null => {
+  if (v === null || (typeof v === 'string' && v.trim() === '')) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+
 type FromToFieldProps = Omit<TextFieldProps, 'value' | 'onChange' | 'defaultValue'> & {
   value: { from: number | null; to: number | null };
   onChange: (value: { from: number | null; to: number | null }) => void;
@@ -46,9 +53,8 @@ export function FromToField({
           freeSolo
           options={options || []}
           size="small"
-          defaultValue={value.from}
           value={value.from}
-          onChange={(_, v) => onChange({ ...value, from: Number(v) })}
+          onChange={(_, v) => onChange({ ...value, from: toNumberOrNull(v) })}
           getOptionLabel={(option) => option.toString()} // Convert number to string
           renderInput={(p) => (
             <TextField
@@ -71,9 +77,8 @@ export function FromToField({
           fullWidth
           freeSolo
           options={options || []}
-          defaultValue={value.to} // Changed from value.from to value.to
           value={value.to}
-          onChange={(_, v) => onChange({ ...value, to: Number(v) })}
+          onChange={(_, v) => onChange({ ...value, to: toNumberOrNull(v) })}
           size="small"
           getOptionLabel={(option) => option.toString()} // Convert number to string
           renderInput={(p) => (

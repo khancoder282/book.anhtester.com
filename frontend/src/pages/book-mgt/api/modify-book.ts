@@ -5,6 +5,8 @@ import { translate } from 'src/locales';
 
 import { toast } from 'src/components/toast';
 
+import { setError, getFieldState } from '../stores/form-add';
+
 export const handleUpdateBook = async (idBook: string, book: BookForm) => {
   async function UpdateBook(paths: string[]) {
     return await axios.patch(`/book/${idBook}`, {
@@ -15,7 +17,11 @@ export const handleUpdateBook = async (idBook: string, book: BookForm) => {
       slug: book.slug,
       price: Number(book.price),
       pictures: paths,
-      promotions: book.promotions?.map((x) => x.id) ?? [],
+      // PATCH thay thế cả danh sách khuyến mãi. Form chỉ nạp khuyến mãi còn hiệu lực, nên chỉ gửi khi
+      // người dùng có đổi — tránh gỡ mất khuyến mãi đang tắt / đã hết hạn mà form không hiển thị.
+      ...(getFieldState('promotions').isDirty && {
+        promotions: book.promotions?.map((x) => x.id) ?? [],
+      }),
     });
   }
 
@@ -85,7 +91,12 @@ export const handleUpdateBook = async (idBook: string, book: BookForm) => {
       });
   } catch (err) {
     if (err instanceof AxiosError) {
-      toast.error(err.response?.data.msg || '', { id, duration: 3000 });
+      if (err.response?.status === 422 && err.response.data?.fields) {
+        for (const [key, value] of Object.entries(err.response.data.fields)) {
+          setError(key as keyof BookForm, { type: 'manual', message: (value as string[])[0] });
+        }
+      }
+      toast.error(err.response?.data?.msg || '', { id, duration: 3000 });
     } else {
       toast.error(translate('book.toast.updateError'), { id, duration: 3000 });
     }

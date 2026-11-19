@@ -84,9 +84,10 @@ export function ContentUser({
           rules={{
             required: t('user.validation.nameRequired'),
             maxLength: {
-              value: 250,
+              value: 191,
               message: t('user.validation.nameMaxLength'),
             },
+            validate: (value) => !value || !!value.trim() || t('user.validation.nameBlank'),
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <TextField
@@ -156,7 +157,7 @@ export function ContentUser({
               message: t('user.validation.emailInvalid'),
             },
             maxLength: {
-              value: 250,
+              value: 191,
               message: t('user.validation.emailMaxLength'),
             },
           }}
@@ -200,6 +201,10 @@ export function ContentUser({
           defaultValue=""
           rules={{
             required: (!!old || !id) && t('user.validation.passwordRequired'),
+            minLength: {
+              value: 6,
+              message: t('user.validation.passwordMinLength'),
+            },
             maxLength: {
               value: 250,
               message: t('user.validation.passwordMaxLength'),

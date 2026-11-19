@@ -45,9 +45,17 @@ function formatValue(str: string) {
   }
 }
 
+// Cùng quy tắc với backend (`backend/src/utils/pricing.ts`): chỉ khuyến mãi đang hiệu lực,
+// cộng dồn mức giảm, làm tròn, giữ trong [0, price].
 function handlePrice(price: number, promotions: PromotionType[]) {
+  const now = Date.now();
   let pricePromotion = 0;
   promotions.forEach((p) => {
+    const effective =
+      p.isActive !== false &&
+      new Date(p.startDate).getTime() <= now &&
+      new Date(p.endDate).getTime() >= now;
+    if (!effective) return;
     if (p.type === 'PERCENTAGE') {
       pricePromotion += (price * p.value) / 100;
     }
@@ -55,7 +63,7 @@ function handlePrice(price: number, promotions: PromotionType[]) {
       pricePromotion += p.value;
     }
   });
-  return price - pricePromotion;
+  return Math.min(Math.max(Math.round(price - pricePromotion), 0), price);
 }
 
 export function CardPromotion() {
@@ -162,7 +170,7 @@ export function CardPromotion() {
                     key={item.id}
                     label={
                       <>
-                        <b>[item.code]</b> {item.name}
+                        <b>[{item.code}]</b> {item.name}
                       </>
                     }
                     onDelete={() => setSelected(selected.filter((i) => i.id !== item.id))}

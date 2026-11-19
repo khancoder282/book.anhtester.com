@@ -25,13 +25,18 @@ export default (new Elysia({
     },
     prefix: "db"
 }) as unknown as AppMain)
+    // Cần token (trước đây công khai). Vẫn ẩn khỏi Swagger, frontend không dùng.
+    .use(auth)
     .get("/table", async ({ prisma }) => {
         const tables = await prisma.$queryRawUnsafe<
             { table_name: string }[]
         >("SHOW TABLES");
-        return tables.map((row) => Object.values(row)[0]);
+        return tables.map((row) => String(Object.values(row)[0]));
+    }, {
+        response: {
+            200: t.Array(t.String()),
+        },
     })
-    .use(auth)
     // Chỉ trả cấu trúc bảng (cột, khoá, quan hệ) và số dòng, KHÔNG trả dữ liệu từng dòng
     // để không lộ hash mật khẩu, refresh token...
     .get("/schema", async ({ prisma }) => {

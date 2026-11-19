@@ -38,16 +38,17 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 3.3 | Import / Export CSV cho sách và user | ⏳ | |
 | 3.4 | Nhật ký hoạt động (ai sửa gì, lúc nào) | ⏳ | |
 | 3.5 | Khu "Practice" cho automation: iframe, kéo thả, shadow DOM, cuộn vô hạn, date picker | ⏳ | |
-| 3.6 | Công tắc bật / tắt "bug mẫu" để dùng cho cả bài tìm bug lẫn retest | ⏳ | Cần chốt: 30 bug trong `docs/bugs/` có phải cố ý giữ không |
+| 3.6 | Công tắc bật / tắt "bug mẫu" để dùng cho cả bài tìm bug lẫn retest | ⛔ Bỏ 2026-11-20 | User chốt sửa hết bug, không giữ bug mẫu |
 
 ## Câu hỏi còn mở
 
-- 30 bug đang mở trong [`docs/bugs/README.md`](../docs/bugs/README.md) (9 Critical) có phải **cố ý giữ** để học viên tìm không? Câu trả lời quyết định làm 3.6 hay sửa bug trước.
-- Màn **File** trên máy Windows trống: `GET /api/file/info` trả 500 vì backend gọi lệnh `du` (không có trên Windows). Trên VPS Linux chạy được. Có cần sửa để chạy được cả Windows không?
+- ~~30 bug trong `docs/bugs/` có phải cố ý giữ không?~~ **Đã chốt 2026-11-20: sửa hết** (cả 30 bug và các bug phát hiện thêm bên dưới). Việc 3.6 vì vậy không cần nữa.
+- ~~Màn File trên Windows trống vì `GET /api/file/info` gọi lệnh `du`~~ **Đã sửa 2026-11-20**: tính dung lượng bằng code Bun.
+- App không có role: sau khi sửa bug phân quyền, mỗi user chỉ sửa / khoá / xoá **chính mình**. Muốn admin quản lý người khác thì làm việc 3.2 (phân quyền theo vai trò).
 
-## Bug phát hiện thêm khi làm đa ngôn ngữ (2026-11-20, chưa vào `docs/bugs/`)
+## Bug phát hiện thêm khi làm đa ngôn ngữ (2026-11-20, chưa vào `docs/bugs/`) — ✅ đã sửa hết 2026-11-20
 
-Đọc code trong lúc dịch thì thấy, **chưa tái hiện trên UI** và chưa viết bug report. Chữ tiếng Anh sai vẫn giữ nguyên văn để không gãy test; bản tiếng Việt dịch sát nghĩa.
+Đọc code trong lúc dịch thì thấy, không viết bug report riêng. **Đã sửa hết 2026-11-20** cùng đợt sửa 30 bug (chữ tiếng Anh sai cũng đã sửa ở cả en và vi). Chi tiết thay đổi: [mobile-sync.md](mobile-sync.md) mục 10–12. Đã kiểm trên trình duyệt: sửa / xoá khuyến mãi (PATCH, xoá đúng khuyến mãi, sách còn nguyên), chip mã khuyến mãi.
 
 | Module | Bug | File |
 |---|---|---|

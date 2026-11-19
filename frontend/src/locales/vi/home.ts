@@ -31,6 +31,7 @@ export const home: Translation<typeof en> = {
     title: 'Kiểm thử thông báo từ server',
     timeout: 'Thời gian chờ',
     statusCode: 'Mã trạng thái',
+    statusCodeRequired: 'Vui lòng chọn mã trạng thái',
     loading: 'Đang tải ...',
   },
   notFound: {

@@ -85,16 +85,23 @@ export default function FileContentView({
     request,
   } = useRequest(
     useCallback(
-      async () => ({
-        list: await getFolder(path, _search),
-        info: await axios.get('/file/info').then((res) => res.data),
-      }),
-      [path, _search]
+      async () =>
+        // Liệt kê thư mục cần token (API trả 401 khi chưa đăng nhập)
+        auth
+          ? {
+              list: await getFolder(path, _search),
+              info: await axios.get('/file/info').then((res) => res.data),
+            }
+          : { list: [], info: { maxStorage: 1, usedStorage: 0 } },
+      [auth, path, _search]
     )
   );
 
-  const { data: allFolder = [] } = useRequest(() =>
-    getFolder('/', '*').then((r) => r.filter((f) => !f.isFile))
+  const { data: allFolder = [] } = useRequest(
+    useCallback(
+      async () => (auth ? getFolder('/', '*').then((r) => r.filter((f) => !f.isFile)) : []),
+      [auth]
+    )
   );
 
   const percentStorage = (usedStorage / maxStorage) * 100;
@@ -106,19 +113,27 @@ export default function FileContentView({
   });
 
   const { list: _dataList, fileList: _fileList } = useMemo(() => {
-    let _list = list;
+    // Sắp xếp trên bản sao, không đổi mảng gốc trả về từ API
+    let _list = [...list];
     if (config.order) {
-      _list = _list.sort((a, b) => {
+      _list.sort((a, b) => {
         if (a[config.order!] < b[config.order!]) return config.orderBy === 'asc' ? -1 : 1;
         if (a[config.order!] > b[config.order!]) return config.orderBy === 'asc' ? 1 : -1;
         return 0;
       });
     }
+    // Thư mục lên trước, tệp sau (sort ổn định nên giữ thứ tự ở trên)
+    _list = _list.sort((a, b) => (a.isFile === b.isFile ? 0 : a.isFile ? 1 : -1));
 
     return { list: _list, fileList: _list.filter((f) => f.isFile) };
   }, [config.order, config.orderBy, list]);
 
-  const breadcrumbs = path.replace(rootPath, '').split('/').filter(Boolean);
+  // Đường dẫn tương đối so với thư mục gốc của màn (rootPath), VD rootPath "/a", path "/a/b/c" -> ["b", "c"]
+  const relativePath = path.startsWith(rootPath) ? path.slice(rootPath.length) : path;
+  const breadcrumbs = relativePath.split('/').filter(Boolean);
+  // Ghép lại thành đường dẫn tuyệt đối: luôn có "/" đầu và giữ rootPath
+  const rootPrefix = rootPath.replace(/\/+$/, '');
+  const breadcrumbPath = (i: number) => `${rootPrefix}/${breadcrumbs.slice(0, i + 1).join('/')}`;
 
   const fileList = useMemo(() => value?.filter((f) => f.isFile) ?? [], [value]);
 
@@ -321,7 +336,7 @@ export default function FileContentView({
               (x, i) =>
                 i !== breadcrumbs.length - 1 && (
                   <Link
-                    onClick={() => setPath(breadcrumbs.slice(0, i + 1).join('/'))}
+                    onClick={() => setPath(breadcrumbPath(i))}
                     color="textDisabled"
                     key={x}
                     sx={{ cursor: 'pointer' }}
@@ -334,6 +349,12 @@ export default function FileContentView({
           </Breadcrumbs>
         </Box>
       </Box>
+
+      {!auth && (
+        <Typography id="file-sign-in-required" variant="body2" color="textSecondary" px={3} pt={2}>
+          {t('file.signInRequired')}
+        </Typography>
+      )}
 
       <TableView
         size={isSmall ? 'small' : 'medium'}
@@ -348,7 +369,7 @@ export default function FileContentView({
         minWidth={400}
         sx={table(isSmall ? 'small' : 'medium')}
         columns={columns(isPreview)}
-        data={_dataList.sort((a, b) => (a.isFile === b.isFile ? 0 : a.isFile ? 1 : -1))}
+        data={_dataList}
         config={config}
         keyName="path"
         renderAction={

@@ -11,7 +11,7 @@ export type PromotionForm = {
   code: string;
   description: string;
   type: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING';
-  value: number;
+  value: number | '';
   startDate: Dayjs;
   endDate: Dayjs;
   isActive: boolean;

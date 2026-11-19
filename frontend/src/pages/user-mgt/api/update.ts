@@ -49,11 +49,13 @@ export const handleUpdateUser = async (id: string, user: UserForm) => {
       });
   } catch (err) {
     if (user.avatar instanceof File && user.avatarUrl) {
-      await axios.delete('/file', { params: { path: user.avatarUrl } });
+      await axios.delete('/file', { params: { path: user.avatarUrl } }).catch(() => undefined);
     }
     if (err instanceof AxiosError) {
-      toast.error(err.response?.data.msg, { id: 'upload-user' });
-      if (err.response?.status === 422) {
+      toast.error(err.response?.data?.msg ?? translate('user.toast.networkError'), {
+        id: 'upload-user',
+      });
+      if (err.response?.status === 422 && err.response.data?.fields) {
         for (const [key, value] of Object.entries(err.response.data.fields)) {
           formControl.setError(key as keyof SignInForm, {
             type: 'manual',

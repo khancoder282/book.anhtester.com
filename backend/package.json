@@ -8,6 +8,7 @@
     "studio": "bunx prisma studio",
     "seed": "bun prisma/seed/seed.ts",
     "seed:address": "bun prisma/seed/address.ts",
+    "swagger:export": "bun scripts/export-openapi.ts",
     "build:client": "cd ../frontend && bun i && bun run build && rm -rf node_modules",
     "build:server": "bun i && bunx prisma generate",
     "build": "bun run build:client && bun run build:server"

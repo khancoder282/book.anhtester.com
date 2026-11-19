@@ -10,6 +10,7 @@ export const file = {
   maximum: 'Maximum',
   unselectAll: 'Unselect all ({count})',
   copiedToClipboard: 'Copied to clipboard',
+  signInRequired: 'Sign in to view and manage files.',
   columns: {
     name: 'Name',
     size: 'Size',
@@ -48,18 +49,19 @@ export const file = {
     folderExists: 'A folder with this name already exists',
   },
   delete: {
-    confirmFile: 'Do you want to delete file: "{name}" this file?',
-    confirmFolder: 'Do you want to delete folder: "{name}" this file?',
+    confirmFile: 'Do you want to delete file "{name}"?',
+    confirmFolder: 'Do you want to delete folder "{name}" and everything in it?',
   },
   upload: {
     title: 'Upload file',
     folder: 'Folder upload file',
     folderPlaceholder: 'Enter a folder name or use the current folder',
-    pathInvalid: 'Path can only contain characters a-z, A-Z, 0-9, _, -, and /, not starting with /',
+    pathInvalid: 'Path can only contain characters a-z, A-Z, 0-9, _, - and /',
     uploadIn: 'Upload in: {path}',
     fileRequired: 'File is required',
     maxFileSize: 'File size must be less than 5MB',
-    maxFiles: 'You can upload up to 30 files',
+    maxFiles: 'You can upload up to 20 files',
+    typeNotAllowed: 'Only these file types can be uploaded: {types}',
     removeAll: 'Remove all',
   },
 };

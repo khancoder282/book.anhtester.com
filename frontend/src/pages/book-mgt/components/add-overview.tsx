@@ -1,5 +1,5 @@
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useMemo, useState, useEffect } from 'react';
 import { Controller, useFormState } from 'react-hook-form';
 
 import {
@@ -43,7 +43,6 @@ export function AddOverview() {
   const [loadingPage, setLoadingPage] = useState(true);
   const router = useRouter();
   const id = search.get('id');
-  const rootName = useMemo(() => getValues('name'), []);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -108,7 +107,9 @@ export function AddOverview() {
           <Link component={RouterLink} href="/book-management" color="textPrimary" variant="body2">
             {t('book.form.breadcrumb')}
           </Link>
-          <Typography variant="body2">{t('book.form.createTitle')}</Typography>
+          <Typography variant="body2">
+            {id ? t('book.form.modifyTitle') : t('book.form.createTitle')}
+          </Typography>
         </Breadcrumbs>
       </Stack>
 
@@ -127,7 +128,11 @@ export function AddOverview() {
                   checked={field.value === 'AVAILABLE'}
                   onChange={(_, c) => field.onChange(c ? 'AVAILABLE' : 'UNAVAILABLE')}
                   control={<Switch />}
-                  label={field.value ? t('book.form.available') : t('book.form.unavailable')}
+                  label={
+                    field.value === 'AVAILABLE'
+                      ? t('book.form.available')
+                      : t('book.form.unavailable')
+                  }
                   sx={{ ml: 2 }}
                 />
               )}
@@ -169,12 +174,12 @@ export function AddOverview() {
                 onClick={() =>
                   dialog.delete(
                     <>
-                      {t('book.form.deleteConfirmBefore')} <b>{rootName}</b>
+                      {t('book.form.deleteConfirmBefore')} <b>{getValues('name')}</b>
                       {t('book.form.deleteConfirmAfter')}
                     </>,
                     () =>
-                      deleteBook(id).then(() => {
-                        router.back('/book-management');
+                      deleteBook(id).then((ok) => {
+                        if (ok) router.back('/book-management');
                       })
                   )
                 }

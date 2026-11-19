@@ -85,6 +85,8 @@ export const book = {
   validation: {
     nameRequired: 'Name is required.',
     nameMaxLength: 'Name must be less than 100 characters.',
+    slugRequired: 'Slug is required.',
+    slugMaxLength: 'Slug must be less than 100 characters.',
     descriptionMaxLength: 'Description must be less than 500 characters.',
     fileSize: 'File size must be less than 5MB',
     maxFiles: 'You can upload up to 30 files',
@@ -93,6 +95,7 @@ export const book = {
     priceMin: 'Price must be greater than 1000 VNĐ.',
     priceMax: 'Price must be less than 1 billion VNĐ.',
     priceNumber: 'Price must be a number.',
+    priceInteger: 'Price must be a whole number.',
     categoryRequired: 'Please select at least one category',
     categoryMaxLength: 'Each category name must be less than 25 characters',
   },

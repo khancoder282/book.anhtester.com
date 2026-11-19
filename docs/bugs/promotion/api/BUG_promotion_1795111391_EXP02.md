@@ -42,3 +42,4 @@ DELETE KM đang gắn sách              200 {"msg":"Deleted promotion successfu
 
 | Ngày | Build | Kết quả | Retest report | Ghi chú |
 |---|---|---|---|---|
+| 20-11-2026 | deploy-vps (chưa commit) | ✅ FIXED | — | PATCH KM tính lại giá cho sách cũ + mới (`recalcBookPrices`), không ghi đè trường không gửi. FIXED 1.000.000 gắn sách 100000: tắt → currentPrice 100000, type/value/ngày giữ nguyên; bật lại → 0; đổi value 30000 → 70000 |

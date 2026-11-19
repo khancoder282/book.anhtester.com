@@ -83,10 +83,10 @@ export function CardDetail() {
             control={control}
             defaultValue=""
             rules={{
-              required: t('book.validation.nameRequired'),
+              required: t('book.validation.slugRequired'),
               maxLength: {
                 value: 100,
-                message: t('book.validation.nameMaxLength'),
+                message: t('book.validation.slugMaxLength'),
               },
             }}
             render={({ field, fieldState: { invalid, error } }) => (

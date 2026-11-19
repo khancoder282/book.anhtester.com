@@ -1,24 +1,26 @@
 import Elysia, { t } from "elysia";
 import { AppMain } from "../regis";
-import { filterTable } from "../plugins/filterTable";
+import { filterTable, FilterError } from "../plugins/filterTable";
 import { auth } from "../plugins/auth";
 import { PrismaClientKnownRequestError } from "../prisma/runtime/library";
-import { $Enums, Promotion } from "../prisma";
+import { Prisma } from "../prisma";
 import path from "path";
 import fs from "fs";
 import { file_path } from "./file-controller";
+import { calcCurrentPrice, recalcBookPrices, syncStaleBookPrices } from "../utils/pricing";
 
-
-function slugify(str: string) {
+export function slugify(str: string) {
   return str
     .toString()
+    .replace(/[Đđ]/g, "d")          // đ/Đ không tách dấu được bằng NFKD
     .normalize('NFKD')              // normalize Unicode accents
     .replace(/[\u0300-\u036f]/g, '')// remove separated diacritics
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '')   // keep a-z, 0-9, spaces, and hyphens
-    .replace(/\s+/g, '-')           // replace spaces with hyphens
-    .replace(/-+/g, '-');           // collapse multiple hyphens into one
+    .replace(/[^a-z0-9\s_-]/g, '')  // keep a-z, 0-9, spaces, underscores and hyphens
+    .replace(/[\s_]+/g, '-')        // replace spaces/underscores with hyphens
+    .replace(/-+/g, '-')            // collapse multiple hyphens into one
+    .replace(/^-+|-+$/g, '');       // trim leading/trailing hyphens
 }
 
 const bookController = new Elysia({
@@ -30,35 +32,160 @@ export default bookController;
 
 // **************************************************************************
 
-const bodyBook = t.Object({
-  name: t.String(),
-  slug: t.Optional(t.String()),
+/** Cột `price` / `currentPrice` là `Int` (MySQL tối đa 2.147.483.647) — giới hạn API là 1 tỷ VNĐ. */
+export const MAX_BOOK_PRICE = 1_000_000_000;
+
+const PRICING_RULE =
+  "**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions " +
+  "attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, " +
+  "FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. " +
+  "The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) " +
+  "or any attached promotion changes, and when a promotion starts or ends.";
+
+const nameSchema = t.String({ minLength: 1, maxLength: 191, description: "Unique book name (trimmed, must not be blank)." });
+const slugSchema = t.String({
+  maxLength: 191,
+  description: "Optional. Normalized by the server (lowercase, `đ` → `d`, accents removed, non-alphanumerics dropped). Defaults to slugify(name). Must be unique.",
+});
+// t.UnionEnum tự gán default = giá trị đầu tiên → dùng Union literal cho PATCH để không ghi đè trạng thái
+const statusSchema = t.Union([t.Literal("AVAILABLE"), t.Literal("UNAVAILABLE")]);
+const picturesSchema = t.Array(t.String(), { description: "File paths of uploaded images (see File Management)." });
+/** Cùng luật với category-controller.ts (tên category là khoá chính và nằm trong URL khi xoá). */
+const CATEGORY_MAX_LENGTH = 24;
+const CATEGORY_RULE =
+  `Names are trimmed. Unknown names are created automatically and must be non-blank, at most ${CATEGORY_MAX_LENGTH} characters ` +
+  "and must not contain '/' (422 `fields.categories`). Existing categories are matched as stored.";
+const categoriesSchema = t.Array(t.String({ minLength: 1 }), {
+  minItems: 1,
+  description: `Category names. ${CATEGORY_RULE}`,
+});
+// t.Number + multipleOf: 1 (t.Integer của Elysia là union với chuỗi số, thông báo lỗi khó đọc)
+const priceSchema = t.Number({
+  multipleOf: 1,
+  minimum: 0,
+  maximum: MAX_BOOK_PRICE,
+  description: `Regular price in VND: integer, 0 – ${MAX_BOOK_PRICE.toLocaleString("en-US")}.`,
+});
+const promotionsSchema = t.Array(t.String(), { description: "Promotion ids. Every id must exist (404 otherwise)." });
+
+const bodyBookCreate = t.Object({
+  name: nameSchema,
+  slug: t.Optional(slugSchema),
   description: t.Optional(t.String()),
-  status: t.UnionEnum(["AVAILABLE", "UNAVAILABLE"], {
-    default: "AVAILABLE",
-  }),
-  pictures: t.Optional(t.Array(t.String())),
-  categories: t.Array(t.String(), {
-    minItems: 1,
-  }),
-  price: t.Number({
+  status: t.Optional(t.UnionEnum(["AVAILABLE", "UNAVAILABLE"], { default: "AVAILABLE" })),
+  pictures: t.Optional(picturesSchema),
+  categories: categoriesSchema,
+  price: t.Optional(t.Number({
+    multipleOf: 1,
+    minimum: 0,
+    maximum: MAX_BOOK_PRICE,
     default: 50_000,
-    maximum: 9_000_000_000_000,
-  }),
-  promotions: t.Optional(t.Array(t.String()))
+    description: `Regular price in VND: integer, 0 – ${MAX_BOOK_PRICE.toLocaleString("en-US")}. Default 50,000.`,
+  })),
+  promotions: t.Optional(promotionsSchema),
 });
 
-export function handlePrice(price: number, promotions: Promotion[]) {
-  let pricePromotion = 0;
-  promotions.forEach((p) => {
-    if (p.type === $Enums.PromotionType.PERCENTAGE) {
-      pricePromotion += (price * p.value) / 100;
+// PATCH: mọi trường đều tuỳ chọn và KHÔNG có giá trị mặc định (Elysia sẽ điền mặc định nếu có).
+const bodyBookUpdate = t.Object({
+  name: t.Optional(nameSchema),
+  slug: t.Optional(slugSchema),
+  description: t.Optional(t.String()),
+  status: t.Optional(statusSchema),
+  pictures: t.Optional(t.Array(t.String(), { description: "Replaces all pictures. `[]` removes all." })),
+  categories: t.Optional(t.Array(t.String({ minLength: 1 }), {
+    minItems: 1,
+    description: `Replaces the whole category list (not merged). ${CATEGORY_RULE}`,
+  })),
+  price: t.Optional(priceSchema),
+  promotions: t.Optional(t.Array(t.String(), {
+    description: "Replaces the whole promotion list (not merged). `[]` removes all promotions. Every id must exist (404 otherwise).",
+  })),
+});
+
+const msgSchema = t.Object({ msg: t.String() });
+const validationSchema = t.Object({
+  msg: t.String(),
+  fields: t.Record(t.String(), t.Array(t.String())),
+});
+
+type Fields = Record<string, string[]>;
+
+function invalid(set: { status?: number | string }, fields: Fields, msg = "Invalid data.") {
+  set.status = 422;
+  return { msg, fields };
+}
+
+/** Trả về lỗi trùng tên / slug (bỏ qua chính sách đang sửa). */
+async function findDuplicate(
+  prisma: Prisma.TransactionClient,
+  { name, slug }: { name?: string; slug?: string },
+  excludeId?: string,
+) {
+  const notSelf = excludeId ? { NOT: { id: excludeId } } : {};
+  // So sánh theo collation của DB (giống unique index): không phân biệt hoa thường
+  if (name !== undefined && (await prisma.book.findFirst({ where: { name, ...notSelf }, select: { id: true } }))) {
+    return { msg: "Book name already exists.", fields: { name: ["Book name already exists."] } };
+  }
+  if (slug !== undefined && (await prisma.book.findFirst({ where: { slug, ...notSelf }, select: { id: true } }))) {
+    return { msg: "Slug already exists.", fields: { slug: ["Slug already exists."] } };
+  }
+  return null;
+}
+
+/**
+ * Trim + bỏ trùng tên category. Tên chưa có trong DB (sẽ được tạo kèm) phải theo luật của
+ * category-controller: bắt buộc, ≤ 24 ký tự, không có "/". Tên đã có thì giữ nguyên (dữ liệu cũ).
+ */
+async function checkCategories(prisma: Prisma.TransactionClient, input: string[]) {
+  const errors: string[] = [];
+  const names: string[] = [];
+  for (const raw of input) {
+    const name = raw.trim();
+    if (!name) {
+      errors.push("Category name is required.");
+      continue;
     }
-    if (p.type === $Enums.PromotionType.FIXED_AMOUNT) {
-      pricePromotion += p.value;
-    }
+    if (!names.some((n) => n.toLowerCase() === name.toLowerCase())) names.push(name);
+  }
+  const existing = await prisma.category.findMany({
+    where: { name: { in: names } },
+    select: { name: true },
   });
-  return price - pricePromotion;
+  // Khớp theo collation của DB → dùng đúng tên đang lưu
+  const resolved = names.map(
+    (n) => existing.find((e) => e.name.toLowerCase() === n.toLowerCase())?.name ?? n
+  );
+  for (const name of resolved) {
+    if (existing.some((e) => e.name === name)) continue;
+    if (name.length > CATEGORY_MAX_LENGTH) {
+      errors.push(`Category "${name}" must be at most ${CATEGORY_MAX_LENGTH} characters.`);
+    } else if (name.includes("/")) {
+      errors.push(`Category "${name}" must not contain '/'.`);
+    }
+  }
+  return { names: resolved, errors };
+}
+
+/** Bắt lỗi P2002 lọt qua bước kiểm tra trước (ghi đồng thời). */
+function duplicateFromPrismaError(err: PrismaClientKnownRequestError) {
+  const target = String((err.meta as { target?: unknown } | undefined)?.target ?? "");
+  if (target.includes("slug")) return { msg: "Slug already exists.", fields: { slug: ["Slug already exists."] } };
+  return { msg: "Book name already exists.", fields: { name: ["Book name already exists."] } };
+}
+
+function mapPictures(picture: string) {
+  return picture
+    .split(",")
+    .map((x) => x.trim())
+    .filter((x) => {
+      if (!x) return false;
+      try {
+        const fullPath = path.join(file_path, x);
+        return fs.existsSync(fullPath) && fs.statSync(fullPath).isFile();
+      } catch {
+        return false;
+      }
+    });
 }
 
 bookController
@@ -75,6 +202,9 @@ bookController
 
       try {
         const where = filterTable(search, ["name", "description", "slug"]);
+
+        // Khuyến mãi tới hạn / hết hạn theo thời gian: cập nhật giá bán đã lưu trước khi lọc, sort.
+        await prisma.$transaction((tx) => syncStaleBookPrices(tx));
 
         const [list, total] = await prisma.$transaction([
           prisma.book.findMany({
@@ -126,25 +256,11 @@ bookController
           prisma.book.count({ where }),
         ]);
 
-        const mappedList = list.map((item) => {
-          const pictures = (item.picture || "")
-            .split(",")
-            .map((x) => x.trim())
-            .filter((x) => {
-              try {
-                const pathname = path.join(file_path, x);
-                return fs.existsSync(pathname) && fs.statSync(pathname).isFile();
-              } catch {
-                return false;
-              }
-            });
-
-          return {
-            ...item,
-            categories: item.categories.map((c) => c.name),
-            picture: pictures,
-          };
-        });
+        const mappedList = list.map((item) => ({
+          ...item,
+          categories: item.categories.map((c) => c.name),
+          picture: mapPictures(item.picture || ""),
+        }));
 
         return {
           list: mappedList,
@@ -160,7 +276,11 @@ bookController
         set.status = 400;
         return {
           msg: "Invalid filter or query syntax",
-          error: error instanceof Error ? error.message : String(error),
+          // Không trả nguyên văn lỗi Prisma (lộ cấu trúc DB, đường dẫn file)
+          error:
+            error instanceof FilterError
+              ? error.message
+              : "Check the JSON filter: field names, operators and value types must match the Book model.",
         };
       }
     },
@@ -209,7 +329,7 @@ bookController
               createdAt: t.Date({ format: "date-time" }),
               updatedAt: t.Date({ format: "date-time" }),
               price: t.Number(),
-              currentPrice: t.Number(),
+              currentPrice: t.Number({ description: "Selling price after promotions in effect. Always between 0 and `price`." }),
               viewCount: t.Number(),
               promotions: t.Array(
                 t.Object({
@@ -224,7 +344,8 @@ bookController
                   endDate: t.Date({ format: "date-time" }),
                   code: t.String(),
                   value: t.Number(),
-                })
+                }),
+                { description: "Active, not yet expired promotions (includes scheduled ones that have not started)." }
               ),
             })
           ),
@@ -239,13 +360,10 @@ bookController
           msg: t.String(),
           error: t.Optional(t.String()),
         }),
-        422: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        }),
+        422: validationSchema,
       },
       detail: {
-        description: "Query list of books (pagination, filtering, sorting)",
+        description: `Query list of books (pagination, filtering, sorting). \`picture\` only lists files that exist.\n\n${PRICING_RULE}`,
         tags: ["Book Management"],
         security: [],
       },
@@ -255,6 +373,10 @@ bookController
   .get(
     ":id",
     async ({ params, prisma, set, query: { view } }) => {
+      await prisma.$transaction((tx) =>
+        syncStaleBookPrices(tx, { OR: [{ id: params.id }, { slug: params.id }] })
+      );
+
       const book = await prisma.book.findFirst({
         where: {
           OR: [{ id: params.id }, { slug: params.id }],
@@ -262,6 +384,7 @@ bookController
         select: {
           id: true,
           name: true,
+          slug: true,
           description: true,
           status: true,
           picture: true,
@@ -326,11 +449,8 @@ bookController
         })
       }
 
-      const picture = book.picture.split(",").filter(x => {
-        if (fs.existsSync(path.join(file_path, x))) return true
-        return false
-      }).map((item) => {
-        let fullPath = path.join(file_path, item);
+      const picture = mapPictures(book.picture || "").map((item) => {
+        const fullPath = path.join(file_path, item);
         const stat = fs.statSync(fullPath);
         return {
           name: path.basename(item),
@@ -352,15 +472,16 @@ bookController
     },
     {
       params: t.Object({
-        id: t.String(),
+        id: t.String({ description: "Book id or slug." }),
       }),
       response: {
         200: t.Object({
           id: t.String(),
           name: t.String(),
+          slug: t.String(),
           description: t.String(),
           price: t.Number(),
-          currentPrice: t.Number(),
+          currentPrice: t.Number({ description: "Selling price after promotions in effect. Always between 0 and `price`." }),
           viewCount: t.Number(),
           status: t.Union([
             t.Literal('AVAILABLE'),
@@ -377,7 +498,8 @@ bookController
               type: t.String(),
               modified: t.Date({ format: 'date-time' }), // Date → string ISO
               created: t.Date({ format: 'date-time' }),  // Date → string ISO
-            })
+            }),
+            { description: "Existing image files only. Empty array when the book has no picture." }
           ),
           auth: t.Union([
             t.Object({
@@ -404,20 +526,18 @@ bookController
               endDate: t.Date({ format: 'date-time' }),
               code: t.String(),
               value: t.Number(),
-            })
+            }),
+            { description: "Active, not yet expired promotions (includes scheduled ones that have not started)." }
           ),
         }),
-        400: t.Object({
-          msg: t.String(),
-        }),
-        404: t.Object({
-          msg: t.String(),
-        })
+        400: msgSchema,
+        404: msgSchema,
       },
       query: t.Object({
-        view: t.Optional(t.BooleanString({ examples: ["true", "false"] }))
+        view: t.Optional(t.BooleanString({ examples: ["true", "false"], description: "`true` increments `viewCount`." }))
       }),
       detail: {
+        description: `Get a book by id or slug.\n\n${PRICING_RULE}`,
         security: [],
       },
     }
@@ -425,96 +545,102 @@ bookController
   .use(auth)
   .post(
     "",
-    async ({ prisma, body: { pictures, ...body }, set, auth }) => {
+    async ({ prisma, body, set, auth }) => {
+      const name = body.name.trim();
+      const price = body.price ?? 50_000;
+      if (!name) return invalid(set, { name: ["Name is required."] });
+      const slug = slugify(body.slug?.trim() || name);
+      if (!slug) {
+        return invalid(set, { slug: ["Slug must contain at least one letter or digit."] });
+      }
+
       try {
-        await prisma.book.create({
-          data: {
-            name: body.name,
-            description: body.description || "",
-            status: body.status,
-            price: body.price,
-            slug: body.slug || slugify(body.name),
-            picture: (pictures ?? []).join(","),
-            currentPrice: handlePrice(body.price, await prisma.promotion.findMany({
-              where: {
-                isActive: true,
-                id: { in: body.promotions },
-                endDate: {
-                  gte: new Date()
-                },
-                startDate: {
-                  lte: new Date()
-                }
-              }
-            })),
-            promotions: {
-              connect: body.promotions?.map((p) => ({
-                id: p,
-              }))
+        const cat = await checkCategories(prisma, body.categories);
+        if (cat.errors.length) return invalid(set, { categories: cat.errors });
+
+        const dup = await findDuplicate(prisma, { name, slug });
+        if (dup) {
+          set.status = 422;
+          return dup;
+        }
+
+        const promotionIds = [...new Set(body.promotions ?? [])];
+        const promotions = promotionIds.length
+          ? await prisma.promotion.findMany({
+            where: { id: { in: promotionIds } },
+            select: { id: true, type: true, value: true, isActive: true, startDate: true, endDate: true },
+          })
+          : [];
+        if (promotions.length !== promotionIds.length) {
+          set.status = 404;
+          return { msg: "Promotion not found." };
+        }
+
+        const categories = cat.names;
+        await prisma.$transaction(async (tx) => {
+          await tx.category.createMany({
+            data: categories.map((c) => ({ name: c })),
+            skipDuplicates: true,
+          });
+          await tx.book.create({
+            data: {
+              name,
+              slug,
+              description: body.description ?? "",
+              status: body.status ?? "AVAILABLE",
+              price,
+              picture: (body.pictures ?? []).filter(Boolean).join(","),
+              currentPrice: calcCurrentPrice(price, promotions),
+              promotions: { connect: promotionIds.map((id) => ({ id })) },
+              categories: { connect: categories.map((c) => ({ name: c })) },
+              auth: auth ? { connect: { id: auth.id } } : undefined,
             },
-            categories: {
-              connectOrCreate: body.categories.map((c) => ({
-                where: {
-                  name: c,
-                },
-                create: {
-                  name: c,
-                },
-              })),
-            },
-            auth:
-              (auth && {
-                connect: {
-                  id: auth.id,
-                },
-              }) ||
-              undefined,
-          },
+          });
         });
 
+        set.status = 201;
         return {
           msg: "Book created successfully.",
         };
       } catch (e) {
         console.log(e);
         const err = e as PrismaClientKnownRequestError;
-        set.status = 400;
         if (err.code === "P2002") {
-          return {
-            msg: "Book name already exists.",
-          };
+          set.status = 422;
+          return duplicateFromPrismaError(err);
         }
         if (err.code === "P2025" || err.code === "P2003") {
           set.status = 404;
           return { msg: "Promotion not found." };
         }
+        set.status = 400;
         return {
           msg: "Invalid data.",
         };
       }
     },
     {
-      body: bodyBook,
+      body: bodyBookCreate,
       response: {
-        201: t.Object({
-          msg: t.String(),
-        }),
-        400: t.Object({
-          msg: t.String(),
-        }),
-        401: t.Object({
-          msg: t.String(),
-        }),
-        403: t.Object({
-          msg: t.String(),
-        }),
+        201: msgSchema,
+        400: msgSchema,
+        401: msgSchema,
+        403: msgSchema,
+        404: t.Object({ msg: t.String({ description: "`Promotion not found.` when an id in `promotions` does not exist." }) }),
         422: t.Object({
           msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
+          fields: t.Record(t.String(), t.Array(t.String()), {
+            description: "Invalid fields. Duplicate name → `name`, duplicate slug → `slug` (msg `Book name already exists.` / `Slug already exists.`), invalid new category → `categories`.",
+          }),
         }),
       },
       detail: {
-        description: "Create a new book"
+        description:
+          "Create a new book. Returns **201**.\n\n" +
+          "- `name` is trimmed and must not be blank; `slug` is normalized (`Đắc Nhân Tâm` → `dac-nhan-tam`) and must not end up empty.\n" +
+          `- \`price\`: integer 0 – ${MAX_BOOK_PRICE.toLocaleString("en-US")} (default 50,000).\n` +
+          "- No `promotions` (or `[]`) → no promotion attached, `currentPrice = price`.\n\n" +
+          PRICING_RULE,
       }
     }
   )
@@ -522,68 +648,77 @@ bookController
     "/:id",
     async ({ body, prisma, set, params }) => {
       try {
-        const BookOld = await prisma.book.findFirst({
-          where: {
-            id: params.id,
-          },
-          select: {
-            price: true
-          }
-        })
-        if (!BookOld) {
+        const old = await prisma.book.findUnique({
+          where: { id: params.id },
+          select: { id: true, name: true },
+        });
+        if (!old) {
           set.status = 404;
           return { msg: "Book not found." };
         }
-        const price = body.price ?? BookOld.price
-        const book = await prisma.book.update({
-          where: {
-            id: params.id,
-          },
-          data: {
-            name: body.name,
-            description: body.description || "",
-            status: body.status,
-            price: price,
-            slug: body.slug,
-            promotions: {
-              connect: body.promotions?.map((p) => ({
-                id: p,
-              }))
-            },
-            currentPrice: (body.promotions) ? handlePrice(price, await prisma.promotion.findMany({
-              where: {
-                isActive: true,
-                id: { in: body.promotions },
-                endDate: {
-                  gte: new Date()
-                },
-                startDate: {
-                  lte: new Date()
-                }
-              }
-            })) : undefined,
-            picture: (body.pictures ?? []).join(","),
-            categories: body?.categories
-              ? {
-                connectOrCreate: body.categories.map((c) => ({
-                  where: {
-                    name: c,
-                  },
-                  create: {
-                    name: c,
-                  },
-                })),
-              }
-              : undefined,
-          },
-        });
 
-        if (!book) {
-          set.status = 404;
-          return {
-            msg: "Book not found.",
-          };
+        const data: Prisma.BookUpdateInput = {};
+        const fields: Fields = {};
+
+        if (body.name !== undefined) {
+          const name = body.name.trim();
+          if (!name) fields.name = ["Name is required."];
+          else data.name = name;
         }
+        if (body.slug !== undefined) {
+          const slug = slugify(body.slug.trim() || (data.name as string | undefined) || old.name);
+          if (!slug) fields.slug = ["Slug must contain at least one letter or digit."];
+          else data.slug = slug;
+        }
+        let categories: string[] | undefined;
+        if (body.categories !== undefined) {
+          const cat = await checkCategories(prisma, body.categories);
+          if (cat.errors.length) fields.categories = cat.errors;
+          else categories = cat.names;
+        }
+        if (Object.keys(fields).length) return invalid(set, fields);
+
+        if (body.description !== undefined) data.description = body.description;
+        if (body.status !== undefined) data.status = body.status;
+        if (body.price !== undefined) data.price = body.price;
+        if (body.pictures !== undefined) data.picture = body.pictures.filter(Boolean).join(",");
+
+        const dup = await findDuplicate(
+          prisma,
+          { name: data.name as string | undefined, slug: data.slug as string | undefined },
+          old.id,
+        );
+        if (dup) {
+          set.status = 422;
+          return dup;
+        }
+
+        let promotionIds: string[] | undefined;
+        if (body.promotions !== undefined) {
+          promotionIds = [...new Set(body.promotions)];
+          const count = promotionIds.length
+            ? await prisma.promotion.count({ where: { id: { in: promotionIds } } })
+            : 0;
+          if (count !== promotionIds.length) {
+            set.status = 404;
+            return { msg: "Promotion not found." };
+          }
+          data.promotions = { set: promotionIds.map((id) => ({ id })) };
+        }
+
+        if (categories) data.categories = { set: categories.map((c) => ({ name: c })) };
+
+        await prisma.$transaction(async (tx) => {
+          if (categories) {
+            await tx.category.createMany({
+              data: categories.map((c) => ({ name: c })),
+              skipDuplicates: true,
+            });
+          }
+          await tx.book.update({ where: { id: old.id }, data });
+          // Giá gốc hoặc danh sách khuyến mãi có thể đã đổi
+          await recalcBookPrices(tx, [old.id]);
+        });
 
         return {
           msg: "Book updated successfully.",
@@ -591,12 +726,15 @@ bookController
       } catch (e) {
         console.log(e);
         const err = e as PrismaClientKnownRequestError;
-        set.status = 400;
         if (err.code === "P2002") {
-          return {
-            msg: "Book name already exists.",
-          };
+          set.status = 422;
+          return duplicateFromPrismaError(err);
         }
+        if (err.code === "P2025") {
+          set.status = 404;
+          return { msg: "Book not found." };
+        }
+        set.status = 400;
         return {
           msg: "Invalid data.",
         };
@@ -607,29 +745,27 @@ bookController
         id: t.String(),
       }),
       response: {
-        201: t.Object({
-          msg: t.String(),
-        }),
-        400: t.Object({
-          msg: t.String(),
-        }),
-        401: t.Object({
-          msg: t.String(),
-        }),
-        403: t.Object({
-          msg: t.String(),
-        }),
-        404: t.Object({
-          msg: t.String(),
-        }),
+        200: msgSchema,
+        400: msgSchema,
+        401: msgSchema,
+        403: msgSchema,
+        404: t.Object({ msg: t.String({ description: "`Book not found.` or `Promotion not found.`" }) }),
         422: t.Object({
           msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
+          fields: t.Record(t.String(), t.Array(t.String()), {
+            description: "Invalid fields. Duplicate name → `name`, duplicate slug → `slug`, invalid new category → `categories`.",
+          }),
         }),
       },
-      body: t.Partial(bodyBook),
+      body: bodyBookUpdate,
       detail: {
-        description: "Update a book"
+        description:
+          "Partially update a book. **Fields not sent are kept unchanged** (no default values are applied).\n\n" +
+          "- `categories` and `promotions`, when sent, **replace** the whole list (`promotions: []` removes all promotions).\n" +
+          "- `pictures`, when sent, replaces all pictures.\n" +
+          "- `slug`, when sent, is normalized; changing `name` alone does not change `slug`.\n" +
+          "- `currentPrice` is recalculated after every update.\n\n" +
+          PRICING_RULE,
       }
     }
   )
@@ -674,19 +810,13 @@ bookController
         id: t.String(),
       }),
       response: {
-        200: t.Object({
-          msg: t.String(),
-        }),
-        400: t.Object({
-          msg: t.String(),
-        }),
-        404: t.Object({
-          msg: t.String(),
-        }),
-        422: t.Object({
-          msg: t.String(),
-          fields: t.Record(t.String(), t.Array(t.String())),
-        })
+        200: msgSchema,
+        400: msgSchema,
+        404: msgSchema,
+        422: validationSchema,
+      },
+      detail: {
+        description: "Delete a book and its picture files.",
       },
     }
   );

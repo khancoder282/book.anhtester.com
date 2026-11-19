@@ -1,5 +1,14 @@
 # Lỗ hổng và điểm yếu đã xác nhận
 
+> **Cập nhật 2026-11-20 — đã sửa hết 30 bug** của đợt exploratory (user chốt sửa hết, không giữ bug mẫu). Tóm tắt cách sửa các lỗ hổng chính:
+> - `/view-file`, upload/rename/move/copy: đường dẫn giải mã một lần rồi phải nằm trong thư mục upload (`backend/src/utils/upload-security.ts`). File phục vụ kèm `nosniff`, CSP `sandbox`, chỉ ảnh raster mới `inline`. Upload kiểm loại file theo nội dung (magic bytes), không nhận SVG/HTML.
+> - Access token mang `sid` (phiên trong `UserRefreshToken`); guard `verifyAccessToken` (`plugins/auth.ts`) từ chối phiên đã thu hồi → logout, đổi mật khẩu/email làm token cũ hết hiệu lực ngay. Refresh token là chuỗi ngẫu nhiên, DB lưu SHA-256, cookie 7 ngày.
+> - `search` JSON (`plugins/filterTable.ts`) chặn `password`, `refreshTokens`, `tokenHash`… ở mọi độ sâu; lỗi không còn lộ nội dung Prisma.
+> - Không có role: user chỉ sửa / khoá / xoá **chính mình** (`PATCH`, `DELETE /api/user/{id}` với id khác → 403).
+> - `GET /api/file` liệt kê thư mục cần token (tải một file vẫn công khai để `<img>` dùng được); `GET /api/db/table` cần token; `POST /api/status` giới hạn `code` 200–599, `time` ≤ 30 giây.
+>
+> **Còn lại (chưa sửa, không có bug report):** chưa có rate limit cho `/api/login`; JWT vẫn rơi về `"secret-key"` nếu thiếu `JWT_SECRET`; `GET /api/file/info` công khai (chỉ trả 2 con số dung lượng, cố ý). Phần dưới là ghi chú gốc trước khi sửa, giữ để tra lịch sử.
+
 > **Đợt exploratory testing 2026-11-20 đã ghi chi tiết 30 bug (9 Critical) trong [`docs/bugs/README.md`](../../docs/bugs/README.md).** Các bug bảo mật nghiêm trọng nhất là: đọc file bất kỳ qua `/view-file` (`BUG_system_1795111377_EXP01`), ghi file ra ngoài thư mục upload (`BUG_file_1795111378_EXP01`), stored XSS đọc token (`BUG_file_1795111379_EXP02`), chiếm tài khoản qua `search` kết hợp refresh token đã revoke (`BUG_user_1795111372_EXP02` + `BUG_auth_1795111365_EXP01`). Phần dưới đây là ghi chú ban đầu, chi tiết xem trong từng file bug.
 
 App này là API cho tester thực hành, nên một số điểm có thể là cố ý. Dù vậy, cần biết chúng tồn tại trước khi deploy công khai.

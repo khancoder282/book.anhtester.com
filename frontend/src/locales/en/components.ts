@@ -74,4 +74,19 @@ export const components = {
     success: 'Success',
     error: 'Error',
   },
+  // Ô địa chỉ (components/fields/address-field.tsx) + chữ mặc định của MUI Autocomplete
+  address: {
+    title: 'Address',
+    division: 'Division',
+    ward: 'Ward',
+    detail: 'Address',
+  },
+  // Chữ mặc định của mọi MUI Autocomplete (đặt trong theme ở app.tsx)
+  autocomplete: {
+    noOptions: 'No options',
+    loading: 'Loading…',
+    open: 'Open',
+    close: 'Close',
+    clear: 'Clear',
+  },
 };

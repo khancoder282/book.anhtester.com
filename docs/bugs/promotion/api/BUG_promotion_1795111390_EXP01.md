@@ -43,3 +43,4 @@ Sach KM Am:    price/currentPrice [100000,120000]
 
 | Ngày | Build | Kết quả | Retest report | Ghi chú |
 |---|---|---|---|---|
+| 20-11-2026 | deploy-vps (chưa commit) | ✅ FIXED | — | Validate KM (POST + PATCH, 422 `{msg, fields}`) và chặn giá bán trong `[0, price]`. % 150 / -20 / 0, FIXED -5, endDate < startDate, code `""`/`"   "` → 422; % 100 → 201; FREE_SHIPPING value 999 → lưu 0. Sách 100000 gắn FIXED 1.000.000 → currentPrice 0; 60% + 50% → 0 |

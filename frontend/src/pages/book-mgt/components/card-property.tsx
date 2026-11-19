@@ -67,10 +67,15 @@ export function CardProperty() {
             rules={{
               required: t('book.validation.priceRequired'),
               min: { value: 1000, message: t('book.validation.priceMin') },
-              max: { value: 100_000_000_000, message: t('book.validation.priceMax') },
+              // Khớp giới hạn API (MAX_BOOK_PRICE = 1 tỷ, cột Int trong DB)
+              max: { value: 1_000_000_000, message: t('book.validation.priceMax') },
               pattern: {
                 value: /^\d*\.?\d*$/,
                 message: t('book.validation.priceNumber'),
+              },
+              validate: {
+                integer: (v) =>
+                  v === '' || Number.isInteger(Number(v)) || t('book.validation.priceInteger'),
               },
             }}
             defaultValue=""

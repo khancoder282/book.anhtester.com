@@ -19,8 +19,11 @@ export const auth: Translation<typeof en> = {
   validation: {
     emailInvalid: 'Địa chỉ email không hợp lệ',
     emailRequired: 'Vui lòng nhập email.',
-    emailMaxLength: 'Email dài tối đa 250 ký tự.',
+    emailMaxLength: 'Email dài tối đa 191 ký tự.',
     passwordRequired: 'Vui lòng nhập mật khẩu.',
     passwordMaxLength: 'Mật khẩu dài tối đa 250 ký tự.',
+  },
+  toast: {
+    networkError: 'Không kết nối được máy chủ. Vui lòng thử lại.',
   },
 };

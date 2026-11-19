@@ -24,8 +24,8 @@ import { useThemeData } from 'src/hooks/use-theme-data';
 
 import { axios } from 'src/api/axios';
 import { CONFIG } from 'src/config-global';
-import { type TKey, useTranslate } from 'src/locales';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { type TKey, translate, useTranslate } from 'src/locales';
 
 import Title from 'src/components/title';
 import { toast } from 'src/components/toast';
@@ -191,7 +191,9 @@ export default function Setting() {
               await axios
                 .patch(`/profile`, { config })
                 .then((res) => toast.success(res.data.msg))
-                .catch((err) => toast.error(err.response.data.msg));
+                .catch((err) =>
+                  toast.error(err.response?.data?.msg ?? translate('user.toast.networkError'))
+                );
             })}
           >
             {t('common.actions.save')}

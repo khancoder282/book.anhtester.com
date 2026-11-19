@@ -12,9 +12,10 @@ export const slugify = (s: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
+    .replace(/[^a-z0-9\s_-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 export const handleCreateBook = async (book: BookForm) => {
   const id = 'create-book';
@@ -41,7 +42,8 @@ export const handleCreateBook = async (book: BookForm) => {
       duration: Infinity,
     });
 
-    return axios
+    // `await` để lỗi rơi vào catch bên dưới (gán lỗi 422 vào từng ô của form)
+    return await axios
       .post('/book', {
         name: book.name,
         description: book.description,
@@ -57,12 +59,12 @@ export const handleCreateBook = async (book: BookForm) => {
         return res;
       })
       .catch((err) => {
-        toast.error(err.response.data.msg, { id, duration: 3000 });
-        axios.delete('/file', { params: { path: `/$book-image/${book.slug}` } });
+        // Chỉ xoá ảnh vừa upload; không xoá cả thư mục (có thể là của sách khác trùng slug)
+        if (paths?.length) axios.delete('/file', { params: { path: paths } });
         throw err;
       });
   } catch (err: any) {
-    if (err.response?.status === 422) {
+    if (err.response?.status === 422 && err.response.data?.fields) {
       for (const [key, value] of Object.entries(err.response.data.fields)) {
         setError(key as keyof BookForm, {
           type: 'manual',
@@ -70,7 +72,10 @@ export const handleCreateBook = async (book: BookForm) => {
         });
       }
     }
-    toast.error(err.response.data.msg, { id, duration: 3000 });
+    toast.error(err.response?.data?.msg ?? translate('components.toast.errorDefault'), {
+      id,
+      duration: 3000,
+    });
     throw err;
   }
 };

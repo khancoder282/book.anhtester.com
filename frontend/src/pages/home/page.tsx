@@ -153,7 +153,7 @@ const ViewCard = ({
 export default function Page() {
   const { t } = useTranslate();
   const { auth } = useAuth();
-  const form = useForm<{ time: number; code: number }>();
+  const form = useForm<{ time: number; code: number | '' }>();
 
   const { data: totalUser = 0 } = useRequest(
     async () =>
@@ -186,8 +186,9 @@ export default function Page() {
         }),
       {
         loading: t('home.testMessage.loading'),
-        success: (res) => res.data.msg,
-        error: (err) => err.response.data.msg,
+        // 204/205/304 không có body → dùng câu chuẩn của mã đó; lỗi mạng không có err.response
+        success: (res) => res.data?.msg || item.msg,
+        error: (err) => err?.response?.data?.msg || t('common.somethingWrong'),
       }
     );
   };
@@ -376,7 +377,13 @@ export default function Page() {
               control={form.control}
               name="code"
               defaultValue={200}
-              render={({ field }) => (
+              rules={{
+                // Để trống thì không gửi (trước đây gửi code: 0 và msg rỗng)
+                validate: (v) =>
+                  status.some((s) => s.code === Number(v)) ||
+                  t('home.testMessage.statusCodeRequired'),
+              }}
+              render={({ field, fieldState: { error } }) => (
                 <Autocomplete
                   options={status}
                   getOptionLabel={(option) => `${option.code} - ${option.msg}`}
@@ -387,10 +394,7 @@ export default function Page() {
                       <Avatar
                         sx={{ bgcolor: option.color, color: 'white', mr: 1, width: 24, height: 24 }}
                       >
-                        <Iconify
-                          width={16}
-                          icon={Icon[parseInt((option.code / 100).toFixed(0), 10)]}
-                        />
+                        <Iconify width={16} icon={Icon[Math.floor(option.code / 100)]} />
                       </Avatar>
                       <strong style={{ marginRight: '0.5rem' }}>{option.code}</strong> {option.msg}
                     </li>
@@ -400,6 +404,8 @@ export default function Page() {
                       {...params}
                       label={t('home.testMessage.statusCode')}
                       variant="outlined"
+                      error={!!error}
+                      helperText={error?.message}
                     />
                   )}
                 />

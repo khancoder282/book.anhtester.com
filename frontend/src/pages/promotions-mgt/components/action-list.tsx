@@ -1,5 +1,7 @@
 import { Stack, MenuItem } from '@mui/material';
 
+import { useRouter } from 'src/routes/hooks';
+
 import { useTranslate } from 'src/locales';
 
 import { Iconify } from 'src/components/iconify';
@@ -9,10 +11,11 @@ import { deletePromotion } from '../api/delete-promotion';
 
 export function ActionList({ row, request }: { row: PromotionType; request: () => Promise<void> }) {
   const { t } = useTranslate();
+  const router = useRouter();
 
   return (
     <Stack>
-      <MenuItem onClick={() => {}}>
+      <MenuItem onClick={() => router.push(`/promotion-book-management/handle?id=${row.id}`)}>
         <Iconify icon="solar:pen-bold" />
         {t('common.actions.edit')}
       </MenuItem>
@@ -21,8 +24,7 @@ export function ActionList({ row, request }: { row: PromotionType; request: () =
         sx={{ color: 'error.main' }}
         onClick={() =>
           dialog.delete(t('promotion.confirmDelete', { name: row.name }), async () => {
-            await deletePromotion(row.id);
-            await request();
+            if (await deletePromotion(row.id)) await request();
           })
         }
       >
