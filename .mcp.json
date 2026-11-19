@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--isolated",
+        "--config",
+        ".claude/playwright-mcp-config.json",
+        "--output-dir",
+        "${LOCALAPPDATA:-}${TMPDIR:-}/playwright-mcp-output/book-anhtester"
+      ]
+    },
+    "appium": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "appium-mcp@latest"],
+      "env": {
+        "ANDROID_HOME": "${ANDROID_HOME}",
+        "JAVA_HOME": "${JAVA_HOME}",
+        "CAPABILITIES_CONFIG": "capabilities.json"
+      }
+    }
+  }
+}
