@@ -15,6 +15,8 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-20-05](#2026-11-20-05) | 2026-11-20 | Khuyến mãi: giá trị có đơn vị, trạng thái theo ngày | Không | Không | ⏳ Chưa làm |
 | [2026-11-20-06](#2026-11-20-06) | 2026-11-20 | Đa ngôn ngữ vi / en + nút chuyển | Không | Không | ⏳ Chưa làm (việc lớn nhất) |
 | [2026-11-20-07](#2026-11-20-07) | 2026-11-20 | Tiêu đề tab đổi ngay khi chuyển trang | Không | Không | ⏳ Chưa làm |
+| [2026-11-20-08](#2026-11-20-08) | 2026-11-20 | Ẩn màn File và Database | Không | Không | ⏳ Chưa làm (ẩn màn File bên mobile) |
+| [2026-11-20-09](#2026-11-20-09) | 2026-11-20 | Trang Cần trợ giúp (`/help`) | Không | Không | ⏳ Chưa làm |
 
 ---
 
@@ -202,3 +204,48 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 |---|---|---|
 | `app.tsx` | cùng đường dẫn | Thêm `useRouteTitle` |
 | `components/title/index.tsx` | cùng đường dẫn | Chép sang |
+
+---
+
+<a id="2026-11-20-08"></a>
+## 2026-11-20-08 · Ẩn màn File và Database
+
+**Web đã làm**
+
+- `config-global.ts`: thêm `CONFIG.hiddenPaths = [/file-management, /db-management]` và hàm `isHiddenPath()`.
+- `layouts/nav-config-dashboard.tsx`: menu bỏ các mục trong `hiddenPaths`. `routes/sections.tsx`: bỏ route tương ứng, mở thẳng URL ra trang 404.
+- Code của hai màn và API backend (`/api/file*`, `/api/db/*`) **giữ nguyên**. Bật lại: xoá đường dẫn khỏi `hiddenPaths`.
+- Dashboard: câu giới thiệu không còn nhắc quản lý file.
+
+**Mobile cần làm**: mobile có màn File (chưa có màn Database) → ẩn tương tự: chép `config-global.ts` (phần `hiddenPaths`, `isHiddenPath`), lọc `navData` và route. Ảnh avatar / ảnh bìa vẫn tải qua API file như cũ.
+
+| Web (`frontend/src/`) | Mobile (`src/`) | Việc |
+|---|---|---|
+| `config-global.ts` | cùng đường dẫn | Thêm `hiddenPaths`, `isHiddenPath` |
+| `layouts/nav-config-dashboard.tsx`, `routes/sections.tsx` | cùng đường dẫn | Lọc menu và route |
+| `locales/{en,vi}/home.ts` | cùng đường dẫn | Câu giới thiệu Dashboard |
+
+---
+
+<a id="2026-11-20-09"></a>
+## 2026-11-20-09 · Trang Cần trợ giúp (`/help`)
+
+**Web đã làm**
+
+- Route công khai mới `/help` (không cần đăng nhập), dùng `AuthLayout`. Link "Need help?" / "Cần trợ giúp?" ở header trang sign-in / sign-up trước đây là `href="#"`, nay mở `/help`.
+- Nội dung: thông tin liên hệ Anh Tester theo https://anhtester.com/contact — điện thoại, email, Zalo, website; nút Facebook, YouTube, Telegram, LinkedIn, GitHub, Discord; 8 nhóm cộng đồng (Zalo, Facebook, Telegram); nút *Quay lại đăng nhập*.
+- Namespace i18n mới `help`, tiêu đề tab `Need help? - …` / `Cần trợ giúp? - …`.
+- Thêm icon offline vào `components/iconify/icon-sets.ts` (phone, letter, global, mạng xã hội, Zalo).
+
+**Locator mới**: `[data-testid="need-help-link"]`, `help-contact-{phone,email,zalo,website}`, `help-social-{facebook,youtube,telegram,linkedin,github,discord}`, `help-community-<nền-tảng>-<nhóm>`, `help-back-to-sign-in`. Chi tiết: `memory/features/help.md`.
+
+**Mobile cần làm**: chép trang + locale + icon, thêm route, trỏ link ở header auth tới `/help`. Trên app Capacitor, link `tel:`, `mailto:`, `https://zalo.me/…` cần mở bằng app ngoài (kiểm tra `target="_blank"` có bật trình duyệt hệ thống hay không; nếu không thì dùng `@capacitor/browser` / `App.openUrl`). Không cần deploy backend.
+
+| Web (`frontend/src/`) | Mobile (`src/`) | Việc |
+|---|---|---|
+| `pages/help/page.tsx` | cùng đường dẫn | Chép sang, kiểm layout màn nhỏ (danh sách nhóm đã về 1 cột dưới `sm`) |
+| `locales/{en,vi}/help.ts`, `locales/index.ts` | cùng đường dẫn | Chép sang, đăng ký namespace `help` |
+| `components/iconify/icon-sets.ts` | cùng đường dẫn | Thêm các icon mới |
+| `routes/sections.tsx` | cùng đường dẫn | Thêm route `help` |
+| `layouts/auth/layout.tsx` | cùng đường dẫn | Link `href="/help"` + `data-testid="need-help-link"` |
+| `app.tsx` | cùng đường dẫn | Thêm `/help` vào `EXTRA_TITLES` |

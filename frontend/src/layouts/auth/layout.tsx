@@ -18,7 +18,13 @@ import { LanguagePopover } from '../components/language-popover';
 function NeedHelpLink() {
   const { t } = useTranslate();
   return (
-    <Link href="#" component={RouterLink} color="inherit" sx={{ typography: 'subtitle2' }}>
+    <Link
+      href="/help"
+      component={RouterLink}
+      color="inherit"
+      data-testid="need-help-link"
+      sx={{ typography: 'subtitle2' }}
+    >
       {t('nav.needHelp')}
     </Link>
   );

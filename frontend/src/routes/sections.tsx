@@ -80,6 +80,10 @@ const routesSection: RouteObject[] = [
     path: 'sign-in',
     Component: lazy(() => import('src/pages/sign-in')),
   },
+  {
+    path: 'help',
+    Component: lazy(() => import('src/pages/help/page')),
+  },
   { path: '*', Component: lazy(() => import('src/pages/not-found-view/index')) },
 ];
 

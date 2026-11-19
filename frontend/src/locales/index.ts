@@ -11,11 +11,13 @@ import { nav as viNav } from './vi/nav';
 import { auth as enAuth } from './en/auth';
 import { book as enBook } from './en/book';
 import { file as enFile } from './en/file';
+import { help as enHelp } from './en/help';
 import { home as enHome } from './en/home';
 import { user as enUser } from './en/user';
 import { auth as viAuth } from './vi/auth';
 import { book as viBook } from './vi/book';
 import { file as viFile } from './vi/file';
+import { help as viHelp } from './vi/help';
 import { home as viHome } from './vi/home';
 import { user as viUser } from './vi/user';
 import { common as enCommon } from './en/common';
@@ -42,6 +44,7 @@ const en = {
   promotion: enPromotion,
   file: enFile,
   db: enDb,
+  help: enHelp,
   components: enComponents,
 };
 
@@ -56,6 +59,7 @@ const vi: Translation<typeof en> = {
   promotion: viPromotion,
   file: viFile,
   db: viDb,
+  help: viHelp,
   components: viComponents,
 };
 

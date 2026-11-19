@@ -64,6 +64,7 @@ export default function App({ children }: AppProps) {
 const EXTRA_TITLES: { path: string; title: TKey }[] = [
   { path: '/sign-in', title: 'nav.signIn' },
   { path: '/sign-up', title: 'nav.signUp' },
+  { path: '/help', title: 'help.title' },
 ];
 
 /**
