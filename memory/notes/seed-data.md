@@ -23,7 +23,7 @@ cd backend && bun run seed --yes
 | Book | 20 sách tiếng Việt, mỗi sách 2 ảnh (`bia-truoc.jpg`, `bia-sau.jpg`). 2 sách `UNAVAILABLE`. Mô tả do mình viết, không chép từ nguồn nào |
 | Promotion | `SALE10` (%), `GIAM20K` (số tiền), `THIEUNHI15` (%), `FREESHIP` (không đổi giá), `BLACKFRIDAY30` (sắp diễn ra), `TET2026` (hết hạn), `SUMMER25` (đang tắt) |
 | File | `tai-lieu/` (txt, md, csv), `hinh-anh/` (2 banner), `thu-muc-trong/` (thư mục rỗng), cộng ảnh sách và avatar |
-| Address | 6 thành phố, 31 phường. **Chỉ là dữ liệu rút gọn**, không phải danh sách hành chính đầy đủ |
+| Address | Đủ 34 tỉnh/thành, 3321 phường/xã/đặc khu hiện hành, ở file riêng `vn-address.json` (từ 2026-11-20). Chỉ nạp lại bảng này: `bun run seed:address --yes`. Xem `memory/features/address.md` |
 
 ## Ảnh
 

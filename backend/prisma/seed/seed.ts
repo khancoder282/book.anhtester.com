@@ -7,12 +7,13 @@
  * --yes           bắt buộc, xác nhận xoá dữ liệu
  * --allow-remote  cho phép chạy khi DATABASE_URL không phải localhost
  *
- * Dữ liệu ở data.json, ảnh ở assets/ (sinh bằng tools/make_images.py).
+ * Dữ liệu ở data.json, địa chỉ ở vn-address.json, ảnh ở assets/ (sinh bằng tools/make_images.py).
  */
 import fs from "fs";
 import path from "path";
 import { PrismaClient, type Promotion } from "../../src/prisma/client";
 import data from "./data.json";
+import { addressRows } from "./address";
 
 const args = process.argv.slice(2);
 const SEED_DIR = import.meta.dir;
@@ -104,9 +105,7 @@ async function main() {
 
   // 2. Category, địa chỉ
   await prisma.category.createMany({ data: data.categories.map((name) => ({ name })) });
-  await prisma.address.createMany({
-    data: Object.entries(data.addresses).flatMap(([div, wards]) => wards.map((wards) => ({ div, wards }))),
-  });
+  await prisma.address.createMany({ data: addressRows() });
 
   // 3. User (mỗi user tạo cách nhau vài ngày)
   const userIds: Record<string, string> = { admin: admin.id };

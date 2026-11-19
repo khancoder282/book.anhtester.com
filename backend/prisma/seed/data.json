@@ -56,13 +56,5 @@
     { "code": "BLACKFRIDAY30", "name": "Black Friday giảm 30%", "description": "Chương trình sắp diễn ra: giảm 30% trong tuần Black Friday.", "type": "PERCENTAGE", "value": 30, "startOffsetDays": 5, "endOffsetDays": 12, "isActive": true, "books": ["tuoi-tre-dang-gia-bao-nhieu", "atomic-habits"] },
     { "code": "TET2026", "name": "Khuyến mãi Tết 2026", "description": "Chương trình đã kết thúc.", "type": "PERCENTAGE", "value": 20, "startOffsetDays": -330, "endOffsetDays": -300, "isActive": true, "books": ["luoc-su-thoi-gian", "viet-nam-su-luoc"] },
     { "code": "SUMMER25", "name": "Hè rực rỡ giảm 25%", "description": "Chương trình đang tạm tắt.", "type": "PERCENTAGE", "value": 25, "startOffsetDays": -10, "endOffsetDays": 20, "isActive": false, "books": ["nhap-mon-kiem-thu-phan-mem"] }
-  ],
-  "addresses": {
-    "Thành phố Hà Nội": ["Phường Ba Đình", "Phường Hoàn Kiếm", "Phường Cửa Nam", "Phường Cầu Giấy", "Phường Đống Đa", "Phường Tây Hồ", "Phường Hai Bà Trưng"],
-    "Thành phố Hồ Chí Minh": ["Phường Sài Gòn", "Phường Bến Thành", "Phường Tân Định", "Phường Bàn Cờ", "Phường Xuân Hòa", "Phường Thủ Đức", "Phường Gò Vấp"],
-    "Thành phố Đà Nẵng": ["Phường Hải Châu", "Phường Hòa Cường", "Phường Thanh Khê", "Phường Sơn Trà", "Phường Ngũ Hành Sơn", "Phường Hội An"],
-    "Thành phố Hải Phòng": ["Phường Hồng Bàng", "Phường Lê Chân", "Phường Ngô Quyền", "Phường Hải An"],
-    "Thành phố Cần Thơ": ["Phường Ninh Kiều", "Phường Cái Khế", "Phường Tân An", "Phường Bình Thủy"],
-    "Thành phố Huế": ["Phường Thuận Hóa", "Phường Phú Xuân", "Phường Kim Long"]
-  }
+  ]
 }

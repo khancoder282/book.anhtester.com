@@ -114,13 +114,14 @@ App không phân quyền theo vai trò: mọi tài khoản đăng nhập đều 
 | Book | 20 sách tiếng Việt, mỗi sách 2 ảnh (bìa trước, bìa sau); 2 sách `UNAVAILABLE` |
 | Promotion | `SALE10` giảm 10% · `GIAM20K` giảm 20.000đ · `THIEUNHI15` giảm 15% · `FREESHIP` miễn phí vận chuyển · `BLACKFRIDAY30` sắp diễn ra · `TET2026` đã hết hạn · `SUMMER25` đang tắt |
 | File | `tai-lieu/` (txt, md, csv), `hinh-anh/` (banner), `thu-muc-trong/` |
-| Address | 6 thành phố, 31 phường. **Bản rút gọn**, không phải danh sách hành chính đầy đủ |
+| Address | Đơn vị hành chính hiện hành (từ 01/07/2025, bỏ cấp huyện): **34 tỉnh/thành phố, 3.321 phường/xã/đặc khu**. File `backend/prisma/seed/vn-address.json` |
 
 Ngày khuyến mãi tính theo thời điểm chạy seed, nên lúc nào chạy lại cũng có đủ các trạng thái trên.
 
 ### Sửa dữ liệu mẫu
 
-- Dữ liệu nằm trong `backend/prisma/seed/data.json`, ảnh trong `backend/prisma/seed/assets/`.
+- Dữ liệu nằm trong `backend/prisma/seed/data.json`, địa chỉ trong `backend/prisma/seed/vn-address.json`, ảnh trong `backend/prisma/seed/assets/`.
+- Chỉ nạp lại bảng Address (không đụng user, sách, file): `bun run seed:address --yes` trong `backend/`. Chạy trên server thì thêm `--allow-remote`.
 - Thêm hoặc đổi tên sách thì vẽ lại ảnh bìa trước khi seed (cần Python 3 + Pillow, font của Windows):
 
   ```bash

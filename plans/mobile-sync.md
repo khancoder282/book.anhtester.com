@@ -11,6 +11,7 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-20-01](#2026-11-20-01) | 2026-11-20 | Màn Category riêng | Không (dùng API có sẵn), sửa cách gọi DELETE | Không | ⏳ Chưa làm |
 | [2026-11-20-02](#2026-11-20-02) | 2026-11-20 | Màn Database xem cấu trúc bảng | **Có**: thêm `GET /api/db/schema` | **Có** | ⏳ Tuỳ chọn (mobile chưa có màn Database) |
 | [2026-11-20-03](#2026-11-20-03) | 2026-11-20 | Ảnh bìa mặc định cho sách | Không | Không | ⏳ Chưa làm |
+| [2026-11-20-04](#2026-11-20-04) | 2026-11-20 | Dữ liệu Address theo đơn vị hành chính hiện hành | Không đổi hình dạng; dữ liệu + thứ tự trả về đổi | **Có** (+ nạp dữ liệu trên VPS) | Không cần sửa code |
 
 ---
 
@@ -95,3 +96,32 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | `pages/book-mgt/components/card-book-view.tsx` | cùng đường dẫn | Thay `CardMedia` + `/$image-404.svg` bằng `BookCover` |
 | `pages/book-mgt/components/card-book-view-smoll.tsx` | cùng đường dẫn | Dùng `BookCover`, không dựng carousel khi không có ảnh |
 | `pages/book-mgt/detail.tsx` | cùng đường dẫn | Lọc ảnh rỗng, hiện `BookCover`, xoá `console.log` |
+
+---
+
+<a id="2026-11-20-04"></a>
+## 2026-11-20-04 · Dữ liệu Address theo đơn vị hành chính hiện hành
+
+**Web đã làm**
+
+- Bảng `Address` nạp đủ **34 tỉnh/thành phố, 3.321 phường/xã/đặc khu** theo hệ thống hành chính 2 cấp từ 01/07/2025 (trước đây seed chỉ có 6 thành phố, 31 phường). Dữ liệu ở `backend/prisma/seed/vn-address.json`.
+- Script mới `bun run seed:address --yes` chỉ thay bảng Address. `bun run seed` dùng chung dữ liệu này.
+- UI không đổi: ô *Division* / *Ward* trong form user (`components/fields/address-field.tsx`) tự có danh sách mới.
+
+**API**: hình dạng không đổi (`string[]`). Thay đổi:
+- `GET /api/address`: trả 34 tỉnh theo **thứ tự mã hành chính** (Thành phố Hà Nội → Tỉnh Cà Mau) thay vì thứ tự ngẫu nhiên của `groupBy`.
+- `GET /api/address/{divname}`: thứ tự theo mã hành chính. Tên tỉnh cũ (VD `Tỉnh Hà Giang`, `Tỉnh Bình Dương`) giờ trả `[]`.
+- Swagger: thêm `summary` và mô tả chi tiết cho 2 endpoint.
+
+**Locator cho test**: không đổi (`#address-division`, `#address-ward`, `#address`).
+
+**Mobile cần làm**
+
+- Không cần sửa code: `address-field.tsx` bên mobile gọi cùng API.
+- App gọi API production nên phải: deploy backend (`address-controller.ts`) **và** chạy `cd backend && bun run seed:address --yes --allow-remote` trên VPS. Chưa chạy thì app vẫn thấy dữ liệu cũ trên production.
+- Test mobile nào hard-code tên tỉnh/phường cũ (cấp huyện, tỉnh đã sáp nhập) thì đổi sang tên mới.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `backend/prisma/seed/vn-address.json`, `address.ts` | — | Nạp dữ liệu trên VPS |
+| `backend/src/routers/address-controller.ts` | — | Deploy backend |

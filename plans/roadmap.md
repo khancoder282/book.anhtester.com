@@ -15,6 +15,7 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 1.5 | Trạng thái Promotion tính theo ngày: Sắp chạy / Đang chạy / Hết hạn | ⏳ | Hiện chỉ dựa vào `isActive` |
 | 1.6 | Thống nhất ngôn ngữ UI (vi hoặc en, hoặc nút chuyển vi/en) | ⏳ | Hiện menu tiếng Anh, ngày tháng tiếng Việt |
 | 1.7 | Tiêu đề tab không nháy "API RESTful miễn phí…" khi chuyển trang | ⏳ | Tiêu đề mặc định trong `index.html` hiện ra trước khi `<Title>` chạy |
+| 1.8 | Dữ liệu **Address** đúng đơn vị hành chính hiện hành (34 tỉnh/thành, 3.321 phường/xã/đặc khu), API trả theo thứ tự mã hành chính | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-04](mobile-sync.md#2026-11-20-04) |
 
 ## Đợt 2: Giao diện
 
