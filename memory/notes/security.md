@@ -1,5 +1,7 @@
 # Lỗ hổng và điểm yếu đã xác nhận
 
+> **Đợt exploratory testing 2026-11-20 đã ghi chi tiết 30 bug (9 Critical) trong [`docs/bugs/README.md`](../../docs/bugs/README.md).** Các bug bảo mật nghiêm trọng nhất là: đọc file bất kỳ qua `/view-file` (`BUG_system_1795111377_EXP01`), ghi file ra ngoài thư mục upload (`BUG_file_1795111378_EXP01`), stored XSS đọc token (`BUG_file_1795111379_EXP02`), chiếm tài khoản qua `search` kết hợp refresh token đã revoke (`BUG_user_1795111372_EXP02` + `BUG_auth_1795111365_EXP01`). Phần dưới đây là ghi chú ban đầu, chi tiết xem trong từng file bug.
+
 App này là API cho tester thực hành, nên một số điểm có thể là cố ý. Dù vậy, cần biết chúng tồn tại trước khi deploy công khai.
 
 ## 1. Lọc user theo hash mật khẩu mà không cần đăng nhập (đã xác nhận 2026-11-20)

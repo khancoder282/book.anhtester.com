@@ -79,5 +79,8 @@ Prisma client được generate vào `backend/src/prisma/`, không phải `node_
 
 ## Lưu ý khi test
 
+- **Bug đã biết:** xem [`docs/bugs/README.md`](docs/bugs/README.md) (30 bug, đợt 2026-11-20) trước khi báo bug mới, để tránh trùng.
+- Test có tiếng Việt thì gọi API bằng script Bun, không dùng curl trong Git Bash (bị đổi ký tự có dấu thành `?`). Xem [memory/notes/testing-pitfalls.md](memory/notes/testing-pitfalls.md).
+
 - Swagger mặc định chọn Server `https://book.anhtester.com` (production). Muốn thử API trên máy thì đổi Server sang `http://localhost:4566`.
 - Tài khoản test local: `admin@example.com` / `123456` (tạo qua `POST /api/register`).
