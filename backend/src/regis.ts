@@ -60,6 +60,10 @@ export const regis = new Elysia()
           {
             name: "Promotion Management",
             description: "Manage promotions, update information, and provide promotion details."
+          },
+          {
+            name: "Database",
+            description: "Read-only view of the database structure (tables, columns, keys, row counts)."
           }
         ],
         components: {

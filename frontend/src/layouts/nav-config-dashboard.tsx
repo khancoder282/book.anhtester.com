@@ -28,6 +28,11 @@ export const navData = [
     icon: icon('ic-book'),
   },
   {
+    title: 'Category',
+    path: '/category-management',
+    icon: icon('ic-blog'),
+  },
+  {
     title: 'Promotion',
     path: '/promotion-book-management',
     icon: icon('ic-sale'),

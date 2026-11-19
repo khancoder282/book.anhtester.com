@@ -7,7 +7,8 @@ Code: `backend/src/index.ts`, `backend/src/regis.ts`, `backend/src/routers/datab
 | Method | Path | Ghi chú |
 |---|---|---|
 | POST | `/api/status` | Body `{ code, msg, time? }`, không cần token. Trả `{ msg }` với status code `code`, chờ `time` **giây** trước khi trả (dùng để tester giả lập lỗi hoặc độ trễ) |
-| GET | `/api/db/table` | Ẩn khỏi Swagger (`hide: true`), **không cần token**. Chạy `SHOW TABLES`. Frontend dùng ở `/db-management` |
+| GET | `/api/db/table` | Ẩn khỏi Swagger (`hide: true`), **không cần token**. Chạy `SHOW TABLES`. Frontend không dùng |
+| GET | `/api/db/schema` | **Cần token**, có trong Swagger (tag *Database*), thêm 2026-11-20. Trả cấu trúc mọi bảng: `name`, `rows` (COUNT(*)), `columns[]` (`name, type, nullable, key, default, extra, references`). **Không** trả dữ liệu dòng. Frontend dùng ở `/db-management` |
 | GET | `/swagger` | Swagger UI (Scalar), JSON ở `/swagger/json` |
 | GET | `/view-file/*` | Xem file trong thư mục upload |
 | GET | `/assets/*` | File tĩnh của frontend đã build (`backend/public/assets`) |

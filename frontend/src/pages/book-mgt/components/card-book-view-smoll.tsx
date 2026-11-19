@@ -14,33 +14,29 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { CarouselDefault } from 'src/components/carousel/default';
 
+import { BookCover } from './book-cover';
+
 export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?: boolean }) {
   return (
     <Card
       id={`book-${book.id}`}
       component={RouterLink}
       href={`/book-management/detail/${book.slug}`}
-      sx={{ height: 390, position: 'relative', display: 'block' }}
+      sx={{ height: 390, position: 'relative', display: 'block', textDecoration: 'none' }}
     >
-      <CarouselDefault
-        plugin={[Autoplay({ delay: 5000, playOnInit: true })]}
-        sx={{ height: 1, minHeight: 320 }}
-        options={{ loop: true }}
-      >
-        {book.picture.map((img) => (
-          <Box
-            sx={{
-              flex: '0 0 100%',
-              height: 1,
-              objectFit: 'cover',
-            }}
-            component="img"
-            key={img}
-            src={formatFilePath(img)}
-            alt={book.name}
-          />
-        ))}
-      </CarouselDefault>
+      {book.picture.length > 0 ? (
+        <CarouselDefault
+          plugin={[Autoplay({ delay: 5000, playOnInit: true })]}
+          sx={{ height: 1, minHeight: 320 }}
+          options={{ loop: true }}
+        >
+          {book.picture.map((img) => (
+            <BookCover key={img} src={img} name={book.name} sx={{ flex: '0 0 100%', height: 1 }} />
+          ))}
+        </CarouselDefault>
+      ) : (
+        <BookCover name={book.name} sx={{ height: 1 }} />
+      )}
       <Box
         sx={{
           top: (t) => t.spacing(1),

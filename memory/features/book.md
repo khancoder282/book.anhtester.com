@@ -22,3 +22,5 @@ Frontend: `src/pages/book-mgt/` (`page.tsx`, `add-page.tsx`, `detail.tsx`). Rout
 - Ảnh lưu trong DB là **một chuỗi các tên file nối bằng dấu phẩy** (`picture`). API nhận và trả về dạng mảng `pictures` / `picture[]`. File ảnh nằm trong `upload/$book-image/`.
 - `currentPrice` là giá sau khuyến mãi, tách riêng với `price`.
 - Script seed `bun run fake` trỏ tới `src/fake.ts`, nhưng trên nhánh `deploy-vps` **file này không tồn tại**. Trên `main` script là `src/prisma-fake.ts`; nó lặp vô hạn và cần có sẵn category cùng user.
+- Ảnh bìa trên UI đi qua component `frontend/src/pages/book-mgt/components/book-cover.tsx` (2026-11-20): không có ảnh hoặc ảnh tải lỗi thì vẽ bìa mặc định (gradient theo tên, `data-cover="placeholder"`). Không còn dùng `/$image-404.svg`, vì file đó chỉ có trong `backend/upload` (gitignore), máy mới clone không có.
+- API chi tiết sách không ảnh trả một phần tử `picture` có `path` rỗng (bug `BOOK EXP07`). `detail.tsx` lọc bỏ phần tử này, API vẫn giữ nguyên lỗi.

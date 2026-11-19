@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 
-import { Box, Card, Link, Stack, Avatar, CardMedia, Typography, IconButton } from '@mui/material';
+import { Box, Card, Link, Stack, Avatar, Typography, IconButton } from '@mui/material';
 
 import { RouterLink } from 'src/routes/components';
 
@@ -14,6 +14,8 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
 
+import { BookCover } from './book-cover';
+
 export function CardBookView({ book, isEdit }: CardBookViewProps) {
   const navigate = useNavigate();
   return (
@@ -23,17 +25,9 @@ export function CardBookView({ book, isEdit }: CardBookViewProps) {
         component={RouterLink}
         href={`/book-management/detail/${book.slug}`}
         position="relative"
+        sx={{ display: 'block', textDecoration: 'none' }}
       >
-        <CardMedia
-          component="img"
-          loading="lazy"
-          sx={{
-            aspectRatio: '16 / 9',
-            objectFit: 'cover',
-            bgcolor: 'background.neutral',
-          }}
-          src={formatFilePath(book.picture[0] ?? '/$image-404.svg')}
-        />
+        <BookCover src={book.picture[0]} name={book.name} sx={{ aspectRatio: '16 / 9' }} />
         <Box
           sx={{
             top: 0,

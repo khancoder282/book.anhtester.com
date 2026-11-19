@@ -30,6 +30,7 @@ import { NoData } from 'src/components/grid-view/components/not-data';
 import { CarouselThumb } from 'src/components/carousel/carousel-thumb';
 
 import { getDetailBook } from './api/detail-book';
+import { BookCover } from './components/book-cover';
 import { MappingType } from '../promotions-mgt/const-type';
 
 export default function BookDetail() {
@@ -38,7 +39,8 @@ export default function BookDetail() {
     useCallback(() => getDetailBook(slug!), [slug])
   );
   const router = useRouter();
-  console.log(data.picture);
+  // Bỏ phần tử ảnh rỗng (API chi tiết trả về 1 "ảnh" path rỗng khi sách không có ảnh)
+  const pictures = (data.picture ?? []).map((item) => (item as FileItem).path).filter(Boolean);
 
   return (
     <DashboardContent>
@@ -53,8 +55,10 @@ export default function BookDetail() {
       </Box>
       <Grid container spacing={8}>
         <Grid size={{ xs: 12, md: 6, lg: 7 }}>
-          {(data.picture?.length || 0) > 0 ? (
-            <CarouselThumb listSrc={data.picture?.map((item) => (item as FileItem).path) ?? []} />
+          {pictures.length > 0 ? (
+            <CarouselThumb listSrc={pictures} />
+          ) : data.name ? (
+            <BookCover name={data.name} sx={{ aspectRatio: '1 / 1', borderRadius: 2 }} />
           ) : (
             <Box p={3} width={1} sx={{ aspectRatio: '1 / 1' }}>
               <NoData />
@@ -89,7 +93,9 @@ export default function BookDetail() {
                   color={MappingType[p.type].color}
                   startIcon={<Iconify icon={MappingType[p.type].icon} />}
                   sx={{ textTransform: 'capitalize' }}
-                >{p.name}</Label>
+                >
+                  {p.name}
+                </Label>
               ))}
             </Box>
             <Box>

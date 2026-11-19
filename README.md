@@ -152,8 +152,15 @@ frontend/
   src/pages/<module>-mgt/  # màn hình từng module
   src/api/axios.ts         # axios, baseURL /api
 docs/bugs/                 # bug report
+plans/                     # kế hoạch phát triển + thay đổi cần đồng bộ sang app mobile
 memory/                    # ghi chú làm việc
 ```
+
+## Kế hoạch và đồng bộ với app mobile
+
+- Lộ trình tính năng và trạng thái: [`plans/roadmap.md`](plans/roadmap.md).
+- Mỗi thay đổi trên web (API, UI) được ghi ở [`plans/mobile-sync.md`](plans/mobile-sync.md), kèm file tương ứng bên repo `mobile-book.anhtester.com` và việc mobile cần làm.
+- App mobile gọi API **production**, nên API mới chỉ dùng được trên mobile sau khi deploy backend.
 
 ## Kiểm thử
 

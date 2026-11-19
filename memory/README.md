@@ -34,6 +34,10 @@ Cập nhật lần cuối: 2026-11-20, nhánh `deploy-vps`.
 
 Danh mục bug ở [`docs/bugs/README.md`](../docs/bugs/README.md), evidence ở `docs/executions/<module>/<nền-tảng>/run_*/evidence/`. Định dạng theo skill `.claude/skills/skills-bug-reporter`.
 
+## Kế hoạch và đồng bộ mobile
+
+Kế hoạch phát triển ở [`plans/roadmap.md`](../plans/roadmap.md). Mỗi thay đổi đã làm trên web ghi ở [`plans/mobile-sync.md`](../plans/mobile-sync.md) để repo `../mobile-book.anhtester.com` chỉnh theo. Repo mobile là app Capacitor dùng gần như cùng mã nguồn React với `frontend/` (cùng đường dẫn `src/pages`, `src/layouts`, `src/routes`), nhưng gọi API production.
+
 ## Quy ước khi cập nhật
 
 - Mỗi file chỉ nói về một chủ đề. Thêm tính năng mới thì tạo file mới trong `features/` và thêm một dòng vào bảng trên.
@@ -41,3 +45,4 @@ Danh mục bug ở [`docs/bugs/README.md`](../docs/bugs/README.md), evidence ở
 - Thông tin đã sai thì sửa hoặc xoá, đừng để tồn tại song song với thông tin mới.
 - Quy tắc user đã xác nhận (2026-11-20): ghi ngay vào `CLAUDE.md` **và** bộ nhớ, không để chỉ nằm trong một phiên chat.
 - Hướng dẫn cho người dùng repo (cài đặt, chạy, `.env`, seed, tài khoản, build) ghi vào `README.md` ở gốc repo (2026-11-20). `memory/` chỉ giữ ghi chú làm việc.
+- Chỉnh tính năng / UI / API (2026-11-20): cùng lúc cập nhật Swagger + `features/<tính-năng>.md`, trạng thái trong `plans/roadmap.md`, và thêm mục vào `plans/mobile-sync.md`.
