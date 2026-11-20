@@ -152,5 +152,9 @@ export const book: Translation<typeof en> = {
     updateNewImage: 'Đang cập nhật ảnh mới...',
     updateBook: 'Đang cập nhật sách...',
     updateError: 'Lỗi khi cập nhật sách',
+    createError: 'Lỗi khi tạo sách',
+    deleteError: 'Lỗi khi xoá sách',
+    getError: 'Lỗi khi tải sách',
+    networkError: 'Không kết nối được máy chủ. Vui lòng thử lại.',
   },
 };

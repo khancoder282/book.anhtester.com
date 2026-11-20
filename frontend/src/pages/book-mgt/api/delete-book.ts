@@ -1,4 +1,5 @@
 import { axios } from 'src/api/axios';
+import { translate } from 'src/locales';
 
 import { toast } from 'src/components/toast';
 
@@ -11,6 +12,6 @@ export const deleteBook = (id: string) =>
       return true;
     })
     .catch((err) => {
-      toast.error(err.response?.data?.msg);
+      toast.error(err?.response?.data?.msg ?? translate('book.toast.deleteError'));
       return false;
     });

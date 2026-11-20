@@ -35,7 +35,7 @@ Frontend: `src/pages/book-mgt/` (`page.tsx`, `add-page.tsx`, `detail.tsx`). Rout
 - Ảnh lưu trong DB là **một chuỗi các tên file nối bằng dấu phẩy** (`picture`). API nhận `pictures[]`, trả `picture[]`; chỉ trả file thực sự tồn tại (sách không ảnh → `[]`). File ảnh nằm trong `upload/$book-image/`.
 - Ảnh bìa trên UI đi qua `frontend/src/pages/book-mgt/components/book-cover.tsx`: không có ảnh hoặc ảnh lỗi thì vẽ bìa mặc định (`data-cover="placeholder"`).
 - Form sửa sách chỉ nạp KM còn hiệu lực (API detail lọc `isActive` + chưa hết hạn), nên `modify-book.ts` **chỉ gửi `promotions` khi người dùng đổi** (`getFieldState('promotions').isDirty`), tránh gỡ mất KM đang tắt / đã hết hạn.
-- Tạo sách lỗi thì frontend chỉ xoá các ảnh vừa upload (trước đây xoá cả thư mục `/$book-image/<slug>`, có thể là của sách khác trùng slug). Lỗi 422 có `fields` được gán vào từng ô của form (cả tạo và sửa).
+- Tạo sách lỗi thì frontend chỉ xoá các ảnh vừa upload (trước đây xoá cả thư mục `/$book-image/<slug>`, có thể là của sách khác trùng slug). Lỗi 422 có `fields` được gán vào từng ô của form (cả tạo và sửa) qua `setFieldErrors` trong `api/create-book.ts`: khoá API `pictures` đổi sang ô `picture` của form (trước 2026-11-21 lỗi ảnh không hiện, W23). Upload ảnh dùng timeout riêng `UPLOAD_TIMEOUT` 60s (axios mặc định 10s).
 - Bộ lọc giá: "từ" + "đến" gộp thành một điều kiện `currentPrice: { gte, lte }`; ô trống gửi `null` (bỏ điều kiện).
 - Script seed `bun run fake` trỏ tới `src/fake.ts`, nhưng trên nhánh `deploy-vps` **file này không tồn tại**.
 

@@ -47,6 +47,7 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 2.18 | Soát DB trước deploy: chạy thử nâng cấp schema cũ → mới trên bản sao có dữ liệu (chỉ thêm, không mất dữ liệu); `OrderItem.picture` đổi `VARCHAR(191)` → `TEXT` (đường dẫn ảnh dài làm đặt đơn lỗi / ảnh bị cắt); README có mục *Cập nhật server production* cho devops | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-07](mobile-sync.md#2026-11-21-07) |
 | 2.19 | Mục **Liên hệ** ghim ở đáy sidebar, mở trang `/contact` trong dashboard (cùng nội dung trang `/help`) | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-08](mobile-sync.md#2026-11-21-08) |
 | 2.20 | Swagger: mọi API có tên ở menu trái (`summary`, tiếng Anh), dòng `METHOD /api/...` ngay dưới tên | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-10](mobile-sync.md#2026-11-21-10) |
+| 2.21 | Sửa 5 lỗi web do repo mobile báo (W21–W25): cột bảng khuyến mãi trong form sách đổi theo ngôn ngữ, mất mạng có toast, lỗi ảnh 422 hiện ở ô ảnh + upload timeout 60s, tab thể loại / dải ảnh nhỏ không xén quầng sáng, dialog toàn màn hình chừa safe area | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-11](mobile-sync.md#2026-11-21-11) |
 
 ## Đợt 3: Tính năng mới
 

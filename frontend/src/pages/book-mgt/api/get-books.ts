@@ -1,4 +1,5 @@
 import { axios } from 'src/api/axios';
+import { translate } from 'src/locales';
 
 import { toast } from 'src/components/toast';
 
@@ -24,6 +25,7 @@ export const getBooks = (params: {
         }
     )
     .catch((err) => {
-      toast.error(err.response.data.msg);
+      // Mất mạng / timeout thì không có err.response (W22)
+      toast.error(err?.response?.data?.msg ?? translate('book.toast.networkError'));
       throw err;
     });

@@ -154,6 +154,9 @@ export const useLangStore = create<LangState>((set) => ({
  * Dịch ngoài component (file api, hàm tiện ích). Component thì dùng `useTranslate()`
  * để tự vẽ lại khi đổi ngôn ngữ.
  */
+/** Kiểu của `t` trong `useTranslate()`: truyền vào hàm sinh cột / nhãn để chúng đổi theo ngôn ngữ. */
+export type TFn = (key: TKey, params?: TParams) => string;
+
 export const translate = (key: TKey, params?: TParams) =>
   format(useLangStore.getState().lang, key, params);
 

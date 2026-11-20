@@ -113,6 +113,11 @@ export function BookReader({
             color: colors.ink,
             height: fullScreen ? 1 : '90vh',
             backgroundImage: 'none',
+            // Toàn màn hình trên điện thoại tràn viền: chừa thanh trạng thái / điều hướng (W25)
+            ...(fullScreen && {
+              pt: 'env(safe-area-inset-top, 0px)',
+              pb: 'env(safe-area-inset-bottom, 0px)',
+            }),
           },
         },
       }}

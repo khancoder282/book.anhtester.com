@@ -59,9 +59,8 @@ function formatValue(str: string) {
 }
 
 export function CardPromotion() {
-  const { t, lang } = useTranslate();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const filterFields = useMemo(() => fields(), [lang]);
+  const { t } = useTranslate();
+  const filterFields = useMemo(() => fields(t), [t]);
   const [expen, setExpen] = useState(false);
   const [viewing, setViewing] = useState<PromotionType | null>(null);
   const [selected = [], _price = 0] = useWatch({ control, name: ['promotions', 'price'] });
@@ -137,7 +136,7 @@ export function CardPromotion() {
               setSelected,
             }}
             config={config}
-            columns={columns()}
+            columns={columns(t)}
             data={list}
             filter={filterFields}
             keyName="id"

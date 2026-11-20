@@ -150,5 +150,9 @@ export const book = {
     updateNewImage: 'Update new image...',
     updateBook: 'Update book...',
     updateError: 'Error in update book',
+    createError: 'Error in create book',
+    deleteError: 'Error in delete book',
+    getError: 'Error in get book',
+    networkError: 'Cannot connect to the server. Please try again.',
   },
 };

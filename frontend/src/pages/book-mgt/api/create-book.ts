@@ -18,6 +18,25 @@ export const slugify = (s: string) =>
     .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '');
 
+// Upload ảnh (tối đa 4MB / lần) trên mạng chậm có thể quá timeout 10s mặc định của axios (W23)
+export const UPLOAD_TIMEOUT = 60000;
+
+// Tên trường của API → tên ô trong form (API dùng `pictures`, form dùng `picture`)
+const FIELD_MAP: Record<string, keyof BookForm> = {
+  pictures: 'picture',
+};
+
+/** Gán lỗi 422 `{ fields }` của server vào từng ô form; khoá dạng `items/0/x` lấy phần đầu. */
+export const setFieldErrors = (fields?: Record<string, string[]>) => {
+  if (!fields || typeof fields !== 'object') return;
+  for (const [key, value] of Object.entries(fields)) {
+    const base = key.split('/')[0];
+    const name = FIELD_MAP[base] ?? (base as keyof BookForm);
+    const message = Array.isArray(value) ? value[0] : undefined;
+    if (message) setError(name, { type: 'manual', message });
+  }
+};
+
 export const handleCreateBook = async (book: BookForm) => {
   const id = 'create-book';
   try {
@@ -35,7 +54,9 @@ export const handleCreateBook = async (book: BookForm) => {
       }
     });
     form.append('path', `/$book-image/${book.slug}`);
-    const paths = await axios.post('/file', form).then((res) => res.data.paths);
+    const paths: string[] = await axios
+      .post('/file', form, { timeout: UPLOAD_TIMEOUT })
+      .then((res) => res.data.paths ?? []);
     // upload book
     toast.custom(translate('book.toast.uploadingBook'), 'loading', {
       hiddenCloseButton: true,
@@ -62,19 +83,12 @@ export const handleCreateBook = async (book: BookForm) => {
       })
       .catch((err) => {
         // Chỉ xoá ảnh vừa upload; không xoá cả thư mục (có thể là của sách khác trùng slug)
-        if (paths?.length) axios.delete('/file', { params: { path: paths } });
+        if (paths.length) axios.delete('/file', { params: { path: paths } });
         throw err;
       });
   } catch (err: any) {
-    if (err.response?.status === 422 && err.response.data?.fields) {
-      for (const [key, value] of Object.entries(err.response.data.fields)) {
-        setError(key as keyof BookForm, {
-          type: 'manual',
-          message: (value as string[])[0],
-        });
-      }
-    }
-    toast.error(err.response?.data?.msg ?? translate('components.toast.errorDefault'), {
+    if (err?.response?.status === 422) setFieldErrors(err.response.data?.fields);
+    toast.error(err?.response?.data?.msg ?? translate('book.toast.createError'), {
       id,
       duration: 3000,
     });

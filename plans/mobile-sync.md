@@ -700,3 +700,25 @@ Tone màu lấy từ AT UI kit của repo `anhtester_lms` (`public/build/css/at-
 | `backend/src/routers/*-controller.ts`, `backend/src/index.ts`, `backend/src/utils/openapi-endpoint.ts` | — | Không có |
 
 **Mobile cần**: không.
+
+---
+
+<a id="2026-11-21-11"></a>
+## 2026-11-21-11 · Web sửa W21–W25 (mobile báo)
+
+**API**: không đổi.
+
+**Web** (chép theo bản sửa của mobile, giữ cách xoá ảnh của web: `DELETE /file` gửi cả mảng `path`):
+- W21: `columns-promotion.tsx` — `columns(t)` / `fields(t)` nhận `t` (kiểu mới `TFn` trong `locales/index.ts`). Đổi ngôn ngữ khi form sách đang mở thì tên cột bảng khuyến mãi đổi theo (đã kiểm trên trình duyệt).
+- W22: `api/{detail-book,get-books,get-book,delete-book}.ts`, `filter-book.tsx` (3 chỗ) đọc `err?.response?.data?.msg ?? translate(...)`. Mất mạng → toast *Cannot connect to the server…* (đã kiểm: chặn `/api/book` thì hiện toast).
+- W23: `api/create-book.ts` có `setFieldErrors` (map `pictures` → ô `picture`) + `UPLOAD_TIMEOUT` 60s, `modify-book.ts` dùng lại. Toast lỗi mặc định `book.toast.createError` / `updateError`.
+- W24: `filter-book.tsx` Tabs `minWidth: 0` + đệm quầng sáng, nút ⚙ `flexShrink: 0` + `aria-label`; `book-gallery.tsx` dải ảnh nhỏ có đệm + lề âm, ẩn thanh cuộn (đã kiểm ở 390px).
+- W25: `book-reader.tsx` (khi `fullScreen`), `components/lightbox/image-lightbox.tsx` thêm `pt/pb: env(safe-area-inset-*)`. Trên trình duyệt web không đổi gì (web không có `viewport-fit=cover`).
+- Khoá dịch mới `book.toast.{createError,deleteError,getError,networkError}` (en + vi).
+- Locator: thêm `aria-label` cho nút `#setting-category` (dịch theo ngôn ngữ, nên vẫn dùng `id`). Không đổi `id` / `data-*`.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| các file trên | cùng đường dẫn | Đã sửa trước bên mobile. Lần chép sau giữ phần riêng mobile (`deleteFiles` xoá từng file, `onPointerEnter` ở `book-gallery`, căn trái chương đọc thử ở màn hẹp) — web chưa lấy các phần này |
+
+**Mobile cần**: không. Không cần deploy backend.

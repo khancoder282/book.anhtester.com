@@ -5,8 +5,9 @@ import { translate } from 'src/locales';
 
 import { toast } from 'src/components/toast';
 
+import { getFieldState } from '../stores/form-add';
 import { bookExtraPayload } from '../utils/book-extra';
-import { setError, getFieldState } from '../stores/form-add';
+import { UPLOAD_TIMEOUT, setFieldErrors } from './create-book';
 
 export const handleUpdateBook = async (idBook: string, book: BookForm) => {
   async function UpdateBook(paths: string[]) {
@@ -38,7 +39,9 @@ export const handleUpdateBook = async (idBook: string, book: BookForm) => {
       }
     });
     form.append('path', `/$book-image/${book.slug}`);
-    return await axios.post('/file', form).then((res) => res.data.paths);
+    return await axios
+      .post('/file', form, { timeout: UPLOAD_TIMEOUT })
+      .then((res) => res.data.paths as string[]);
   }
 
   async function DelOldImage(path: string[]) {
@@ -88,17 +91,19 @@ export const handleUpdateBook = async (idBook: string, book: BookForm) => {
         return res;
       })
       .catch((err) => {
-        toast.error(err.response?.data.msg ?? '', { id, duration: 3000 });
+        toast.error(err.response?.data?.msg ?? translate('book.toast.updateError'), {
+          id,
+          duration: 3000,
+        });
         throw err;
       });
   } catch (err) {
     if (err instanceof AxiosError) {
-      if (err.response?.status === 422 && err.response.data?.fields) {
-        for (const [key, value] of Object.entries(err.response.data.fields)) {
-          setError(key as keyof BookForm, { type: 'manual', message: (value as string[])[0] });
-        }
-      }
-      toast.error(err.response?.data?.msg || '', { id, duration: 3000 });
+      if (err.response?.status === 422) setFieldErrors(err.response.data?.fields);
+      toast.error(err.response?.data?.msg || translate('book.toast.updateError'), {
+        id,
+        duration: 3000,
+      });
     } else {
       toast.error(translate('book.toast.updateError'), { id, duration: 3000 });
     }

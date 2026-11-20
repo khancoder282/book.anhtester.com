@@ -117,7 +117,17 @@ export function ImageLightbox({
       fullScreen
       data-testid="image-lightbox"
       aria-label={title}
-      slotProps={{ paper: { sx: { bgcolor: 'rgba(8, 12, 20, .96)', boxShadow: 'none' } } }}
+      slotProps={{
+        paper: {
+          sx: {
+            bgcolor: 'rgba(8, 12, 20, .96)',
+            boxShadow: 'none',
+            // Màn tràn viền: chừa thanh trạng thái / điều hướng để thanh công cụ không bị đè (W25)
+            pt: 'env(safe-area-inset-top, 0px)',
+            pb: 'env(safe-area-inset-bottom, 0px)',
+          },
+        },
+      }}
     >
       {/* Thanh công cụ */}
       <Stack

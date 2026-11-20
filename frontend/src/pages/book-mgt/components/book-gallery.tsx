@@ -181,7 +181,22 @@ export function BookGallery({ name, pictures }: BookGalleryProps) {
       </Box>
 
       {urls.length > 1 && (
-        <Stack direction="row" spacing={1.25} sx={{ overflowX: 'auto', pb: 0.5 }}>
+        // Dải ảnh nhỏ cuộn ngang: `overflow` xén quầng sáng của ảnh đang chọn thành khối chữ nhật (W24).
+        // Chừa đệm cho quầng sáng rồi kéo lề âm để vẫn thẳng hàng với ảnh lớn; ẩn thanh cuộn.
+        <Stack
+          direction="row"
+          spacing={1.25}
+          sx={{
+            overflowX: 'auto',
+            px: 1.5,
+            pt: 0.75,
+            pb: 2,
+            mx: -1.5,
+            mb: -1.25,
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+        >
           {urls.map((url, i) => (
             <Box
               key={url}

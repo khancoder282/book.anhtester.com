@@ -176,9 +176,13 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
           // Tab thể loại dạng pill theo AT UI kit: tab đang chọn tô gradient xanh lá
           sx={{
             flex: 1,
+            // Thiếu minWidth: 0 thì Tabs không co trong hàng flex, ở màn hẹp tab cuối chui dưới nút ⚙ (W24)
+            minWidth: 0,
             minHeight: 44,
+            ml: -1.5,
             '& .MuiTabs-indicator': { display: 'none' },
-            '& .MuiTabs-list': { gap: 1, py: 0.5 },
+            // Đệm cho quầng sáng của tab đang chọn, kẻo khung cuộn ngang xén thành khối chữ nhật (W24)
+            '& .MuiTabs-list': { gap: 1, pt: 0.75, pb: 1.75, px: 1.5 },
             '& .MuiTab-root': {
               minHeight: 38,
               px: 2,
@@ -224,7 +228,12 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
             ))}
         </Tabs>
         {auth && (
-          <IconButton id="setting-category" onClick={() => setOpen(true)} sx={{ ml: 'auto' }}>
+          <IconButton
+            id="setting-category"
+            aria-label={t('book.category.title')}
+            onClick={() => setOpen(true)}
+            sx={{ ml: 0.5, flexShrink: 0 }}
+          >
             <Iconify icon="solar:settings-bold-duotone" />
           </IconButton>
         )}
@@ -258,7 +267,8 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
                         setSearch('');
                         return res.data.msg;
                       },
-                      error: (err) => err.response.data.msg,
+                      error: (err) =>
+                        err?.response?.data?.msg ?? translate('common.somethingWrong'),
                     });
                   }}
                   color="inherit"
@@ -308,7 +318,7 @@ const saveChange = (name: string, newName: string, success: () => void, error: (
     },
     error: (err) => {
       error();
-      return err.response.data.msg;
+      return err?.response?.data?.msg ?? translate('common.somethingWrong');
     },
   });
 
@@ -394,7 +404,7 @@ const Row = ({
               await request();
               return res.data.msg;
             },
-            error: (err) => err.response.data.msg,
+            error: (err) => err?.response?.data?.msg ?? translate('common.somethingWrong'),
           })
         }
       />
