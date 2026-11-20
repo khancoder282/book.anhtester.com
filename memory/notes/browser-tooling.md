@@ -19,6 +19,7 @@
 `.mcp.json` chạy: `npx -y @playwright/mcp@latest --isolated --config .claude/playwright-mcp-config.json --output-dir ${LOCALAPPDATA:-}${TMPDIR:-}/playwright-mcp-output/book-anhtester`
 
 - `.claude/playwright-mcp-config.json`: Chrome (`channel: chrome`), có giao diện, `--start-maximized`, `viewport: null` để trang theo đúng kích thước cửa sổ.
+- ⚠️ **Không gọi `page.setViewportSize` / `browser_resize` trên trang chính** (2026-11-21): viewport bị ghim cố định, trang không theo cửa sổ maximize nữa cho tới khi đóng browser (`browser_close`). Cần test bề ngang hẹp thì mở context riêng trong `browser_run_code_unsafe`: `const ctx = await page.context().browser().newContext({ viewport: { width: 390, height: 750 } })`, làm xong `ctx.close()`. Lỡ resize rồi thì `browser_close`, lần mở sau lại maximize.
 - Đo thật ngày 2026-11-20: `screen 1366×854`, `outer 1366×815`, `inner 1366×728`, nghĩa là cửa sổ đã phóng to hết vùng màn hình khả dụng.
 - Snapshot (`page-*.yml`) và log console được ghi vào `%LOCALAPPDATA%\playwright-mcp-output\book-anhtester\`, nằm **ngoài repo**, nên repo không sinh thư mục `.playwright-mcp`.
 - `--isolated` giữ profile trong RAM, nên **mỗi lần chạy phải đăng nhập lại**.
