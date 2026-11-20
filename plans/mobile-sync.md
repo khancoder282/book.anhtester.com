@@ -31,6 +31,7 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-21-03](#2026-11-21-03) | 2026-11-21 | Màn Book kiểu nhà sách, trang chi tiết (zoom ảnh, đọc thử, cùng thể loại) | **Có**: thêm `previewTitle`, `previewContent` (POST/PATCH/GET chi tiết), `hasPreview` + `previewTitle` (GET danh sách) | **Có** (+ `prisma db push` thêm 2 cột) | ⏳ Chưa làm |
 | [2026-11-21-04](#2026-11-21-04) | 2026-11-21 | Giỏ hàng, thanh toán 4 bước, Đơn hàng của tôi (UI) | Không (dùng `/api/order` của 2026-11-21-01) | **Có** (đi cùng 2026-11-21-01) | ⏳ Chưa làm |
 | [2026-11-21-05](#2026-11-21-05) | 2026-11-21 | Upload ≤ 4MB / lần + giới hạn 20 lần / phút, chặn tên lạ; ảnh sách tự xoá; trang Book 20 cuốn / trang + phân trang; bảng không nhảy khi chuyển trang; chip sách đã chọn không tràn | **Có**: `POST /api/file` (422 tổng > 4MB, 429, tên), `pictures` của sách (422) | **Có** | ⏳ Chưa làm |
+| [2026-11-21-06](#2026-11-21-06) | 2026-11-21 | Form khuyến mãi: bảng chọn sách hiện đúng ảnh bìa, bìa dọc 2:3 | Không | Không | ⏳ Chưa làm |
 
 ---
 
@@ -603,3 +604,22 @@ Tone màu lấy từ AT UI kit của repo `anhtester_lms` (`public/build/css/at-
 | `frontend/src/components/fields/upload-limits.ts`, `pages/book-mgt/components/card-detail.tsx`, `pages/file-mgt/components/dialog-upload.tsx`, `locales/{en,vi}/{book,file,bookstore}.ts` | cùng đường dẫn | Chép |
 
 **Mobile cần**: ⚠️ sau khi deploy backend, app upload ảnh > 4MB một lần sẽ bị 422 — kiểm app có nén / chia ảnh trước khi gửi không.
+
+---
+
+<a id="2026-11-21-06"></a>
+## 2026-11-21-06 · Form khuyến mãi: ảnh bìa trong bảng chọn sách
+
+**API**: không đổi.
+
+**Web**:
+- Bug: cột *Name* của bảng chọn sách (form tạo / sửa khuyến mãi) truyền thẳng đường dẫn ảnh trong DB (`/$book-image/...`) vào `src`, không qua `formatFilePath` (`/api/file?path=...`), nên ảnh lỗi và chỉ hiện icon album. Đã sửa.
+- Ảnh đổi từ ô vuông `Avatar` sang **bìa dọc 2:3** (rộng 44px, gáy bo, đổ bóng) dùng `BookCover`, giống dòng sách trong giỏ hàng. Sách không có ảnh / ảnh lỗi thì hiện bìa mặc định theo màu tên sách.
+
+**Locator**: ảnh bìa là `table img[alt="<tên sách>"]`; bìa mặc định là `[data-cover="placeholder"]` (`role="img"`).
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/pages/promotions-mgt/hooks/columns.tsx` | cùng đường dẫn | Chép (cần có `pages/book-mgt/components/book-cover.tsx` của mục 2026-11-20-03) |
+
+**Mobile cần**: không cần deploy backend.

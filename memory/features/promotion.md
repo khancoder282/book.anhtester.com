@@ -27,3 +27,4 @@ Frontend: `src/pages/promotions-mgt/` (`page.tsx`, `handle.tsx`, `const-type.tsx
 
 - Menu *Edit* trong danh sách mở `handle?id=<id>`; `handle.tsx` nạp KM (`api/get-promotion-detail.ts`, lấy sách cùng dạng `BookView` qua `GET /api/book` để bảng chọn tick đúng), Lưu gọi `PATCH` (`api/update-promotion.ts`), Xoá gọi `deletePromotion` rồi về danh sách.
 - Mở trang tạo thì form được `reset` về giá trị trống (form control là biến cấp module, trước đây còn giữ dữ liệu của lần sửa trước).
+- Bảng chọn sách (`hooks/columns.tsx`): ảnh là `BookCover` bìa dọc 2:3 rộng 44px (2026-11-21). Đường dẫn ảnh trong DB (`/$book-image/...`) **luôn** phải qua `formatFilePath` (`BookCover` tự làm); đưa thẳng vào `src` thì ảnh lỗi, MUI chỉ hiện icon thay thế.

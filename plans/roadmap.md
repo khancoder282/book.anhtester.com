@@ -43,6 +43,7 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 2.14 | Dữ liệu mẫu đầy đủ: 40 sách (thêm 20 sách hư cấu), đủ NXB / năm / số trang / ISBN / ngôn ngữ, 39 sách có đọc thử, mỗi sách 4 ảnh (bìa trước, bìa sau, 2 trang trong) | ✅ 2026-11-21 | `bun run seed --yes`. Chi tiết: `memory/notes/seed-data.md` |
 | 2.15 | Upload an toàn: tổng ≤ 4MB / lần, cả thư mục upload ≤ 1GB (507), 20 lần / phút / user, chặn tên có `%` / bắt đầu hoặc kết thúc bằng dấu chấm; ảnh sách chỉ nằm trong `/$book-image/`, xoá / sửa sách thì tự xoá ảnh, dọn ảnh mồ côi mỗi giờ; vá lỗ xoá sách có thể xoá thư mục ngoài upload | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-05](mobile-sync.md#2026-11-21-05) |
 | 2.16 | Trang Book 20 cuốn / trang + thanh phân trang (`?page=`); bảng có phân trang giữ nguyên vị trí khi chuyển trang; chip sách đã chọn ở form khuyến mãi không tràn | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-05](mobile-sync.md#2026-11-21-05) |
+| 2.17 | Form khuyến mãi, bảng chọn sách: hiện đúng ảnh bìa (trước chỉ ra icon vì thiếu `formatFilePath`), bìa dọc 2:3 có bìa mặc định khi sách không có ảnh | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-06](mobile-sync.md#2026-11-21-06) |
 
 ## Đợt 3: Tính năng mới
 
