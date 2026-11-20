@@ -79,7 +79,7 @@ Prisma client được generate vào `backend/src/prisma/`, không phải `node_
 - `src/plugins/`: `auth.ts` (guard), `jwt-app.ts`, `black-list-token.ts`, `filterTable.ts` (phân trang, sort, search), `logging-file.ts`, `middle-prisma.ts`.
 - Auth: `POST /api/register`, `POST /api/login` (trả access token, refresh token lưu hash trong `UserRefreshToken`), `POST /api/refetch-token`, `GET /api/me`.
 - Không có phân quyền role: mọi user đều như nhau.
-- Upload (chốt 2026-11-21): **tổng các file trong một lần upload ≤ 4MB**, tối đa 20 lần / phút / user, tên không chứa `%` / không bắt đầu hay kết thúc bằng dấu chấm. Ảnh sách chỉ nằm trong `/$book-image/`; xoá / sửa sách thì tự xoá ảnh không còn dùng, server dọn ảnh mồ côi mỗi giờ (`utils/book-images.ts`). Không bao giờ xoá file theo đường dẫn client gửi mà chưa qua `resolveUpload` + kiểm nằm trong thư mục cho phép.
+- Upload (chốt 2026-11-21): **tổng các file trong một lần upload ≤ 4MB**, **cả thư mục upload ≤ 1GB** (upload / copy vượt → 507), tối đa 20 lần / phút / user, tên không chứa `%` / không bắt đầu hay kết thúc bằng dấu chấm. Ảnh sách chỉ nằm trong `/$book-image/`; xoá / sửa sách thì tự xoá ảnh không còn dùng, server dọn ảnh mồ côi mỗi giờ (`utils/book-images.ts`). Không bao giờ xoá file theo đường dẫn client gửi mà chưa qua `resolveUpload` + kiểm nằm trong thư mục cho phép.
 - Trang Book hiển thị **20 cuốn / trang** + thanh phân trang (`?page=`), chốt 2026-11-21.
 
 ## Cấu trúc frontend

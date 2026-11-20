@@ -559,8 +559,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -581,8 +580,7 @@
                     "error": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -612,8 +610,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1274,8 +1271,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2787,7 +2783,8 @@
                   "password": {
                     "type": "string"
                   }
-                }
+                },
+                "additionalProperties": false
               }
             },
             "application/x-www-form-urlencoded": {
@@ -2809,7 +2806,8 @@
                   "password": {
                     "type": "string"
                   }
-                }
+                },
+                "additionalProperties": false
               }
             },
             "multipart/form-data": {
@@ -2831,7 +2829,8 @@
                   "password": {
                     "type": "string"
                   }
-                }
+                },
+                "additionalProperties": false
               }
             }
           }
@@ -2858,7 +2857,8 @@
                     "exp": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -2887,7 +2887,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -2935,7 +2936,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3071,8 +3073,7 @@
                       "type": "string"
                     },
                     "config": {}
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -5030,7 +5031,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -5116,7 +5118,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -6555,7 +6558,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -6737,7 +6741,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -6766,7 +6771,8 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }

@@ -25,7 +25,25 @@ const fileController = new Elysia({
 export default fileController;
 export const file_path = UPLOAD_ROOT;
 
+/**
+ * Hạn mức tổng dung lượng thư mục upload (user chốt 2026-11-21): 1GB.
+ * Upload / copy làm tổng vượt hạn mức → 507 `{ msg }`. Trước đây con số này chỉ để hiển thị ở /api/file/info.
+ */
 const maxStorage = 1024 * 1024 * 1024; // 1GB
+export const MAX_STORAGE = maxStorage;
+const toMB = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+
+/** Thêm `incoming` byte có vượt hạn mức không. Trả về dung lượng đang dùng nếu vượt, ngược lại null. */
+async function overStorage(incoming: number) {
+  const used = await dirSize(file_path);
+  return used + incoming > maxStorage ? used : null;
+}
+
+const storageFullMsg = (used: number, incoming: number) => ({
+  msg:
+    `Storage limit reached: ${toMB(used)} of 1GB used, this request needs ${toMB(incoming)} more. ` +
+    "Delete some books or files first.",
+});
 
 /**
  * Tổng dung lượng các file trong MỘT lần upload (user chốt 2026-11-21): ≤ 4MB.
@@ -235,6 +253,13 @@ fileController
         };
       }
 
+      // Hạn mức tổng thư mục upload (1GB)
+      const usedBeforeUpload = await overStorage(totalSize);
+      if (usedBeforeUpload !== null) {
+        set.status = 507;
+        return storageFullMsg(usedBeforeUpload, totalSize);
+      }
+
       // Check every file before writing anything
       const targets: string[] = [];
       for (const file of files) {
@@ -306,6 +331,7 @@ fileController
         400: msgSchema,
         422: validationSchema,
         429: t.Object({ msg: t.String({ description: "Too many uploads. Wait `Retry-After` seconds." }) }),
+        507: t.Object({ msg: t.String({ description: "The upload folder would exceed its 1GB limit." }) }),
         500: msgSchema,
       },
       parse: ["multipart/form-data"],
@@ -313,6 +339,7 @@ fileController
         description:
           `Upload files. The total size of all files in one request must not exceed ${MAX_UPLOAD_TEXT} (422 \`fields.files\`). ` +
           `At most ${UPLOAD_RATE_LIMIT} uploads per minute per user (429 + \`Retry-After\` header). ` +
+          "The whole upload folder is limited to 1GB (507 when an upload would exceed it, see GET /api/file/info). " +
           `Allowed types: ${ALLOWED_UPLOAD_TEXT} (checked by content). File / folder names must not contain \`%\`, start with \`.\` or end with \`.\`. ` +
           `Path or file names that leave the upload directory return 400 "Invalid path." / "Invalid file name.".`,
       }
@@ -529,6 +556,14 @@ fileController
       }
       newPath = toClientPath(newPathname);
 
+      // Copy cũng làm tăng dung lượng → kiểm hạn mức 1GB
+      const copySize = isDirectory ? await dirSize(oldPathname) : fs.statSync(oldPathname).size;
+      const usedBeforeCopy = await overStorage(copySize);
+      if (usedBeforeCopy !== null) {
+        set.status = 507;
+        return storageFullMsg(usedBeforeCopy, copySize);
+      }
+
       try {
         fs.cpSync(oldPathname, newPathname, { recursive: isDirectory });
       } catch (e) {
@@ -552,6 +587,7 @@ fileController
         400: msgSchema,
         404: msgSchema,
         422: validationSchema,
+        507: t.Object({ msg: t.String({ description: "The upload folder would exceed its 1GB limit." }) }),
         500: msgSchema,
       },
       body: t.Object({

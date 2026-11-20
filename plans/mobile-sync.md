@@ -582,6 +582,7 @@ Tone màu lấy từ AT UI kit của repo `anhtester_lms` (`public/build/css/at-
   - **Tổng dung lượng các file trong một lần upload ≤ 4MB** (trước: mỗi file ≤ 5MB). Vượt → 422 `fields.files`: `Total upload size must not exceed 4MB (got x.xxMB).`
   - Mỗi user tối đa **20 lần upload / phút** → vượt thì 429 `{ msg }` + header `Retry-After` (giây).
   - Tên file / thư mục không được chứa `%`, bắt đầu bằng `.` hoặc kết thúc bằng `.` → 400 `Invalid file name.` / `Invalid path.` (áp cả cho đổi tên / copy / move).
+  - Tổng thư mục upload tối đa **1GB**: upload hoặc `POST /api/file/copy` làm vượt → **507** `{ msg }` (xem dung lượng ở `GET /api/file/info`).
 - `POST /api/book`, `PATCH /api/book/{id}`: `pictures` chỉ nhận file nằm trong `/$book-image/` (không `..`, không dấu phẩy) → sai thì 422 `fields.pictures`. Đường dẫn được chuẩn hoá (`\` → `/`, có `/` đầu).
 - **Ảnh sách tự xoá**: `DELETE /api/book/{id}` xoá file ảnh của sách (trừ ảnh sách khác còn dùng) và thư mục ảnh rỗng; `PATCH` bỏ ảnh khỏi `pictures` thì xoá file ảnh bị bỏ. Server tự dọn ảnh mồ côi trong `$book-image` (không sách nào dùng, cũ hơn 24 giờ) lúc khởi động và mỗi giờ.
 - ⚠️ Lỗ đã vá: trước đây xoá sách gọi `rmSync(path.join(upload, p), { recursive: true })` không kiểm đường dẫn, sách có `pictures: ["/../src"]` thì xoá sách là xoá luôn thư mục code server.
