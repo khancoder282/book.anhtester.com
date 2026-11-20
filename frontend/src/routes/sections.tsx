@@ -86,6 +86,10 @@ const routesSection: RouteObject[] = [
         path: 'db-management',
         Component: lazy(() => import('src/pages/db-mgt/page')),
       },
+      {
+        path: 'contact',
+        Component: lazy(() => import('src/pages/help/contact-page')),
+      },
     ],
   },
   {

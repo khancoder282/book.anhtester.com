@@ -15,6 +15,7 @@ export const nav: Translation<typeof en> = {
   order: 'Đơn hàng của tôi',
   openCart: 'Mở giỏ hàng',
   needHelp: 'Cần trợ giúp?',
+  contact: 'Liên hệ',
   signIn: 'Đăng nhập',
   signUp: 'Đăng ký',
   account: {

@@ -149,6 +149,72 @@ export function NavContent({ data, slots, sx, mini }: NavContentProps) {
   const pathname = usePathname();
   const { t } = useTranslate();
 
+  const mainItems = data.filter((item) => !item.bottom);
+  const bottomItems = data.filter((item) => item.bottom);
+
+  const renderItem = (item: NavItem) => {
+    const isActived = item.path !== '/' ? pathname.startsWith(item.path) : item.path === pathname;
+
+    const button = (
+      <ListItemButton
+        disableGutters
+        component={RouterLink}
+        href={item.path}
+        aria-label={mini ? t(item.title) : undefined}
+        data-active={isActived}
+        sx={[
+          (theme) => ({
+            pl: mini ? 0 : 2,
+            py: 1,
+            gap: 2,
+            pr: mini ? 0 : 1.5,
+            borderRadius: 1.25,
+            typography: 'body2',
+            fontWeight: 'fontWeightMedium',
+            color: theme.vars.palette.text.secondary,
+            minHeight: 46,
+            justifyContent: mini ? 'center' : 'flex-start',
+            '&:hover': { color: theme.vars.palette.text.primary },
+            ...(isActived && {
+              fontWeight: 'fontWeightSemiBold',
+              color: theme.vars.palette.primary.main,
+              bgcolor: varAlpha(theme.vars.palette.primary.lightChannel, 0.12),
+              boxShadow: `inset 3px 0 0 ${theme.vars.palette.primary.light}`,
+              '&:hover': {
+                color: theme.vars.palette.primary.main,
+                bgcolor: varAlpha(theme.vars.palette.primary.lightChannel, 0.18),
+              },
+            }),
+          }),
+        ]}
+      >
+        <Box component="span" sx={{ width: 24, height: 24, flexShrink: 0 }}>
+          {item.icon}
+        </Box>
+
+        {!mini && (
+          <Box component="span" sx={{ flexGrow: 1 }}>
+            {t(item.title)}
+          </Box>
+        )}
+
+        {!mini && item.info && item.info}
+      </ListItemButton>
+    );
+
+    return (
+      <ListItem disableGutters disablePadding key={item.title}>
+        {mini ? (
+          <Tooltip title={t(item.title)} placement="right">
+            {button}
+          </Tooltip>
+        ) : (
+          button
+        )}
+      </ListItem>
+    );
+  };
+
   return (
     <>
       {mini ? (
@@ -177,80 +243,31 @@ export function NavContent({ data, slots, sx, mini }: NavContentProps) {
             ...(Array.isArray(sx) ? sx : [sx]),
           ]}
         >
-          <Box
-            component="ul"
-            sx={{
-              gap: 0.5,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            {data.map((item) => {
-              const isActived =
-                item.path !== '/' ? pathname.startsWith(item.path) : item.path === pathname;
-
-              const button = (
-                <ListItemButton
-                  disableGutters
-                  component={RouterLink}
-                  href={item.path}
-                  aria-label={mini ? t(item.title) : undefined}
-                  data-active={isActived}
-                  sx={[
-                    (theme) => ({
-                      pl: mini ? 0 : 2,
-                      py: 1,
-                      gap: 2,
-                      pr: mini ? 0 : 1.5,
-                      borderRadius: 1.25,
-                      typography: 'body2',
-                      fontWeight: 'fontWeightMedium',
-                      color: theme.vars.palette.text.secondary,
-                      minHeight: 46,
-                      justifyContent: mini ? 'center' : 'flex-start',
-                      '&:hover': { color: theme.vars.palette.text.primary },
-                      ...(isActived && {
-                        fontWeight: 'fontWeightSemiBold',
-                        color: theme.vars.palette.primary.main,
-                        bgcolor: varAlpha(theme.vars.palette.primary.lightChannel, 0.12),
-                        boxShadow: `inset 3px 0 0 ${theme.vars.palette.primary.light}`,
-                        '&:hover': {
-                          color: theme.vars.palette.primary.main,
-                          bgcolor: varAlpha(theme.vars.palette.primary.lightChannel, 0.18),
-                        },
-                      }),
-                    }),
-                  ]}
-                >
-                  <Box component="span" sx={{ width: 24, height: 24, flexShrink: 0 }}>
-                    {item.icon}
-                  </Box>
-
-                  {!mini && (
-                    <Box component="span" sx={{ flexGrow: 1 }}>
-                      {t(item.title)}
-                    </Box>
-                  )}
-
-                  {!mini && item.info && item.info}
-                </ListItemButton>
-              );
-
-              return (
-                <ListItem disableGutters disablePadding key={item.title}>
-                  {mini ? (
-                    <Tooltip title={t(item.title)} placement="right">
-                      {button}
-                    </Tooltip>
-                  ) : (
-                    button
-                  )}
-                </ListItem>
-              );
-            })}
+          <Box component="ul" sx={{ gap: 0.5, display: 'flex', flexDirection: 'column' }}>
+            {mainItems.map(renderItem)}
           </Box>
         </Box>
       </Scrollbar>
+
+      {/* Mục ghim đáy (Contact): nằm ngoài vùng cuộn nên luôn ở cuối sidebar */}
+      {bottomItems.length > 0 && (
+        <Box
+          component="ul"
+          data-testid="nav-bottom"
+          sx={(theme) => ({
+            pt: 1.5,
+            pb: 2.5,
+            mt: 1.5,
+            gap: 0.5,
+            display: 'flex',
+            flexShrink: 0,
+            flexDirection: 'column',
+            borderTop: `1px dashed ${theme.vars.palette.divider}`,
+          })}
+        >
+          {bottomItems.map(renderItem)}
+        </Box>
+      )}
 
       {slots?.bottomArea}
     </>

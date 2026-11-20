@@ -45,6 +45,7 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 2.16 | Trang Book 20 cuốn / trang + thanh phân trang (`?page=`); bảng có phân trang giữ nguyên vị trí khi chuyển trang; chip sách đã chọn ở form khuyến mãi không tràn | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-05](mobile-sync.md#2026-11-21-05) |
 | 2.17 | Form khuyến mãi, bảng chọn sách: hiện đúng ảnh bìa (trước chỉ ra icon vì thiếu `formatFilePath`), bìa dọc 2:3 có bìa mặc định khi sách không có ảnh | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-06](mobile-sync.md#2026-11-21-06) |
 | 2.18 | Soát DB trước deploy: chạy thử nâng cấp schema cũ → mới trên bản sao có dữ liệu (chỉ thêm, không mất dữ liệu); `OrderItem.picture` đổi `VARCHAR(191)` → `TEXT` (đường dẫn ảnh dài làm đặt đơn lỗi / ảnh bị cắt); README có mục *Cập nhật server production* cho devops | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-07](mobile-sync.md#2026-11-21-07) |
+| 2.19 | Mục **Liên hệ** ghim ở đáy sidebar, mở trang `/contact` trong dashboard (cùng nội dung trang `/help`) | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-08](mobile-sync.md#2026-11-21-08) |
 
 ## Đợt 3: Tính năng mới
 

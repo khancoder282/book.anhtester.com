@@ -1,10 +1,14 @@
-# Trang Cần trợ giúp (`/help`)
+# Trang Cần trợ giúp (`/help`) và Liên hệ (`/contact`)
 
-Thêm 2026-11-20. Code: `frontend/src/pages/help/page.tsx`. Chỉ có frontend, không có API.
+Thêm 2026-11-20 (`/help`), 2026-11-21 (`/contact`). Chỉ có frontend, không có API.
+
+- Nội dung (3 khối + dữ liệu `CONTACTS`, `SOCIALS`, `COMMUNITIES`) nằm ở `frontend/src/pages/help/help-content.tsx` (`HelpContent`), dùng chung cho hai trang:
+  - `pages/help/page.tsx`: `/help`, công khai, `AuthLayout`, có nút quay lại đăng nhập.
+  - `pages/help/contact-page.tsx`: `/contact`, trong `DashboardLayout` (route con cạnh các màn quản lý), `PageHeader` tone `sky` + thẻ `[data-testid="contact-card"]`. Mở từ mục **Contact / Liên hệ** ghim ở **đáy sidebar** (user chốt 2026-11-21).
 
 - Route công khai `/help` (không cần đăng nhập), khai ở `routes/sections.tsx` cạnh `/sign-in`, `/sign-up`. Dùng `AuthLayout` (logo, nút ngôn ngữ, link "Need help?" ở header), thẻ rộng `560px`.
 - Link "Need help?" / "Cần trợ giúp?" ở header của `layouts/auth/layout.tsx` trỏ tới `/help` (trước đây `href="#"`).
-- Nội dung là thông tin liên hệ của Anh Tester, chép từ https://anhtester.com/contact ngày 2026-11-20. Đổi thông tin thì sửa các mảng `CONTACTS`, `SOCIALS`, `COMMUNITIES` đầu file trang. Không có địa chỉ, giờ làm việc trên trang gốc nên không đưa vào.
+- Nội dung là thông tin liên hệ của Anh Tester, chép từ https://anhtester.com/contact ngày 2026-11-20. Đổi thông tin thì sửa các mảng `CONTACTS`, `SOCIALS`, `COMMUNITIES` đầu file `help-content.tsx`. Không có địa chỉ, giờ làm việc trên trang gốc nên không đưa vào.
   - Liên hệ: điện thoại (`tel:`), email (`mailto:`), Zalo, website.
   - Mạng xã hội: Facebook, YouTube, Telegram, LinkedIn, GitHub, Discord.
   - Nhóm cộng đồng: Zalo (Automation, Manual), Facebook (Automation, Manual, Playwright Việt Nam, Tuyển dụng Tester), Telegram (Automation, Manual).
@@ -22,3 +26,10 @@ Thêm 2026-11-20. Code: `frontend/src/pages/help/page.tsx`. Chỉ có frontend, 
 | Link nhóm | `[data-testid="help-community-<nền-tảng>-<nhóm>"]`, vd `help-community-zalo-automation`, `help-community-facebook-playwright` |
 | Nút quay lại đăng nhập | `[data-testid="help-back-to-sign-in"]` |
 | Ba khối | `section` có `aria-label` theo ngôn ngữ (Contact / Liên hệ …) |
+| Mục Contact ở đáy sidebar | `[data-testid="nav-bottom"] a[href="/contact"]` (thu gọn sidebar thì có `aria-label` = Contact / Liên hệ) |
+| Thẻ nội dung trang `/contact` | `[data-testid="contact-card"]` |
+
+## Sidebar: mục ghim đáy
+
+- `NavItem.bottom = true` (`layouts/nav-config-dashboard.tsx`) thì mục đó vẽ trong `<ul data-testid="nav-bottom">` **bên ngoài** `Scrollbar` của `layouts/dashboard/nav.tsx`, có đường kẻ đứt phía trên. Đặt trong vùng cuộn thì không ghim được: `simplebar-content-wrapper` không kéo cao hết khung nên `mt: auto` vô tác dụng.
+- Icon `public/assets/icons/navbar/ic-contact.svg` chép từ repo mobile (tab Liên hệ bên đó).

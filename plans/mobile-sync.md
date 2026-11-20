@@ -33,6 +33,7 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-21-05](#2026-11-21-05) | 2026-11-21 | Upload ≤ 4MB / lần + giới hạn 20 lần / phút, chặn tên lạ; ảnh sách tự xoá; trang Book 20 cuốn / trang + phân trang; bảng không nhảy khi chuyển trang; chip sách đã chọn không tràn | **Có**: `POST /api/file` (422 tổng > 4MB, 429, tên), `pictures` của sách (422) | **Có** | ⏳ Chưa làm |
 | [2026-11-21-06](#2026-11-21-06) | 2026-11-21 | Form khuyến mãi: bảng chọn sách hiện đúng ảnh bìa, bìa dọc 2:3 | Không | Không | ⏳ Chưa làm |
 | [2026-11-21-07](#2026-11-21-07) | 2026-11-21 | DB: `OrderItem.picture` thành `TEXT`; hướng dẫn deploy cho devops | Không đổi hình dạng API | **Có** (+ `prisma db push`) | Không cần sửa code |
+| [2026-11-21-08](#2026-11-21-08) | 2026-11-21 | Web: mục Liên hệ ở đáy sidebar, trang `/contact` | Không | Không | Không cần (mobile đã có tab Liên hệ) |
 
 ---
 
@@ -641,3 +642,23 @@ Tone màu lấy từ AT UI kit của repo `anhtester_lms` (`public/build/css/at-
 | `backend/prisma/schema.prisma` | — | Không có |
 
 **Mobile cần**: không sửa code. Sau khi deploy backend + `prisma db push`, đặt sách có tên dài trên app sẽ hết lỗi 500.
+
+---
+
+<a id="2026-11-21-08"></a>
+## 2026-11-21-08 · Web: mục Liên hệ ở đáy sidebar
+
+**API**: không đổi.
+
+**Web**:
+- Mục **Contact / Liên hệ** ghim ở đáy sidebar (tách khỏi nhóm menu chính bằng đường kẻ đứt; sidebar thu gọn vẫn có icon + tooltip). Bấm mở `/contact`: trang trong dashboard, cùng nội dung trang `/help` (liên hệ, mạng xã hội, nhóm cộng đồng).
+- Nội dung tách ra `pages/help/help-content.tsx`, dùng chung cho `/help` (chưa đăng nhập) và `/contact`.
+- Cờ mới `NavItem.bottom` để ghim mục menu xuống đáy.
+
+**Locator**: `[data-testid="nav-bottom"] a[href="/contact"]`, `[data-testid="contact-card"]`; các `help-contact-*`, `help-social-*`, `help-community-*` dùng chung với `/help`.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/pages/help/{help-content,contact-page,page}.tsx`, `layouts/dashboard/nav.tsx`, `layouts/nav-config-dashboard.tsx`, `routes/sections.tsx`, `locales/{en,vi}/nav.ts` | — | Không cần: mobile đã có tab Liên hệ ở thanh tab đáy (`pages/contact`) |
+
+**Mobile cần**: không.

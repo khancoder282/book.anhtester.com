@@ -13,6 +13,8 @@ export type NavItem = {
   path: string;
   icon: React.ReactNode;
   info?: React.ReactNode;
+  /** Ghim xuống đáy sidebar, tách khỏi nhóm menu chính */
+  bottom?: boolean;
 };
 
 const allNavData: NavItem[] = [
@@ -50,6 +52,12 @@ const allNavData: NavItem[] = [
     title: 'nav.database',
     path: '/db-management',
     icon: icon('ic-db'),
+  },
+  {
+    title: 'nav.contact',
+    path: '/contact',
+    icon: icon('ic-contact'),
+    bottom: true,
   },
 ];
 

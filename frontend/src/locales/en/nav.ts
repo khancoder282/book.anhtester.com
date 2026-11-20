@@ -13,6 +13,7 @@ export const nav = {
   order: 'My orders',
   openCart: 'Open cart',
   needHelp: 'Need help?',
+  contact: 'Contact',
   signIn: 'Sign in',
   signUp: 'Sign up',
   account: {
