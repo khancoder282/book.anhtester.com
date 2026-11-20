@@ -141,6 +141,36 @@ cd ../backend && bun run start # phục vụ cả API và web ở cổng PORT
 - Build có kiểm tra TypeScript và ESLint; có lỗi lint là build dừng.
 - `bun run build` trong `backend/` build cả frontend lẫn backend, nhưng **xoá `frontend/node_modules`** sau khi build. Đang chạy dev frontend thì đừng dùng lệnh này.
 
+### Cập nhật server production (VPS)
+
+Repo không dùng Prisma migrations: cấu trúc DB được đồng bộ bằng `bunx prisma db push` theo `backend/prisma/schema.prisma`.
+
+```bash
+# 0. Sao lưu trước khi cập nhật
+mysqldump -u <user> -p <tên_db> > backup_$(date +%F).sql
+tar czf upload_$(date +%F).tgz -C backend upload   # thư mục FILEDIR
+
+# 1. Lấy code mới (nhánh deploy-vps, main trùng nội dung)
+git pull origin deploy-vps
+
+# 2. Build frontend + cài thư viện backend + sinh Prisma client
+cd backend
+bun run build
+
+# 3. Đồng bộ cấu trúc DB
+bunx prisma db push
+
+# 4. Khởi động lại backend (pm2 / systemd / cách đang dùng)
+bun run start
+```
+
+- **Không** chạy `bun run seed` trên production: lệnh này xoá toàn bộ dữ liệu.
+- `prisma db push` ở bước 3 không được hỏi *"data loss"*. Nếu nó hỏi thì **dừng lại**, không thêm `--accept-data-loss`, báo lại cho dev.
+- Đợt cập nhật 2026-11-20 → 2026-11-21 chỉ **thêm**, không xoá hay đổi kiểu cột nào (đã chạy thử trên bản sao DB cũ có dữ liệu): sách thêm 8 cột không bắt buộc (`author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language`, `previewTitle`, `previewContent`), category thêm `isActive` (mặc định bật), thêm 2 bảng `Order`, `OrderItem` và 2 enum `OrderStatus`, `PaymentMethod`.
+- Bảng Address: production còn dữ liệu cũ (có cấp huyện, khác 34 tỉnh/thành) thì nạp lại: `bun run seed:address --yes --allow-remote`. Lệnh chỉ thay bảng Address, không đụng user, sách, đơn hàng.
+- Lần khởi động đầu, server tự **xoá ảnh không sách nào dùng** trong `upload/$book-image/` (cũ hơn 24 giờ), sau đó lặp lại mỗi giờ. Vì thế cần sao lưu `upload/` ở bước 0.
+- MySQL nên chạy chế độ strict (mặc định của MySQL 8) và engine mặc định **InnoDB**. Tạo DB mới mà `db push` báo `Specified key was too long; max key length is 1000 bytes` là do engine mặc định đang là MyISAM (hay gặp ở WAMP): đặt `default_storage_engine=InnoDB` trong `my.ini` / `my.cnf`, khởi động lại MySQL rồi chạy lại.
+
 ## Cấu trúc thư mục
 
 ```text

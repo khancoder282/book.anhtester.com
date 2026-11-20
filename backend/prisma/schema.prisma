@@ -154,7 +154,8 @@ model OrderItem {
   bookId    String?
   name      String  @db.VarChar(191)
   slug      String  @db.VarChar(191)
-  picture   String?
+  // TEXT: đường dẫn ảnh sách (`/$book-image/<slug>/<file>`) có thể dài hơn 191 ký tự
+  picture   String? @db.Text
   price     Int
   unitPrice Int
   quantity  Int

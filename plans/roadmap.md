@@ -44,6 +44,7 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 2.15 | Upload an toàn: tổng ≤ 4MB / lần, cả thư mục upload ≤ 1GB (507), 20 lần / phút / user, chặn tên có `%` / bắt đầu hoặc kết thúc bằng dấu chấm; ảnh sách chỉ nằm trong `/$book-image/`, xoá / sửa sách thì tự xoá ảnh, dọn ảnh mồ côi mỗi giờ; vá lỗ xoá sách có thể xoá thư mục ngoài upload | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-05](mobile-sync.md#2026-11-21-05) |
 | 2.16 | Trang Book 20 cuốn / trang + thanh phân trang (`?page=`); bảng có phân trang giữ nguyên vị trí khi chuyển trang; chip sách đã chọn ở form khuyến mãi không tràn | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-05](mobile-sync.md#2026-11-21-05) |
 | 2.17 | Form khuyến mãi, bảng chọn sách: hiện đúng ảnh bìa (trước chỉ ra icon vì thiếu `formatFilePath`), bìa dọc 2:3 có bìa mặc định khi sách không có ảnh | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-06](mobile-sync.md#2026-11-21-06) |
+| 2.18 | Soát DB trước deploy: chạy thử nâng cấp schema cũ → mới trên bản sao có dữ liệu (chỉ thêm, không mất dữ liệu); `OrderItem.picture` đổi `VARCHAR(191)` → `TEXT` (đường dẫn ảnh dài làm đặt đơn lỗi / ảnh bị cắt); README có mục *Cập nhật server production* cho devops | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-07](mobile-sync.md#2026-11-21-07) |
 
 ## Đợt 3: Tính năng mới
 

@@ -32,6 +32,7 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-21-04](#2026-11-21-04) | 2026-11-21 | Giỏ hàng, thanh toán 4 bước, Đơn hàng của tôi (UI) | Không (dùng `/api/order` của 2026-11-21-01) | **Có** (đi cùng 2026-11-21-01) | ⏳ Chưa làm |
 | [2026-11-21-05](#2026-11-21-05) | 2026-11-21 | Upload ≤ 4MB / lần + giới hạn 20 lần / phút, chặn tên lạ; ảnh sách tự xoá; trang Book 20 cuốn / trang + phân trang; bảng không nhảy khi chuyển trang; chip sách đã chọn không tràn | **Có**: `POST /api/file` (422 tổng > 4MB, 429, tên), `pictures` của sách (422) | **Có** | ⏳ Chưa làm |
 | [2026-11-21-06](#2026-11-21-06) | 2026-11-21 | Form khuyến mãi: bảng chọn sách hiện đúng ảnh bìa, bìa dọc 2:3 | Không | Không | ⏳ Chưa làm |
+| [2026-11-21-07](#2026-11-21-07) | 2026-11-21 | DB: `OrderItem.picture` thành `TEXT`; hướng dẫn deploy cho devops | Không đổi hình dạng API | **Có** (+ `prisma db push`) | Không cần sửa code |
 
 ---
 
@@ -623,3 +624,20 @@ Tone màu lấy từ AT UI kit của repo `anhtester_lms` (`public/build/css/at-
 | `frontend/src/pages/promotions-mgt/hooks/columns.tsx` | cùng đường dẫn | Chép (cần có `pages/book-mgt/components/book-cover.tsx` của mục 2026-11-20-03) |
 
 **Mobile cần**: không cần deploy backend.
+
+---
+
+<a id="2026-11-21-07"></a>
+## 2026-11-21-07 · DB: ảnh trong dòng đơn hàng, hướng dẫn deploy
+
+**DB**: `OrderItem.picture` đổi từ `VARCHAR(191)` sang `TEXT`. Ảnh sách nằm ở `/$book-image/<slug>/<file>`, slug dài tới ~191 ký tự nên đường dẫn có thể vượt 191: MySQL strict (production) trả lỗi → **`POST /api/order` 500** khi đặt sách đó; MySQL không strict (WAMP local) thì âm thầm cắt đường dẫn → ảnh trong đơn hỏng. `prisma db push` chỉ chạy `ALTER TABLE orderitem MODIFY picture TEXT NULL`, không mất dữ liệu.
+
+**API**: không đổi hình dạng (`picture` vẫn là `string | null`).
+
+**Đã kiểm trước deploy**: dựng DB theo schema của `ba42c0e` (trước đợt 2026-11-20), thêm dữ liệu, rồi nâng lên schema hiện tại → chỉ có `ADD COLUMN` (nullable / có default) và `CREATE TABLE`, dữ liệu cũ còn nguyên, category cũ thành `isActive = true`. Các bước cho devops: README mục *Cập nhật server production (VPS)*.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `backend/prisma/schema.prisma` | — | Không có |
+
+**Mobile cần**: không sửa code. Sau khi deploy backend + `prisma db push`, đặt sách có tên dài trên app sẽ hết lỗi 500.

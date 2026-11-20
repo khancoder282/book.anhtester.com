@@ -21,3 +21,10 @@ cd frontend && bun run build
 - `build:server` = `bun i && bunx prisma generate`.
 - `start` = `bun run src/index.ts` (không có `--watch`).
 - `build:client` dùng `rm -rf`, nên trên Windows phải chạy trong Git Bash; PowerShell không có lệnh này.
+
+## Cập nhật production (2026-11-21)
+
+- Không có Prisma migrations: DB production đồng bộ bằng `bunx prisma db push`. Các bước cho devops viết ở README mục *Cập nhật server production (VPS)* (sao lưu DB + `upload/` → `git pull` → `bun run build` trong `backend/` → `db push` → khởi động lại).
+- Trước khi deploy thay đổi schema: dựng DB tạm theo schema của bản đang chạy production, thêm dữ liệu, rồi `prisma migrate diff --from-schema-datasource ... --to-schema-datamodel ... --script` để xem SQL. Chỉ có `ADD COLUMN` nullable / có default và `CREATE TABLE` thì an toàn; có `DROP`, `MODIFY` thu hẹp, thêm `UNIQUE` hay cột bắt buộc không default thì phải viết bước chuyển dữ liệu riêng. Cách dựng DB tạm trên WAMP: `setup-local.md`.
+- Lần soát 2026-11-21 (schema `ba42c0e` → `HEAD`): chỉ thêm, không mất dữ liệu. Sửa thêm `OrderItem.picture` thành `TEXT`.
+- Server tự xoá ảnh mồ côi trong `upload/$book-image/` lúc khởi động, nên luôn sao lưu `upload/` trước lần chạy đầu của bản mới.
