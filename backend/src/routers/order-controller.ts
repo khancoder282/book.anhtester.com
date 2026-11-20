@@ -9,7 +9,8 @@ import { isPromotionEffective, syncStaleBookPrices } from "../utils/pricing";
 import { file_path } from "./file-controller";
 
 /**
- * Đơn hàng (2026-11-21). Giỏ hàng nằm ở trình duyệt; server chỉ báo giá (`/quote`) và lưu đơn đã đặt.
+ * Đơn hàng (2026-11-21). Giỏ của khách (chưa đăng nhập) nằm ở trình duyệt, giỏ của user đăng nhập ở
+ * `/api/cart` (cart-controller.ts). Server báo giá (`/quote`) và lưu đơn đã đặt.
  * Giá luôn tính lại ở server từ `book.currentPrice`, không tin giá client gửi.
  */
 const orderController = new Elysia({
@@ -32,7 +33,7 @@ export const MAX_ORDER_TOTAL = 2_000_000_000;
 const NOTE_MAX_LENGTH = 1000;
 const PHONE_REGEX = /^(0|\+84)(3|5|7|8|9)\d{8}$/;
 
-const PRICING_RULE =
+export const PRICING_RULE =
   "**Pricing rule (server-side, client prices are never trusted).** " +
   "`price` = regular price, `unitPrice` = selling price = the book's `currentPrice` at order time (regular price minus promotions in effect). " +
   "`lineTotal = unitPrice × quantity`; `subtotal = Σ lineTotal`; `discount = Σ (price − unitPrice) × quantity` (informational, already included in `unitPrice`). " +
@@ -46,8 +47,8 @@ const ITEMS_RULE =
 
 // ---- Schemas ------------------------------------------------------------------------------
 
-const msgSchema = t.Object({ msg: t.String() });
-const validationSchema = t.Object({
+export const msgSchema = t.Object({ msg: t.String() });
+export const validationSchema = t.Object({
   msg: t.String(),
   fields: t.Record(t.String(), t.Array(t.String())),
 });
@@ -76,7 +77,7 @@ const paymentMethodSchema = t.Union([t.Literal("COD"), t.Literal("BANK_TRANSFER"
   description: "`COD` (cash on delivery, default) or `BANK_TRANSFER`.",
 });
 
-const quoteLineSchema = t.Object({
+export const quoteLineSchema = t.Object({
   bookId: t.String({ description: "The book's id (or the value sent, when the book was not found)." }),
   name: t.String({ description: "Empty string when the book was not found." }),
   slug: t.String({ description: "Empty string when the book was not found." }),
@@ -160,11 +161,11 @@ const bodyOrderCreate = t.Object({
 
 // ---- Helpers ------------------------------------------------------------------------------
 
-type Fields = Record<string, string[]>;
+export type Fields = Record<string, string[]>;
 type Db = Prisma.TransactionClient;
 type CartItem = { bookId: string; quantity: number };
 
-function invalid(set: { status?: number | string }, fields: Fields, msg = "Invalid data.") {
+export function invalid(set: { status?: number | string }, fields: Fields, msg = "Invalid data.") {
   set.status = 422;
   return { msg, fields };
 }
@@ -201,7 +202,7 @@ type QuoteLine = {
  * Báo giá giỏ hàng. Đồng bộ giá bán đã lưu trước (khuyến mãi tới hạn / hết hạn), rồi tính theo PRICING_RULE.
  * Trả kèm `fields` khi số lượng sau khi gộp vượt giới hạn.
  */
-async function buildQuote(db: Db, items: CartItem[]) {
+export async function buildQuote(db: Db, items: CartItem[]) {
   const keys = [...new Set(items.map((i) => i.bookId.trim()))];
   const where: Prisma.BookWhereInput = { OR: [{ id: { in: keys } }, { slug: { in: keys } }] };
   await syncStaleBookPrices(db, where);
@@ -384,7 +385,8 @@ orderController
       detail: {
         summary: "Quote a cart",
         description:
-          "Price a cart without placing an order (no login needed). The cart lives in the browser; call this to show up-to-date prices, " +
+          "Price a list of books without placing an order (no login needed), e.g. a guest's browser cart. " +
+          "Signed-in users get their server cart already priced from GET /api/cart. Call this to show up-to-date prices, " +
           "availability and totals.\n\n" +
           ITEMS_RULE + "\n\n" +
           "- A book that does not exist → line with `available: false`, `error: \"Book not found.\"`, empty `name`/`slug`, prices 0.\n" +
@@ -446,7 +448,7 @@ orderController
             if (problems.length) fields.items = problems;
             if (Object.keys(fields).length) return null;
 
-            return tx.order.create({
+            const created = await tx.order.create({
               data: {
                 code: await uniqueOrderCode(tx),
                 userId: auth!.id,
@@ -476,6 +478,11 @@ orderController
               },
               select: orderSelect,
             });
+            // Sách đã đặt được bỏ khỏi giỏ trên server (/api/cart) của user
+            await tx.cartItem.deleteMany({
+              where: { userId: auth!.id, bookId: { in: quote.items.map((l) => l.bookId) } },
+            });
+            return created;
           });
 
         let order: Awaited<ReturnType<typeof run>> = null;
@@ -518,7 +525,7 @@ orderController
       detail: {
         summary: "Place an order",
         description:
-          "Place an order for the current user from the browser cart. Returns **201** with the order. Everything is created in one transaction.\n\n" +
+          "Place an order for the current user. `items` usually comes from the cart (GET /api/cart). Returns **201** with the order. Everything is created in one transaction.\n\n" +
           ITEMS_RULE + "\n\n" +
           "Validation → **422** `{ msg: \"Invalid data.\", fields }`:\n" +
           "- `recipientName`: trimmed, 1 – 191 characters.\n" +
@@ -527,6 +534,7 @@ orderController
           "- `street`: trimmed, 1 – 255 characters. `note`: optional, at most 1,000 characters.\n" +
           "- `items`: any book that is not found or UNAVAILABLE → `fields.items` with one message per book. No order is created.\n" +
           "- `paymentMethod`: `COD` (default) or `BANK_TRANSFER`. New orders have status `PENDING`.\n\n" +
+          "Books in the order are **removed from the user's server cart** (`/api/cart`) in the same transaction; other cart lines stay.\n\n" +
           "Each order line stores a snapshot (name, slug, first picture, prices) so the order stays readable after the book changes or is deleted (`bookId` becomes `null`).\n\n" +
           PRICING_RULE,
       },

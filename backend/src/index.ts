@@ -8,6 +8,7 @@ import bookController from "./routers/book-controller";
 import categoryController from "./routers/category-controller";
 import promotionController from "./routers/promotion-controller";
 import orderController from "./routers/order-controller";
+import cartController from "./routers/cart-controller";
 import path from "path";
 import dayjs from "dayjs";
 import { addressController } from "./routers/address-controller";
@@ -16,6 +17,7 @@ import databaseController from "./routers/database-controller";
 import { UPLOAD_ROOT, resolveInside, resolveUpload, serveFile } from "./utils/upload-security";
 import { prisma } from "./regis";
 import { sweepOrphanBookImages } from "./utils/book-images";
+import { showEndpointInDocs } from "./utils/openapi-endpoint";
 
 // Dọn ảnh sách mồ côi (upload rồi bỏ dở, không sách nào dùng, cũ hơn 24 giờ): lúc khởi động và mỗi giờ (2026-11-21)
 const sweepBookImages = () =>
@@ -55,7 +57,7 @@ function corsHeaders(request: Request): Record<string, string> {
   };
 }
 
-new Elysia()
+const app = new Elysia()
   .onRequest(({ request, set }) => {
     const url = new URL(request.url)
     if (url.pathname.startsWith("/api")) {
@@ -132,6 +134,7 @@ new Elysia()
       .use(bookController)
       .use(promotionController)
       .use(orderController)
+      .use(cartController)
       .use(addressController)
       .use(databaseController)
   )
@@ -220,6 +223,7 @@ new Elysia()
       }),
     },
     detail: {
+      summary: "Simulate a status code / slow response",
       security: [],
       description: `Return the given status code with body { msg } after waiting "time" seconds, to simulate errors and slow responses. Limits: code is an integer 200-599, time is 0-${MAX_STATUS_DELAY} seconds, msg is at most 500 characters; anything else returns 422.`,
       tags: ["System"]
@@ -230,3 +234,6 @@ new Elysia()
       `🦕 Elysia is running at http://localhost:${Bun.env.PORT || 4544}`
     );
   });
+
+// Swagger: hiện `METHOD /api/...` ngay dưới tên API
+showEndpointInDocs(app.routes);

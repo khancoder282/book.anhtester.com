@@ -1,7 +1,7 @@
 # Đơn hàng (order) — backend
 
 Làm ngày 2026-11-21. Code: `backend/src/routers/order-controller.ts`, prefix `/api/order`, tag Swagger **Order Management** (khai ở `regis.ts`).
-Giỏ hàng nằm ở **trình duyệt** (frontend, `src/store/cart.ts`); server chỉ báo giá và lưu đơn đã đặt.
+Giỏ hàng: khách giữ ở **trình duyệt**, user đã đăng nhập dùng giỏ trên server `/api/cart` (xem [cart.md](cart.md), từ 2026-11-21). Server báo giá và lưu đơn đã đặt.
 
 | Method | Path | Cần token | Ghi chú |
 |---|---|---|---|
@@ -30,7 +30,7 @@ Giỏ hàng nằm ở **trình duyệt** (frontend, `src/store/cart.ts`); server
 - `items`: 1 – 50 dòng, `quantity` nguyên 1 – 99 (lỗi schema → 422 `fields.items` hoặc `fields["items/0/quantity"]`). `bookId` nhận id hoặc slug; dòng trùng sách (kể cả một dòng gửi id, một dòng gửi slug) được **gộp**, tổng sau gộp > 99 → 422 `fields.items` (cả `/quote`).
 - Quote: sách không có → dòng `available: false`, `error: "Book not found."`, `name`/`slug` rỗng, giá 0, `bookId` = giá trị đã gửi; UNAVAILABLE → `error: "Book is unavailable."`. Dòng không hợp lệ không tính vào tổng. `bookId` trả về luôn là **id** sách (kể cả khi gửi slug).
 - Tạo đơn (422 `{ msg: "Invalid data.", fields }`): `recipientName` trim 1 – 191; `phone` bỏ khoảng trắng / `.` / `-`, khớp `^(0|\+84)(3|5|7|8|9)\d{8}$`, lưu dạng `0xxxxxxxxx`; `province` phải có trong bảng Address (`div`), `ward` phải thuộc tỉnh đó (lưu đúng tên trong DB); `street` trim 1 – 255; `note` ≤ 1000, trống → `null`; sách không có / UNAVAILABLE → `fields.items` mỗi sách một câu (`Book "<id>" not found.`, `Book "<tên>" is unavailable.`). Lỗi schema (thiếu trường, quá dài, `paymentMethod` sai) do Elysia trả trước, nên lỗi schema và lỗi nghiệp vụ không gộp chung một lần.
-- Tạo đơn + dòng đơn trong **một transaction**; báo giá được tính lại trong transaction đó.
+- Tạo đơn + dòng đơn trong **một transaction**; báo giá được tính lại trong transaction đó. Cùng transaction đó bỏ các sách trong đơn khỏi giỏ server (`CartItem`) của user.
 
 ## Lưu ý
 
@@ -43,8 +43,8 @@ Giỏ hàng nằm ở **trình duyệt** (frontend, `src/store/cart.ts`); server
 ## UI web (2026-11-21)
 
 - Code: `frontend/src/pages/shop/` (`cart-page`, `checkout-page`, `orders-page`, `order-detail-page`, `api/order.ts`, `hooks/use-quote.ts`, `components/`), giỏ `frontend/src/store/cart.ts`, nút header `layouts/components/cart-button.tsx`. Route: `/cart`, `/checkout`, `/orders`, `/orders/:code`. Chữ ở namespace i18n `shop`.
-- Giỏ lưu `localStorage` khoá `book-anhtester:cart` (id + slug + tên + ảnh + số lượng), không cần đăng nhập. Mọi giá hiển thị lấy từ `POST /api/order/quote` (gọi lại trễ 300ms mỗi khi giỏ đổi). Ghép dòng giỏ với dòng báo giá theo `bookId` **hoặc** `slug` (quote luôn trả id thật).
+- Giỏ lưu `localStorage` khoá `book-anhtester:cart` (id + slug + tên + ảnh + số lượng); khi đã đăng nhập đó là bản sao của `/api/cart` (xem [cart.md](cart.md)). Mọi giá hiển thị lấy từ `POST /api/order/quote` (gọi lại trễ 300ms mỗi khi giỏ đổi). Ghép dòng giỏ với dòng báo giá theo `bookId` **hoặc** `slug` (quote luôn trả id thật).
 - Checkout 4 bước, chỉ bước địa chỉ cần đăng nhập (nút Đăng nhập dẫn `/sign-in?redirect=/checkout`). Địa chỉ điền sẵn từ hồ sơ: chỉ nhận phần cuối là tỉnh khi bắt đầu bằng "Thành phố/Tỉnh", phần trước đó là phường khi bắt đầu bằng "Phường/Xã/Đặc khu" (hồ sơ admin chỉ có tên tỉnh, trước đây bị điền nhầm vào ô số nhà).
-- Đặt xong: xoá giỏ, hiện bước Hoàn tất với mã đơn. 422 → gán lỗi vào ô; `fields.items` → quay về bước giỏ + cảnh báo.
+- Đặt xong: `afterOrder` bỏ sách vừa đặt khỏi giỏ rồi tải lại giỏ server, hiện bước Hoàn tất với mã đơn. 422 → gán lỗi vào ô; `fields.items` → quay về bước giỏ + cảnh báo.
 - "Mua ngay" ở trang chi tiết sách = thêm vào giỏ rồi mở `/checkout`.
 - Đã chạy thử trọn luồng trên trình duyệt 2026-11-21 (đăng nhập admin → mua ngay → địa chỉ Hà Nội → đặt → xem đơn): đúng giá 71.100 + ship 30.000, giỏ được xoá.

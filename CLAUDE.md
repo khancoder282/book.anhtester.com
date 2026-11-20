@@ -14,7 +14,7 @@ Runtime là **Bun** cho cả hai phần (backend dùng `Bun.env`, `Bun.password`
 - Quy tắc nào user đã xác nhận thì ghi **ngay** vào cả hai nơi: `CLAUDE.md` (mục phù hợp) và bộ nhớ (`memory/` trong repo + auto-memory của Claude). Không chỉ làm theo trong phiên rồi để mất.
 - **Hướng dẫn cho người dùng repo** (cài đặt, chạy, `.env`, dữ liệu mẫu, tài khoản, build/deploy) ghi vào [`README.md`](README.md). Đổi cách cài/chạy thì cập nhật README cùng lúc. `CLAUDE.md` và `memory/` chỉ giữ ghi chú cho Claude.
 - **Mỗi lần chỉnh tính năng / UI / API** (chốt 2026-11-20), làm cùng lúc:
-  1. Cập nhật tài liệu API: Swagger (`body`, `response`, `detail` trong controller; tag mới thì khai ở `regis.ts`) và `memory/features/<tính-năng>.md`. **Build Swagger** (chốt 2026-11-20): backend đang chạy thì `cd backend && bun run swagger:export` để xuất lại [`docs/api/openapi.json`](docs/api/openapi.json), kiểm tra diff rồi commit cùng code. Swagger được sinh lúc chạy từ schema trong controller, nên không có bước build nào khác.
+  1. Cập nhật tài liệu API: Swagger (`body`, `response`, `detail` trong controller; tag mới thì khai ở `regis.ts`) và `memory/features/<tính-năng>.md`. **Build Swagger** (chốt 2026-11-20): backend đang chạy thì `cd backend && bun run swagger:export` để xuất lại [`docs/api/openapi.json`](docs/api/openapi.json), kiểm tra diff rồi commit cùng code. Swagger được sinh lúc chạy từ schema trong controller, nên không có bước build nào khác. **Tài liệu API viết tiếng Anh; mỗi endpoint phải có `detail.summary`** (tên ngắn, hiện ở menu trái Scalar thay cho đường dẫn; chốt 2026-11-21). Dòng `METHOD /api/...` dưới tên do `utils/openapi-endpoint.ts` tự chèn, không viết tay.
   2. Cập nhật kế hoạch ở [`plans/roadmap.md`](plans/roadmap.md) (trạng thái + ngày).
   3. Thêm mục vào [`plans/mobile-sync.md`](plans/mobile-sync.md): API đổi gì, UI đổi gì, locator mới, file tương ứng bên repo `../mobile-book.anhtester.com`, mobile cần làm gì, có cần deploy backend không (app mobile gọi API production).
 
@@ -78,6 +78,7 @@ Prisma client được generate vào `backend/src/prisma/`, không phải `node_
 - `src/regis.ts`: cấu hình OpenAPI/Swagger (`path: "/swagger"`), PrismaClient, plugin JWT.
 - `src/routers/*-controller.ts`: mỗi file là một nhóm API (auth, user, book, category, promotion, file, address, database).
 - `src/plugins/`: `auth.ts` (guard), `jwt-app.ts`, `black-list-token.ts`, `filterTable.ts` (phân trang, sort, search), `logging-file.ts`, `middle-prisma.ts`.
+- Giỏ hàng (2026-11-21): khách giữ ở trình duyệt, đã đăng nhập dùng `/api/cart` (`CartItem`), đăng nhập thì gộp giỏ khách. Chi tiết: [memory/features/cart.md](memory/features/cart.md).
 - Auth: `POST /api/register`, `POST /api/login` (trả access token, refresh token lưu hash trong `UserRefreshToken`), `POST /api/refetch-token`, `GET /api/me`.
 - Không có phân quyền role: mọi user đều như nhau.
 - Upload (chốt 2026-11-21): **tổng các file trong một lần upload ≤ 4MB**, **cả thư mục upload ≤ 1GB** (upload / copy vượt → 507), tối đa 20 lần / phút / user, tên không chứa `%` / không bắt đầu hay kết thúc bằng dấu chấm. Ảnh sách chỉ nằm trong `/$book-image/`; xoá / sửa sách thì tự xoá ảnh không còn dùng, server dọn ảnh mồ côi mỗi giờ (`utils/book-images.ts`). Không bao giờ xoá file theo đường dẫn client gửi mà chưa qua `resolveUpload` + kiểm nằm trong thư mục cho phép.

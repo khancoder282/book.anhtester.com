@@ -84,7 +84,7 @@ const PAYMENTS: { value: PaymentMethod; icon: IconifyName; tone: 'green' | 'blue
 export default function CheckoutPage() {
   const { t } = useTranslate();
   const { auth, checked } = useAuth();
-  const clearCart = useCart((s) => s.clear);
+  const afterOrder = useCart((s) => s.afterOrder);
   const { items, quote, loading } = useQuote();
   const [step, setStep] = useState(0);
   const [placing, setPlacing] = useState(false);
@@ -146,7 +146,8 @@ export default function CheckoutPage() {
         paymentMethod: values.paymentMethod,
       });
       setPlaced(res.order);
-      clearCart();
+      // Server đã bỏ các sách vừa đặt khỏi giỏ (/api/cart); bản sao ở trình duyệt bỏ theo
+      afterOrder(items.map((i) => i.bookId));
       setStep(3);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {

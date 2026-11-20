@@ -34,6 +34,8 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-21-06](#2026-11-21-06) | 2026-11-21 | Form khuyến mãi: bảng chọn sách hiện đúng ảnh bìa, bìa dọc 2:3 | Không | Không | ⏳ Chưa làm |
 | [2026-11-21-07](#2026-11-21-07) | 2026-11-21 | DB: `OrderItem.picture` thành `TEXT`; hướng dẫn deploy cho devops | Không đổi hình dạng API | **Có** (+ `prisma db push`) | Không cần sửa code |
 | [2026-11-21-08](#2026-11-21-08) | 2026-11-21 | Web: mục Liên hệ ở đáy sidebar, trang `/contact` | Không | Không | Không cần (mobile đã có tab Liên hệ) |
+| [2026-11-21-09](#2026-11-21-09) | 2026-11-21 | Giỏ hàng trên server (`/api/cart`), web đồng bộ giỏ theo tài khoản | **Có**: thêm nhóm `/api/cart` (6 endpoint); `POST /api/order` bỏ sách đã đặt khỏi giỏ | **Có** (+ `prisma db push` thêm bảng `CartItem`) | ⏳ Chưa làm |
+| [2026-11-21-10](#2026-11-21-10) | 2026-11-21 | Swagger: tên API ở menu trái, endpoint dưới tên | Không đổi hành vi (chỉ tài liệu) | Có (để Swagger production có thay đổi) | Không cần làm |
 
 ---
 
@@ -660,5 +662,41 @@ Tone màu lấy từ AT UI kit của repo `anhtester_lms` (`public/build/css/at-
 | Web | Mobile | Việc |
 |---|---|---|
 | `frontend/src/pages/help/{help-content,contact-page,page}.tsx`, `layouts/dashboard/nav.tsx`, `layouts/nav-config-dashboard.tsx`, `routes/sections.tsx`, `locales/{en,vi}/nav.ts` | — | Không cần: mobile đã có tab Liên hệ ở thanh tab đáy (`pages/contact`) |
+
+**Mobile cần**: không.
+
+---
+
+<a id="2026-11-21-09"></a>
+## 2026-11-21-09 · Giỏ hàng trên server
+
+**API** (mới, cần token, tag *Cart Management*): `GET /api/cart` · `POST /api/cart/items` `{ bookId, quantity? }` (mới 201, cộng dồn 200) · `PUT /api/cart/items/{bookId}` `{ quantity }` · `DELETE /api/cart/items/{bookId}` · `DELETE /api/cart` · `POST /api/cart/merge` `{ items }` → `{ cart, skipped }`. Mọi lệnh sửa trả `{ msg, cart }`; `cart` = dòng báo giá (như `/api/order/quote`) + `addedAt`, kèm `totalQuantity` và các tổng tiền. `bookId` nhận id hoặc slug. Lỗi: 404 `Book not found.` / `Book is not in the cart.`, 422 hết hàng / > 99 cuốn / > 50 đầu sách. Chi tiết: `memory/features/cart.md`.
+
+**API đổi**: `POST /api/order` thành công thì **bỏ các sách trong đơn khỏi giỏ server** (body không đổi).
+
+**DB**: bảng mới `CartItem` (`userId` + `bookId` unique, Cascade khi xoá user / sách). Production InnoDB thì `bunx prisma db push` tạo thẳng.
+
+**Web**:
+- Khách: giỏ vẫn ở `localStorage` như cũ. Đăng nhập → giỏ khách được **gộp** vào giỏ server (cộng số lượng, tối đa 99; sách bị bỏ qua có toast). Đã đăng nhập: thêm / đổi số lượng / xoá / xoá hết gọi API, giỏ giống nhau trên mọi trình duyệt / thiết bị. Đăng xuất → giỏ trên trình duyệt xoá (vẫn còn trên server).
+- Đặt đơn xong không xoá cả giỏ nữa, chỉ bỏ các sách vừa đặt rồi tải lại giỏ server.
+- Không đổi giao diện, không đổi locator.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/api/cart.ts` (mới), `frontend/src/store/cart.ts` | cùng đường dẫn | Chép. Store phụ thuộc `store/auth.ts` (`auth.id`, `checked`) và `components/toast` |
+| `frontend/src/pages/shop/checkout-page.tsx` | cùng đường dẫn | `clearCart()` → `afterOrder(items.map((i) => i.bookId))` |
+
+**Mobile cần**: ⚠️ app gọi API production → **deploy backend + `bunx prisma db push` trên VPS trước**, rồi chép 2 file store/api. Chưa deploy mà đã chép thì đăng nhập sẽ gọi `/api/cart/merge` lỗi 404 (giỏ khách vẫn giữ, không mất).
+
+---
+
+<a id="2026-11-21-10"></a>
+## 2026-11-21-10 · Swagger: tên API và endpoint
+
+**API**: không đổi hành vi. Tài liệu (giữ tiếng Anh): mọi endpoint có `detail.summary` (menu trái Scalar hiện tên như *Log in*, *Add a book to my cart* thay cho đường dẫn), và mô tả mỗi API bắt đầu bằng dòng `METHOD /api/...` (chèn tự động lúc khởi động, `backend/src/utils/openapi-endpoint.ts`) nên endpoint hiện ngay dưới tên. `docs/api/openapi.json` đã xuất lại.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `backend/src/routers/*-controller.ts`, `backend/src/index.ts`, `backend/src/utils/openapi-endpoint.ts` | — | Không có |
 
 **Mobile cần**: không.

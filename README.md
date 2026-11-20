@@ -166,7 +166,7 @@ bun run start
 
 - **Không** chạy `bun run seed` trên production: lệnh này xoá toàn bộ dữ liệu.
 - `prisma db push` ở bước 3 không được hỏi *"data loss"*. Nếu nó hỏi thì **dừng lại**, không thêm `--accept-data-loss`, báo lại cho dev.
-- Đợt cập nhật 2026-11-20 → 2026-11-21 chỉ **thêm**, không xoá hay đổi kiểu cột nào (đã chạy thử trên bản sao DB cũ có dữ liệu): sách thêm 8 cột không bắt buộc (`author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language`, `previewTitle`, `previewContent`), category thêm `isActive` (mặc định bật), thêm 2 bảng `Order`, `OrderItem` và 2 enum `OrderStatus`, `PaymentMethod`.
+- Đợt cập nhật 2026-11-20 → 2026-11-21 chỉ **thêm**, không xoá hay đổi kiểu cột nào (đã chạy thử trên bản sao DB cũ có dữ liệu): sách thêm 8 cột không bắt buộc (`author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language`, `previewTitle`, `previewContent`), category thêm `isActive` (mặc định bật), thêm 3 bảng `Order`, `OrderItem`, `CartItem` (giỏ hàng) và 2 enum `OrderStatus`, `PaymentMethod`.
 - Bảng Address: production còn dữ liệu cũ (có cấp huyện, khác 34 tỉnh/thành) thì nạp lại: `bun run seed:address --yes --allow-remote`. Lệnh chỉ thay bảng Address, không đụng user, sách, đơn hàng.
 - Lần khởi động đầu, server tự **xoá ảnh không sách nào dùng** trong `upload/$book-image/` (cũ hơn 24 giờ), sau đó lặp lại mỗi giờ. Vì thế cần sao lưu `upload/` ở bước 0.
 - MySQL nên chạy chế độ strict (mặc định của MySQL 8) và engine mặc định **InnoDB**. Tạo DB mới mà `db push` báo `Specified key was too long; max key length is 1000 bytes` là do engine mặc định đang là MyISAM (hay gặp ở WAMP): đặt `default_storage_engine=InnoDB` trong `my.ini` / `my.cnf`, khởi động lại MySQL rồi chạy lại.

@@ -514,6 +514,7 @@ bookController
         422: validationSchema,
       },
       detail: {
+        summary: "List books",
         description: `Query list of books (pagination, filtering, sorting). \`picture\` only lists files that exist. A plain-text \`search\` matches \`name\`, \`description\`, \`slug\`, \`author\`, \`publisher\` and \`isbn\`.\n\n${PRICING_RULE}`,
         tags: ["Book Management"],
         security: [],
@@ -693,6 +694,7 @@ bookController
         view: t.Optional(t.BooleanString({ examples: ["true", "false"], description: "`true` increments `viewCount`." }))
       }),
       detail: {
+        summary: "Get a book",
         description: `Get a book by id or slug.\n\n${PRICING_RULE}`,
         security: [],
       },
@@ -799,6 +801,7 @@ bookController
         }),
       },
       detail: {
+        summary: "Create a book",
         description:
           "Create a new book. Returns **201**.\n\n" +
           "- `name` is trimmed and must not be blank; `slug` is normalized (`Đắc Nhân Tâm` → `dac-nhan-tam`) and must not end up empty.\n" +
@@ -937,6 +940,7 @@ bookController
       },
       body: bodyBookUpdate,
       detail: {
+        summary: "Update a book",
         description:
           "Partially update a book. **Fields not sent are kept unchanged** (no default values are applied).\n\n" +
           "- `categories` and `promotions`, when sent, **replace** the whole list (`promotions: []` removes all promotions).\n" +
@@ -989,6 +993,7 @@ bookController
         422: validationSchema,
       },
       detail: {
+        summary: "Delete a book",
         description:
           "Delete a book. Its picture files in `/$book-image/` are deleted too (unless another book still uses the same file), " +
           "and the book image folder is removed when it becomes empty.",

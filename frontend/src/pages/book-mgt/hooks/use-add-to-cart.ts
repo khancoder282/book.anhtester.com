@@ -7,7 +7,7 @@ import { toast } from 'src/components/toast';
 
 type CartBook = { id?: string; slug: string; name: string; picture?: string | null };
 
-/** Thêm sách vào giỏ (giỏ lưu ở trình duyệt) kèm thông báo. Trả về true khi thêm được. */
+/** Thêm sách vào giỏ (khách: trình duyệt, đã đăng nhập: thêm cả vào /api/cart) kèm thông báo. Trả về true khi thêm được. */
 export function useAddToCart() {
   const { t } = useTranslate();
   const add = useCart((s) => s.add);

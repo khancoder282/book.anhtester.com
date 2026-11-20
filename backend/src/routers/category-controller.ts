@@ -77,6 +77,7 @@ categoryController
       })
     },
     detail: {
+      summary: "List categories",
       security: [],
       description: "Get list of categories (not paginated, `pagination.total` is the number of categories). Each item has `isActive` (status) and `bookCount`."
     }
@@ -129,6 +130,7 @@ categoryController
         422: validationSchema,
       },
       detail: {
+        summary: "Create a category",
         description: `Create new category (\`isActive\` defaults to \`true\`). Name is trimmed, required, at most ${MAX_LENGTH} characters and must not contain '/' (422). An existing name (case-insensitive) returns 409 "Category already exists.".`,
       }
     }
@@ -198,6 +200,7 @@ categoryController
         422: validationSchema,
       },
       detail: {
+        summary: "Update a category",
         description: `Rename a category and/or change its status. Send \`newName\`, \`isActive\` or both; sending neither returns 422 (\`fields.newName\`). 404 "Category not found." when \`name\` does not exist, 409 "Category already exists." when \`newName\` is taken, 422 when \`newName\` is empty, longer than ${MAX_LENGTH} characters or contains '/'.`,
       }
     }
@@ -250,6 +253,7 @@ categoryController
         422: validationSchema,
       },
       detail: {
+        summary: "Delete a category",
         description: "Delete category. The name must be URL-encoded; 404 \"Category not found.\" when it does not exist.",
       }
     }

@@ -160,6 +160,7 @@ userController
         })
       ),
       detail: {
+        summary: "List users",
         description:
           "Get a paginated list of users with optional filters and sorting. `search` is either plain text " +
           "(contains on name, email, phone, address) or a JSON Prisma `where` object; filtering by sensitive " +
@@ -221,6 +222,7 @@ userController
         }),
       },
       detail: {
+        summary: "Get a user",
         description: "Get detailed information of a specific user by ID",
         security: [],
       },
@@ -293,6 +295,7 @@ userController
         isActive: t.Optional(t.Boolean()),
       }),
       detail: {
+        summary: "Create a user",
         description:
           "Create a new user. Blank name, password shorter than 6 characters or duplicated email return 422 with `fields`.",
       },
@@ -427,6 +430,7 @@ userController
         })
       ),
       detail: {
+        summary: "Update a user",
         description:
           "Update a user by ID. A user can only update their own account (403 for another user, 404 if the ID does not exist) " +
           "and cannot disable it (`isActive: false` returns 400). Only fields sent in the body are updated. " +
@@ -498,6 +502,7 @@ userController
         id: t.String(),
       }),
       detail: {
+        summary: "Delete a user",
         description:
           "Delete a user by ID and remove all related refresh tokens. A user can only delete their own account " +
           "(403 for another user, 404 if the ID does not exist). After deleting yourself every session is gone, " +

@@ -293,6 +293,7 @@ promotionController
       },
 
       detail: {
+        summary: "List promotions",
         description:
           "Query list of promotions. `search` is either a Prisma `where` JSON, or plain text matched (contains) against " +
           "`code`, `name`, `description`; plain text equal to a type (`PERCENTAGE`, `FIXED_AMOUNT`, `FREE_SHIPPING`, case-insensitive) also matches `type`.",
@@ -352,6 +353,7 @@ promotionController
       id: t.String(),
     }),
     detail: {
+      summary: "Get a promotion",
       security: [],
       description: "Get promotion by id",
     },
@@ -468,6 +470,7 @@ promotionController
         422: validationSchema,
       },
       detail: {
+        summary: "Create a promotion",
         description: `Create promotion. Returns **201**.\n\n${PROMOTION_RULES}`,
       }
     }
@@ -579,6 +582,7 @@ promotionController
         422: validationSchema,
       },
       detail: {
+        summary: "Update a promotion",
         description:
           "Partially update a promotion. **Fields not sent are kept unchanged** (no default values are applied); " +
           "rules are checked on the merged result (e.g. sending only `type: PERCENTAGE` re-checks the stored `value`). " +
@@ -622,6 +626,7 @@ promotionController
         422: validationSchema,
       },
       detail: {
+        summary: "Delete a promotion",
         description: "Delete promotion. `currentPrice` of the books it was attached to is recalculated.",
       }
     }

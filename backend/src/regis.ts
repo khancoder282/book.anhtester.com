@@ -79,9 +79,17 @@ export const regis = new Elysia()
           {
             name: "Order Management",
             description:
-              "Shopping cart checkout. The cart lives in the browser: quote it (no login), place an order, list / view / cancel your own orders. " +
+              "Checkout: quote a list of books (no login), place an order, list / view / cancel your own orders. " +
               "Prices are always computed by the server from the books' current selling price; shipping is free over 500,000 VND " +
               "or when a book has a FREE_SHIPPING promotion in effect, otherwise 30,000 VND."
+          },
+          {
+            name: "Cart Management",
+            description:
+              "Server-side shopping cart of the signed-in user (one line per book, 1 – 99 copies, at most 50 books). " +
+              "Reading the cart always returns current prices and totals (same rules as POST /api/order/quote). " +
+              "Guests keep their cart in the browser and merge it with POST /api/cart/merge after signing in. " +
+              "Placing an order removes the ordered books from the cart."
           }
         ],
         components: {

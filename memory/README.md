@@ -16,6 +16,7 @@ Cập nhật lần cuối: 2026-11-21, nhánh `deploy-vps`.
 | [features/file.md](features/file.md) | Upload, duyệt, đổi tên, copy, move, xoá file |
 | [features/address.md](features/address.md) | Dữ liệu tỉnh/phường Việt Nam |
 | [features/order.md](features/order.md) | Đơn hàng: API báo giá / đặt / xem / huỷ đơn, phí vận chuyển; UI giỏ hàng, thanh toán 4 bước, Đơn hàng của tôi |
+| [features/cart.md](features/cart.md) | Giỏ hàng trên server `/api/cart` (thêm / đổi số lượng / xoá / gộp giỏ khách), đồng bộ với giỏ ở trình duyệt |
 | [features/ui-theme.md](features/ui-theme.md) | Giao diện theo AT UI kit: quy ước màu, tone phụ, font, cỡ chữ, PageHeader, sidebar thu gọn, con trỏ / thanh cuộn |
 | [features/i18n.md](features/i18n.md) | Đa ngôn ngữ vi/en: `src/locales`, `useTranslate`, nút chuyển, tiêu đề tab |
 | [features/help.md](features/help.md) | Trang `/help` (Cần trợ giúp?): thông tin liên hệ Anh Tester, locator |

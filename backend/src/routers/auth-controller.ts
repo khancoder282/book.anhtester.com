@@ -140,6 +140,7 @@ authController
         422: errorSchema,
       },
       detail: {
+        summary: "Log in",
         security: [],
         description:
           "Login to access the system. Wrong email and wrong password both return the same 401 \"Invalid email or password.\". " +
@@ -207,6 +208,7 @@ authController
         422: errorSchema,
       },
       detail: {
+        summary: "Register an account",
         security: [],
         description:
           "Register new user account. `name` must not be blank, `password` at least 6 characters. " +
@@ -275,6 +277,7 @@ authController
         }
       ),
       detail: {
+        summary: "Refresh the access token",
         security: [],
         description:
           "Refresh token to get new access token. Reads cookie `refetchToken` set by `/login`. " +
@@ -404,6 +407,7 @@ authController
         422: errorSchema,
       },
       detail: {
+        summary: "Update my profile",
         description:
           "Update the profile of the current user. Only fields sent in the body are updated. " +
           "Changing password requires `password_old` (400 when missing or wrong). " +
@@ -438,6 +442,7 @@ authController
         403: msgSchema,
       },
       detail: {
+        summary: "Get my account",
         description:
           "Get current user information. 401 when the access token is missing, expired or revoked (logout, password/email change).",
       },
@@ -481,6 +486,7 @@ authController
         403: msgSchema,
       },
       detail: {
+        summary: "Log out",
         description:
           "Logout from the system: revokes the current session, so both the access token and the `refetchToken` cookie stop working immediately.",
       },

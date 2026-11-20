@@ -46,12 +46,13 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 2.17 | Form khuyến mãi, bảng chọn sách: hiện đúng ảnh bìa (trước chỉ ra icon vì thiếu `formatFilePath`), bìa dọc 2:3 có bìa mặc định khi sách không có ảnh | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-06](mobile-sync.md#2026-11-21-06) |
 | 2.18 | Soát DB trước deploy: chạy thử nâng cấp schema cũ → mới trên bản sao có dữ liệu (chỉ thêm, không mất dữ liệu); `OrderItem.picture` đổi `VARCHAR(191)` → `TEXT` (đường dẫn ảnh dài làm đặt đơn lỗi / ảnh bị cắt); README có mục *Cập nhật server production* cho devops | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-07](mobile-sync.md#2026-11-21-07) |
 | 2.19 | Mục **Liên hệ** ghim ở đáy sidebar, mở trang `/contact` trong dashboard (cùng nội dung trang `/help`) | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-08](mobile-sync.md#2026-11-21-08) |
+| 2.20 | Swagger: mọi API có tên ở menu trái (`summary`, tiếng Anh), dòng `METHOD /api/...` ngay dưới tên | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-10](mobile-sync.md#2026-11-21-10) |
 
 ## Đợt 3: Tính năng mới
 
 | # | Việc | Trạng thái | Ghi chú |
 |---|---|---|---|
-| 3.1 | **Đơn hàng**: giỏ hàng, tạo đơn, áp mã KM, tồn kho, trạng thái `PENDING → PAID → SHIPPED` / `CANCELLED` | 🚧 2026-11-21 | Xong 2026-11-21: backend `/api/order` (báo giá, đặt đơn, danh sách / chi tiết / huỷ đơn của mình) + UI giỏ hàng (lưu ở trình duyệt), thanh toán 4 bước (giỏ → địa chỉ giao → xác nhận → hoàn tất), Đơn hàng của tôi, chi tiết + huỷ đơn. Còn: áp mã KM khi thanh toán, tồn kho, `PAID → SHIPPED`, màn admin quản lý đơn. Chi tiết: [mobile-sync.md#2026-11-21-01](mobile-sync.md#2026-11-21-01), [#2026-11-21-04](mobile-sync.md#2026-11-21-04) |
+| 3.1 | **Đơn hàng**: giỏ hàng, tạo đơn, áp mã KM, tồn kho, trạng thái `PENDING → PAID → SHIPPED` / `CANCELLED` | 🚧 2026-11-21 | Xong 2026-11-21: backend `/api/order` (báo giá, đặt đơn, danh sách / chi tiết / huỷ đơn của mình) + UI giỏ hàng, thanh toán 4 bước (giỏ → địa chỉ giao → xác nhận → hoàn tất), Đơn hàng của tôi, chi tiết + huỷ đơn. Xong 2026-11-21: **API giỏ hàng** `/api/cart` (6 endpoint, giỏ theo user, gộp giỏ khách khi đăng nhập, đặt đơn tự bỏ sách đã mua khỏi giỏ). Còn: áp mã KM khi thanh toán, tồn kho, `PAID → SHIPPED`, màn admin quản lý đơn. Chi tiết: [mobile-sync.md#2026-11-21-01](mobile-sync.md#2026-11-21-01), [#2026-11-21-04](mobile-sync.md#2026-11-21-04), [#2026-11-21-09](mobile-sync.md#2026-11-21-09) |
 | 3.2 | **Phân quyền theo vai trò** (admin / staff / viewer) | ⏳ | Đổi schema User, guard theo role |
 | 3.3 | Import / Export CSV cho sách và user | ⏳ | |
 | 3.4 | Nhật ký hoạt động (ai sửa gì, lúc nào) | ⏳ | |
