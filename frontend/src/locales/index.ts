@@ -20,12 +20,16 @@ import { file as viFile } from './vi/file';
 import { help as viHelp } from './vi/help';
 import { home as viHome } from './vi/home';
 import { user as viUser } from './vi/user';
+import { shop as enShop } from './en/shop';
+import { shop as viShop } from './vi/shop';
 import { common as enCommon } from './en/common';
 import { common as viCommon } from './vi/common';
 import { category as enCategory } from './en/category';
 import { category as viCategory } from './vi/category';
 import { promotion as enPromotion } from './en/promotion';
 import { promotion as viPromotion } from './vi/promotion';
+import { bookstore as enBookstore } from './en/bookstore';
+import { bookstore as viBookstore } from './vi/bookstore';
 import { components as enComponents } from './en/components';
 import { components as viComponents } from './vi/components';
 
@@ -39,6 +43,8 @@ const en = {
   auth: enAuth,
   home: enHome,
   book: enBook,
+  bookstore: enBookstore,
+  shop: enShop,
   user: enUser,
   category: enCategory,
   promotion: enPromotion,
@@ -54,6 +60,8 @@ const vi: Translation<typeof en> = {
   auth: viAuth,
   home: viHome,
   book: viBook,
+  bookstore: viBookstore,
+  shop: viShop,
   user: viUser,
   category: viCategory,
   promotion: viPromotion,

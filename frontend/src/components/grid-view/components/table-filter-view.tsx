@@ -15,6 +15,7 @@ import { useTranslate } from 'src/locales';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { searchInputProps } from 'src/components/fields/search-input-props';
 
 import { formControl } from '../store/form-control';
 import { TableFilterItemView } from './table-filter-item-view';
@@ -105,6 +106,7 @@ export function TableFilterView<T>({
           <Stack direction="row" spacing={1} alignItems="center">
             <OutlinedInput
               fullWidth
+              inputProps={searchInputProps}
               placeholder={placeholder ?? t('components.filter.searchPlaceholder')}
               value={search}
               onChange={(e) => {

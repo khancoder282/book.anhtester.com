@@ -3,9 +3,11 @@ import type { category as en } from '../en/category';
 
 export const category: Translation<typeof en> = {
   title: 'Quản lý danh mục',
+  subtitle: 'Thể loại sách, hiện thành bộ lọc ở trang Sách.',
   newCategory: 'Thêm danh mục',
   searchPlaceholder: 'Tìm danh mục...',
   summary: '{count} danh mục · {links} lượt gắn sách',
+  summaryFiltered: '{shown} / {count} danh mục · {links} / {totalLinks} lượt gắn sách',
   columns: {
     name: 'Tên',
     status: 'Trạng thái',

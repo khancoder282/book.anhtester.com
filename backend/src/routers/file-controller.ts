@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { auth, verifyAccessToken } from "../plugins/auth";
 import { AppMain } from "../regis";
+import { hitRateLimit } from "../utils/rate-limit";
 import {
   ALLOWED_KEEP_EXT,
   ALLOWED_UPLOAD_TEXT,
@@ -25,6 +26,15 @@ export default fileController;
 export const file_path = UPLOAD_ROOT;
 
 const maxStorage = 1024 * 1024 * 1024; // 1GB
+
+/**
+ * Tổng dung lượng các file trong MỘT lần upload (user chốt 2026-11-21): ≤ 4MB.
+ * Một file đơn lẻ vì thế cũng ≤ 4MB. Vượt → 422 `fields.files`.
+ */
+export const MAX_UPLOAD_TOTAL = 4 * 1024 * 1024;
+const MAX_UPLOAD_TEXT = "4MB";
+/** Số lần upload tối đa mỗi phút cho mỗi user (2026-11-21). Vượt → 429 + header Retry-After. */
+export const UPLOAD_RATE_LIMIT = 20;
 
 if (!fs.existsSync(file_path)) {
   fs.mkdirSync(file_path);
@@ -186,7 +196,17 @@ fileController
   .use(auth)
   .post(
     "",
-    async ({ body, set }) => {
+    async ({ body, set, auth }) => {
+      // Mỗi user tối đa UPLOAD_RATE_LIMIT lần upload / phút (chống upload dồn dập làm đầy ổ đĩa)
+      const retryAfter = hitRateLimit(`upload:${auth?.id ?? "anonymous"}`, UPLOAD_RATE_LIMIT, 60_000);
+      if (retryAfter) {
+        set.status = 429;
+        set.headers["Retry-After"] = String(retryAfter);
+        return {
+          msg: `Too many uploads. Please wait ${retryAfter} seconds and try again.`,
+        };
+      }
+
       const { files, path: p = "/" } = body;
       const pathname = resolveUpload(p);
 
@@ -198,6 +218,20 @@ fileController
         set.status = 400;
         return {
           msg: "Path is not a directory.",
+        };
+      }
+
+      // Tổng dung lượng cả lần upload (kiểm trước khi đọc nội dung từng file)
+      const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+      if (totalSize > MAX_UPLOAD_TOTAL) {
+        set.status = 422;
+        return {
+          msg: "Invalid data.",
+          fields: {
+            files: [
+              `Total upload size must not exceed ${MAX_UPLOAD_TEXT} (got ${(totalSize / 1024 / 1024).toFixed(2)}MB).`,
+            ],
+          },
         };
       }
 
@@ -253,8 +287,9 @@ fileController
           multiple: true,
           maxItems: 20,
           minItems: 1,
-          maxSize: 5 * 1024 * 1024, // 5MB
-          description: `1-20 files, at most 5MB each. Allowed: ${ALLOWED_UPLOAD_TEXT}. The type is checked from the file content and extension, not from the Content-Type sent by the client. SVG, HTML and other types are rejected (422).`,
+          // Không đặt maxSize ở đây: lỗi schema của Elysia khó đọc ("Expected kind 'Files'").
+          // Handler kiểm tổng cả lần upload ≤ MAX_UPLOAD_TOTAL (nên mỗi file cũng ≤ 4MB) với thông báo rõ.
+          description: `1-20 files, **at most ${MAX_UPLOAD_TEXT} in total** for the whole request (so each file is at most ${MAX_UPLOAD_TEXT} too; over the limit → 422 \`fields.files\`). Allowed: ${ALLOWED_UPLOAD_TEXT}. The type is checked from the file content and extension, not from the Content-Type sent by the client. SVG, HTML and other types are rejected (422).`,
         }),
         path: t.Optional(
           t.String({
@@ -270,11 +305,16 @@ fileController
         }),
         400: msgSchema,
         422: validationSchema,
+        429: t.Object({ msg: t.String({ description: "Too many uploads. Wait `Retry-After` seconds." }) }),
         500: msgSchema,
       },
       parse: ["multipart/form-data"],
       detail: {
-        description: `Upload files. Allowed types: ${ALLOWED_UPLOAD_TEXT} (checked by content). Path or file names that leave the upload directory return 400 "Invalid path." / "Invalid file name.".`,
+        description:
+          `Upload files. The total size of all files in one request must not exceed ${MAX_UPLOAD_TEXT} (422 \`fields.files\`). ` +
+          `At most ${UPLOAD_RATE_LIMIT} uploads per minute per user (429 + \`Retry-After\` header). ` +
+          `Allowed types: ${ALLOWED_UPLOAD_TEXT} (checked by content). File / folder names must not contain \`%\`, start with \`.\` or end with \`.\`. ` +
+          `Path or file names that leave the upload directory return 400 "Invalid path." / "Invalid file name.".`,
       }
     }
   )

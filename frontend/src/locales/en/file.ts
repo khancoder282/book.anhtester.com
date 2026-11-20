@@ -59,7 +59,7 @@ export const file = {
     pathInvalid: 'Path can only contain characters a-z, A-Z, 0-9, _, - and /',
     uploadIn: 'Upload in: {path}',
     fileRequired: 'File is required',
-    maxFileSize: 'File size must be less than 5MB',
+    maxFileSize: 'Selected files must be at most 4MB in total.',
     maxFiles: 'You can upload up to 20 files',
     typeNotAllowed: 'Only these file types can be uploaded: {types}',
     removeAll: 'Remove all',

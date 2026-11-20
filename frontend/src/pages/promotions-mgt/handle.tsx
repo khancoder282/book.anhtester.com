@@ -28,6 +28,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import Title from 'src/components/title';
 import { Iconify } from 'src/components/iconify';
 import { dialog } from 'src/components/dialog-confirm/confirm';
+import { PageHeader } from 'src/components/page-header/page-header';
 
 import { CardBook } from './components/card-book';
 import { CardDetail } from './components/card-detail';
@@ -116,11 +117,12 @@ export default function Handle() {
       <Title>
         {`${id ? t('promotion.handle.modifyTitle') : t('promotion.handle.createTitle')} - ${CONFIG.appName}`}
       </Title>
-      <Stack spacing={2} mb={5}>
-        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          {id ? t('promotion.handle.modifyTitle') : t('promotion.handle.createTitle')}
-        </Typography>
-        <Breadcrumbs sx={{ mb: 3 }}>
+      <PageHeader
+        icon="ph:seal-percent-fill"
+        tone="orange"
+        title={id ? t('promotion.handle.modifyTitle') : t('promotion.handle.createTitle')}
+      >
+        <Breadcrumbs sx={{ mt: 0.5 }}>
           <Link
             component={RouterLink}
             href="/promotion-book-management"
@@ -133,7 +135,7 @@ export default function Handle() {
             {id ? t('promotion.handle.modifyTitle') : t('promotion.handle.createTitle')}
           </Typography>
         </Breadcrumbs>
-      </Stack>
+      </PageHeader>
       <Container maxWidth="md">
         <Stack
           spacing={4}
@@ -180,7 +182,7 @@ export default function Handle() {
               //   loading={isLoading}
               //   disabled={!isDirty}
               variant="contained"
-              color="inherit"
+              color="secondary"
               type="submit"
             >
               {id ? t('promotion.handle.saveChanges') : t('promotion.handle.create')}

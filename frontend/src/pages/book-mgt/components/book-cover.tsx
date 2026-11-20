@@ -5,23 +5,14 @@ import { Box, Typography } from '@mui/material';
 import { formatFilePath } from 'src/utils/format-filepath';
 
 import { useTranslate } from 'src/locales';
+import { AT_TONES, toneOf } from 'src/theme/at-tones';
 
 import { SvgColor } from 'src/components/svg-color';
 
-// Cặp màu gradient cho bìa mặc định, chọn theo tên sách để mỗi sách luôn ra cùng một màu
-const PALETTES = [
-  ['#00A76F', '#007867'],
-  ['#8E33FF', '#5119B7'],
-  ['#00B8D9', '#006C9C'],
-  ['#FFAB00', '#B76E00'],
-  ['#FF5630', '#B71D18'],
-  ['#1877F2', '#0C44AE'],
-];
-
+// Bìa mặc định: gradient theo tone AT UI, chọn theo tên sách để mỗi sách luôn ra cùng một màu
 const pickPalette = (name: string) => {
-  let hash = 0;
-  for (let i = 0; i < name.length; i += 1) hash = (hash * 31 + name.charCodeAt(i)) % 997;
-  return PALETTES[hash % PALETTES.length];
+  const tone = AT_TONES[toneOf(name)];
+  return [tone.c1, tone.c2];
 };
 
 export type BookCoverProps = {
@@ -86,6 +77,8 @@ export function BookCover({ src, name, sx }: BookCoverProps) {
       <Typography
         variant="subtitle1"
         sx={{
+          fontFamily: (theme) => theme.typography.fontSecondaryFamily,
+          textShadow: '0 1px 2px rgba(0,0,0,.25)',
           overflow: 'hidden',
           display: '-webkit-box',
           WebkitLineClamp: 2,

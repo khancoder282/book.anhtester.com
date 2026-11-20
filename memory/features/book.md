@@ -48,3 +48,18 @@ Frontend: `src/pages/book-mgt/` (`page.tsx`, `add-page.tsx`, `detail.tsx`). Rout
 - Bấm chip KM (hoặc mã KM trong bảng giá) mở `PromotionDetailDialog` (`components/promotion-detail-dialog.tsx`): mã, tên, mô tả, loại, giá trị, thời gian, mức giảm cho sách này, nút *Mở trang khuyến mãi* (tab mới `/promotion-book-management/handle?id=`), *Bỏ khỏi sách*, *Đóng*.
 - Tính giá phía form ở `utils/pricing.ts` (`calcCurrentPrice`, `calcUpcomingPrice`, `promotionStatus`), cùng quy tắc `backend/src/utils/pricing.ts`. API detail sách không trả `isActive` của KM (chỉ trả KM đang bật) nên `promotionStatus` coi thiếu `isActive` là đang bật.
 - testid: `promotion-price-summary`, `promotion-price-row-<CODE>`, `promotion-current-price`, `promotion-upcoming-price`, `promotion-not-applied-warning`, `selected-promotion-<CODE>`, `promotion-detail-dialog`, `promotion-detail-<code|name|description|type|value|period|discount>`.
+
+## Đọc thử + giao diện nhà sách (2026-11-21)
+
+- Model thêm `previewTitle` (VarChar 191) và `previewContent` (Text, API giới hạn 20.000 ký tự vì TEXT MySQL 65.535 byte, chữ Việt tới 3 byte). Nhận qua POST/PATCH như 6 trường thông tin thêm (`parseBookExtra`, `null` / chuỗi rỗng = xoá, CRLF đổi thành LF). `GET /api/book/{id}` trả cả hai; `GET /api/book` chỉ trả `previewTitle` + `hasPreview` (lấy `previewContent` rồi bỏ đi trong `mappedList`).
+- Định dạng nội dung: đoạn cách nhau bằng dòng trống, dòng bắt đầu `## ` là tiêu đề nhỏ (`parsePreview` trong `components/book-reader.tsx`).
+- UI: xem `plans/mobile-sync.md#2026-11-21-03` (danh sách kiểu nhà sách, thẻ bìa 3D, chi tiết, trình đọc, lật trang khi rê chuột, sách cùng thể loại, thẻ form *Chương đọc thử*). Khách (chưa đăng nhập) chỉ thấy sách `AVAILABLE`, nên băng rôn cũng đếm theo điều kiện đó.
+- Thẻ sách giữ id cũ `#book-<id>` (link tên) và `#img-book-<id>` (link bìa) cho test cũ.
+
+## Ảnh sách tự xoá + phân trang (2026-11-21)
+
+- `utils/book-images.ts`: ảnh sách chỉ được nằm trong `upload/$book-image/` (`checkPictures` → POST/PATCH sai thì 422 `fields.pictures`; đường dẫn chuẩn hoá `\` → `/`, có `/` đầu; cấm dấu phẩy vì DB lưu nối bằng dấu phẩy).
+- `DELETE /api/book/{id}`: xoá sách rồi `removeBookImages` (chỉ file trong `$book-image`, không xoá file sách khác còn dùng, xoá thư mục rỗng đi lên tới `$book-image`). ⚠️ Trước đây là `rmSync(path.join(upload, p), { recursive: true })` không kiểm đường dẫn → sách có `pictures: ["/../src"]` xoá được cả thư mục code.
+- `PATCH` có `pictures`: ảnh bị bỏ khỏi danh sách được xoá file. Frontend (`modify-book.ts`) vẫn gọi `DELETE /api/file` cho ảnh bỏ — xoá hai lần vô hại.
+- `sweepOrphanBookImages` (gọi trong `index.ts` sau 30 giây khởi động + mỗi giờ, dùng `prisma` export từ `regis.ts`): xoá file trong `$book-image` không sách nào dùng và cũ hơn 24 giờ (ảnh upload rồi bỏ dở form).
+- Trang Book: `BOOKS_PER_PAGE` = 20 (user chốt), `Pagination` + `?page=` trên URL; các setter trong `stores/filter.ts` xoá `page` khi đổi bộ lọc / sắp xếp. Bỏ cuộn tải thêm (36 cuốn, tối đa 10 lượt).

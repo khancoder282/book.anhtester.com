@@ -30,6 +30,7 @@ import { type TKey, translate, useTranslate } from 'src/locales';
 import Title from 'src/components/title';
 import { toast } from 'src/components/toast';
 import { Iconify, type IconifyName } from 'src/components/iconify';
+import { PageHeader } from 'src/components/page-header/page-header';
 
 const tabsTheme: { key: string; label: TKey; icon: IconifyName }[] = [
   {
@@ -75,17 +76,14 @@ export default function Setting() {
   return (
     <DashboardContent>
       <Title>{`${t('user.setting.title')} - ${CONFIG.appName}`}</Title>
-      <Stack spacing={2} mb={5}>
-        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          {t('user.setting.title')}
-        </Typography>
-        <Breadcrumbs sx={{ mb: 3 }}>
+      <PageHeader icon="solar:settings-bold-duotone" tone="slate" title={t('user.setting.title')}>
+        <Breadcrumbs sx={{ mt: 0.5 }}>
           <Link component={RouterLink} href="/user-management" color="textPrimary" variant="body2">
             {t('user.breadcrumb.userManagement')}
           </Link>
           <Typography variant="body2">{t('user.setting.title')}</Typography>
         </Breadcrumbs>
-      </Stack>
+      </PageHeader>
       <Stack spacing={3}>
         <Card>
           <CardHeader

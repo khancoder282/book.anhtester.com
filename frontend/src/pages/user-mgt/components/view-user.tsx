@@ -14,6 +14,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
 import { dialog } from 'src/components/dialog-confirm/confirm';
 import { useTable } from 'src/components/grid-view/hook/use-table';
+import { PageHeader } from 'src/components/page-header/page-header';
 import { TableView } from 'src/components/grid-view/components/table-view';
 import { TableFilterView } from 'src/components/grid-view/components/table-filter-view';
 import { TablePaginationView } from 'src/components/grid-view/components/table-pagination-view';
@@ -64,32 +65,29 @@ export function ViewUser() {
 
   return (
     <DashboardContent>
-      <Box
-        sx={{
-          mb: 5,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          {t('user.title')}
-        </Typography>
-        {auth && (
-          <Button
-            variant="contained"
-            color="inherit"
-            startIcon={<Iconify icon="solar:user-plus-bold" />}
-            onClick={() => {
-              formControl.reset({
-                id: '',
-              });
-              dialog.custom(() => <AddUserDialog callback={loadUsers} />, { maxWidth: 'md' });
-            }}
-          >
-            {t('user.newUser')}
-          </Button>
-        )}
-      </Box>
+      <PageHeader
+        icon="solar:users-group-rounded-bold"
+        tone="blue"
+        title={t('user.title')}
+        subtitle={t('user.subtitle')}
+        action={
+          auth && (
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<Iconify icon="solar:user-plus-bold" />}
+              onClick={() => {
+                formControl.reset({
+                  id: '',
+                });
+                dialog.custom(() => <AddUserDialog callback={loadUsers} />, { maxWidth: 'md' });
+              }}
+            >
+              {t('user.newUser')}
+            </Button>
+          )
+        }
+      />
       <Card>
         <TableFilterView
           placeholder={t('user.searchPlaceholder')}

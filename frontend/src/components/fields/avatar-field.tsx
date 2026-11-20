@@ -28,6 +28,10 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
   const { opt, onChange, name, onBlur, onFocus, value, error } = props;
   const flagUserHandle = useRef<boolean>(false);
   const [preview, setPreview] = useState('');
+  // Ảnh không tải được (file đã bị xoá, VD sau khi seed lại) → coi như chưa có ảnh, hiện lại ô chọn ảnh
+  const [broken, setBroken] = useState(false);
+  useEffect(() => setBroken(false), [preview]);
+  const hasPreview = !!preview && !broken;
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -79,7 +83,7 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
           p: 1,
         }}
       >
-        {preview && (
+        {hasPreview && (
           <Box p={1} position="absolute" width={1} height={1}>
             <Box
               component="img"
@@ -93,9 +97,7 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
               }}
               // Ảnh lỗi thì ẩn đi, lộ ô chọn ảnh bên dưới. Không dùng /$image-404.svg vì file đó
               // chỉ có trong backend/upload (gitignore), máy mới clone không có.
-              onError={(e) => {
-                e.currentTarget.style.visibility = 'hidden';
-              }}
+              onError={() => setBroken(true)}
             />
           </Box>
         )}
@@ -115,7 +117,7 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
               error
                 ? theme.palette.error.light
                 : varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
-            ...(preview && {
+            ...(hasPreview && {
               opacity: 0,
               '&:hover': {
                 opacity: 1,

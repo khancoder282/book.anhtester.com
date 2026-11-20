@@ -6,6 +6,7 @@ import { useRef, useState, useEffect } from 'react';
 import { TextField, IconButton, InputAdornment } from '@mui/material';
 
 import { Iconify } from '../iconify';
+import { searchInputProps } from './search-input-props';
 
 type SearchFieldProps = Omit<TextFieldProps, 'onChange' | 'value'> & {
   value: string;
@@ -43,6 +44,8 @@ export function SearchField({ value, onChange, sx, ...props }: SearchFieldProps)
         setS(e.target.value);
       }}
       slotProps={{
+        ...props.slotProps,
+        htmlInput: { ...searchInputProps, ...(props.slotProps?.htmlInput as object) },
         input: {
           startAdornment: (
             <InputAdornment position="start">

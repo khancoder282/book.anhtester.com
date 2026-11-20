@@ -11,6 +11,7 @@
 | Promotion | Mã khuyến mãi theo %, theo số tiền, miễn phí vận chuyển |
 | File | Upload, duyệt, đổi tên, sao chép, di chuyển, xoá file |
 | Address | Danh sách tỉnh/thành và phường/xã |
+| Order | Báo giá giỏ hàng, đặt đơn (giao hàng tới tỉnh/phường), xem và huỷ đơn của mình |
 
 Bản chạy thật: <https://book.anhtester.com> · tài liệu API: <https://book.anhtester.com/swagger>
 
@@ -112,7 +113,7 @@ App không phân quyền theo vai trò: mọi tài khoản đăng nhập đều 
 | Module | Dữ liệu |
 |---|---|
 | Category | 9 thể loại; `Ngoại ngữ` không có sách |
-| Book | 20 sách tiếng Việt, mỗi sách 2 ảnh (bìa trước, bìa sau); 2 sách `UNAVAILABLE` |
+| Book | 40 sách (đủ để web có nút "load more"), mỗi sách 4 ảnh (bìa trước, bìa sau, 2 trang đọc thử); đủ tác giả, nhà xuất bản, năm, số trang, ISBN, ngôn ngữ và đoạn đọc thử. 5 sách `UNAVAILABLE`, 5 sách mới tạo trong 7 ngày (nhãn "New"). Có sách không có đọc thử, sách không có nhà xuất bản/ISBN, sách tên rất dài. 20 sách sau là sách hư cấu; đoạn đọc thử của mọi sách là văn bản viết riêng để test, không phải nội dung sách thật |
 | Promotion | `SALE10` giảm 10% · `GIAM20K` giảm 20.000đ · `THIEUNHI15` giảm 15% · `FREESHIP` miễn phí vận chuyển · `BLACKFRIDAY30` sắp diễn ra · `TET2026` đã hết hạn · `SUMMER25` đang tắt |
 | File | `tai-lieu/` (txt, md, csv), `hinh-anh/` (banner), `thu-muc-trong/` |
 | Address | Đơn vị hành chính hiện hành (từ 01/07/2025, bỏ cấp huyện): **34 tỉnh/thành phố, 3.321 phường/xã/đặc khu**. File `backend/prisma/seed/vn-address.json` |
@@ -123,7 +124,7 @@ Ngày khuyến mãi tính theo thời điểm chạy seed, nên lúc nào chạy
 
 - Dữ liệu nằm trong `backend/prisma/seed/data.json`, địa chỉ trong `backend/prisma/seed/vn-address.json`, ảnh trong `backend/prisma/seed/assets/`.
 - Chỉ nạp lại bảng Address (không đụng user, sách, file): `bun run seed:address --yes` trong `backend/`. Chạy trên server thì thêm `--allow-remote`.
-- Thêm hoặc đổi tên sách thì vẽ lại ảnh bìa trước khi seed (cần Python 3 + Pillow, font của Windows):
+- Thêm, đổi tên sách hoặc đổi đoạn đọc thử thì vẽ lại ảnh (bìa + trang đọc thử) trước khi seed (cần Python 3 + Pillow, font của Windows):
 
   ```bash
   python backend/prisma/seed/tools/make_images.py

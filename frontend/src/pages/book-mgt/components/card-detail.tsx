@@ -20,6 +20,7 @@ import { useTranslate } from 'src/locales';
 
 import { Iconify } from 'src/components/iconify';
 import { accepImg, UploadField } from 'src/components/fields/upload-field';
+import { MAX_UPLOAD_TOTAL, totalNewFileSize } from 'src/components/fields/upload-limits';
 
 import { slugify } from '../api/create-book';
 import { control, setValue } from '../stores/form-add';
@@ -155,9 +156,9 @@ export function CardDetail() {
               defaultValue={[]}
               rules={{
                 validate: {
+                  // Ảnh mới được upload trong một lần lưu → tổng ≤ 4MB (khớp API)
                   maxFileSize: (files) =>
-                    files.every((file) => file.size < 1024 * 1024 * 5) ||
-                    t('book.validation.fileSize'),
+                    totalNewFileSize(files) <= MAX_UPLOAD_TOTAL || t('book.validation.fileSize'),
                   maxLength: (files) => files.length <= 30 || t('book.validation.maxFiles'),
                   minLength: (files) => files.length >= 1 || t('book.validation.minFiles'),
                 },

@@ -3,6 +3,7 @@ import type { user as en } from '../en/user';
 
 export const user: Translation<typeof en> = {
   title: 'Quản lý người dùng',
+  subtitle: 'Tài khoản đăng nhập, thông tin liên hệ và trạng thái.',
   newUser: 'Thêm người dùng',
   searchPlaceholder: 'Tìm người dùng (tên, email, số điện thoại hoặc địa chỉ)',
   deleteConfirm: 'Xác nhận bạn muốn xoá người dùng "{name}".',

@@ -34,6 +34,10 @@
     {
       "name": "Promotion Management",
       "description": "Manage promotions, update information, and provide promotion details."
+    },
+    {
+      "name": "Order Management",
+      "description": "Shopping cart checkout. The cart lives in the browser: quote it (no login), place an order, list / view / cancel your own orders. Prices are always computed by the server from the books' current selling price; shipping is free over 500,000 VND or when a book has a FREE_SHIPPING promotion in effect, otherwise 30,000 VND."
     }
   ],
   "components": {
@@ -302,6 +306,8 @@
                           "pageCount",
                           "isbn",
                           "language",
+                          "previewTitle",
+                          "hasPreview",
                           "promotions"
                         ],
                         "properties": {
@@ -444,6 +450,17 @@
                               "string",
                               "null"
                             ]
+                          },
+                          "previewTitle": {
+                            "nullable": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "hasPreview": {
+                            "description": "`true` when the book has a sample chapter (`previewContent`). Read it from GET /book/{id}.",
+                            "type": "boolean"
                           },
                           "promotions": {
                             "description": "Active, not yet expired promotions (includes scheduled ones that have not started).",
@@ -608,7 +625,7 @@
         "tags": [
           "Book Management"
         ],
-        "description": "Create a new book. Returns **201**.\n\n- `name` is trimmed and must not be blank; `slug` is normalized (`Đắc Nhân Tâm` → `dac-nhan-tam`) and must not end up empty.\n- `price`: integer 0 – 1,000,000,000 (default 50,000).\n- No `promotions` (or `[]`) → no promotion attached, `currentPrice = price`.\n- `author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language` are optional (see the schema for limits); `null` or a blank string clears them.\n\n**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) or any attached promotion changes, and when a promotion starts or ends.",
+        "description": "Create a new book. Returns **201**.\n\n- `name` is trimmed and must not be blank; `slug` is normalized (`Đắc Nhân Tâm` → `dac-nhan-tam`) and must not end up empty.\n- `price`: integer 0 – 1,000,000,000 (default 50,000).\n- No `promotions` (or `[]`) → no promotion attached, `currentPrice = price`.\n- `author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language`, `previewTitle`, `previewContent` are optional (see the schema for limits); `null` or a blank string clears them.\n\n**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) or any attached promotion changes, and when a promotion starts or ends.",
         "requestBody": {
           "required": true,
           "content": {
@@ -643,7 +660,7 @@
                     ]
                   },
                   "pictures": {
-                    "description": "File paths of uploaded images (see File Management).",
+                    "description": "Paths of images uploaded with POST /api/file into `/$book-image/` (e.g. `/$book-image/dac-nhan-tam/bia-truoc.jpg`). Any other path (outside `/$book-image/`, `..`, commas) → 422 `fields.pictures`.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -730,9 +747,26 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "previewTitle": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Title of the sample chapter (\"read a sample\"), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "previewContent": {
+                    "nullable": true,
+                    "maxLength": 20000,
+                    "description": "Optional. Sample chapter text, at most 20,000 characters. Plain text: paragraphs separated by a blank line, a line starting with `## ` is a subheading. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                },
-                "additionalProperties": false
+                }
               }
             },
             "application/x-www-form-urlencoded": {
@@ -766,7 +800,7 @@
                     ]
                   },
                   "pictures": {
-                    "description": "File paths of uploaded images (see File Management).",
+                    "description": "Paths of images uploaded with POST /api/file into `/$book-image/` (e.g. `/$book-image/dac-nhan-tam/bia-truoc.jpg`). Any other path (outside `/$book-image/`, `..`, commas) → 422 `fields.pictures`.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -853,9 +887,26 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "previewTitle": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Title of the sample chapter (\"read a sample\"), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "previewContent": {
+                    "nullable": true,
+                    "maxLength": 20000,
+                    "description": "Optional. Sample chapter text, at most 20,000 characters. Plain text: paragraphs separated by a blank line, a line starting with `## ` is a subheading. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                },
-                "additionalProperties": false
+                }
               }
             },
             "multipart/form-data": {
@@ -889,7 +940,7 @@
                     ]
                   },
                   "pictures": {
-                    "description": "File paths of uploaded images (see File Management).",
+                    "description": "Paths of images uploaded with POST /api/file into `/$book-image/` (e.g. `/$book-image/dac-nhan-tam/bia-truoc.jpg`). Any other path (outside `/$book-image/`, `..`, commas) → 422 `fields.pictures`.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -976,9 +1027,26 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "previewTitle": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Title of the sample chapter (\"read a sample\"), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "previewContent": {
+                    "nullable": true,
+                    "maxLength": 20000,
+                    "description": "Optional. Sample chapter text, at most 20,000 characters. Plain text: paragraphs separated by a blank line, a line starting with `## ` is a subheading. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                },
-                "additionalProperties": false
+                }
               }
             }
           }
@@ -997,8 +1065,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1016,8 +1083,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1035,8 +1101,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1054,8 +1119,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1074,8 +1138,7 @@
                       "description": "`Promotion not found.` when an id in `promotions` does not exist.",
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1106,8 +1169,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1121,7 +1183,7 @@
         "tags": [
           "Book Management"
         ],
-        "description": "Delete a book and its picture files.",
+        "description": "Delete a book. Its picture files in `/$book-image/` are deleted too (unless another book still uses the same file), and the book image folder is removed when it becomes empty.",
         "parameters": [
           {
             "name": "id",
@@ -1146,8 +1208,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1165,8 +1226,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1184,8 +1244,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1289,6 +1348,8 @@
                     "pageCount",
                     "isbn",
                     "language",
+                    "previewTitle",
+                    "previewContent",
                     "status",
                     "createdAt",
                     "updatedAt",
@@ -1358,6 +1419,21 @@
                     },
                     "language": {
                       "nullable": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "previewTitle": {
+                      "nullable": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "previewContent": {
+                      "nullable": true,
+                      "description": "Sample chapter text (paragraphs separated by a blank line, `## ` = subheading).",
                       "type": [
                         "string",
                         "null"
@@ -1569,8 +1645,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1588,8 +1663,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1607,8 +1681,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -1620,7 +1693,7 @@
         "tags": [
           "Book Management"
         ],
-        "description": "Partially update a book. **Fields not sent are kept unchanged** (no default values are applied).\n\n- `categories` and `promotions`, when sent, **replace** the whole list (`promotions: []` removes all promotions).\n- `pictures`, when sent, replaces all pictures.\n- `slug`, when sent, is normalized; changing `name` alone does not change `slug`.\n- `currentPrice` is recalculated after every update.\n- `author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language` are optional (see the schema for limits); `null` or a blank string clears them.\n\n**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) or any attached promotion changes, and when a promotion starts or ends.",
+        "description": "Partially update a book. **Fields not sent are kept unchanged** (no default values are applied).\n\n- `categories` and `promotions`, when sent, **replace** the whole list (`promotions: []` removes all promotions).\n- `pictures`, when sent, replaces all pictures.\n- `slug`, when sent, is normalized; changing `name` alone does not change `slug`.\n- `currentPrice` is recalculated after every update.\n- `author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language`, `previewTitle`, `previewContent` are optional (see the schema for limits); `null` or a blank string clears them.\n\n**Pricing rule.** `currentPrice` (selling price) is computed by the server and cannot be sent: `price` minus the discounts of the promotions attached to the book that are **in effect** (`isActive = true` and `startDate <= now <= endDate`). PERCENTAGE takes off `price * value / 100`, FIXED_AMOUNT takes off `value`, FREE_SHIPPING does not change the price; discounts of several promotions add up. The result is rounded to an integer and always stays within `[0, price]`. It is recalculated when the book (price, promotions) or any attached promotion changes, and when a promotion starts or ends.",
         "parameters": [
           {
             "name": "id",
@@ -1660,7 +1733,7 @@
                     ]
                   },
                   "pictures": {
-                    "description": "Replaces all pictures. `[]` removes all.",
+                    "description": "Replaces all pictures. `[]` removes all. Image files dropped from the list are deleted from the server unless another book still uses them. Paths of images uploaded with POST /api/file into `/$book-image/` (e.g. `/$book-image/dac-nhan-tam/bia-truoc.jpg`). Any other path (outside `/$book-image/`, `..`, commas) → 422 `fields.pictures`.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -1746,9 +1819,26 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "previewTitle": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Title of the sample chapter (\"read a sample\"), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "previewContent": {
+                    "nullable": true,
+                    "maxLength": 20000,
+                    "description": "Optional. Sample chapter text, at most 20,000 characters. Plain text: paragraphs separated by a blank line, a line starting with `## ` is a subheading. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                },
-                "additionalProperties": false
+                }
               }
             },
             "application/x-www-form-urlencoded": {
@@ -1777,7 +1867,7 @@
                     ]
                   },
                   "pictures": {
-                    "description": "Replaces all pictures. `[]` removes all.",
+                    "description": "Replaces all pictures. `[]` removes all. Image files dropped from the list are deleted from the server unless another book still uses them. Paths of images uploaded with POST /api/file into `/$book-image/` (e.g. `/$book-image/dac-nhan-tam/bia-truoc.jpg`). Any other path (outside `/$book-image/`, `..`, commas) → 422 `fields.pictures`.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -1863,9 +1953,26 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "previewTitle": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Title of the sample chapter (\"read a sample\"), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "previewContent": {
+                    "nullable": true,
+                    "maxLength": 20000,
+                    "description": "Optional. Sample chapter text, at most 20,000 characters. Plain text: paragraphs separated by a blank line, a line starting with `## ` is a subheading. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                },
-                "additionalProperties": false
+                }
               }
             },
             "multipart/form-data": {
@@ -1894,7 +2001,7 @@
                     ]
                   },
                   "pictures": {
-                    "description": "Replaces all pictures. `[]` removes all.",
+                    "description": "Replaces all pictures. `[]` removes all. Image files dropped from the list are deleted from the server unless another book still uses them. Paths of images uploaded with POST /api/file into `/$book-image/` (e.g. `/$book-image/dac-nhan-tam/bia-truoc.jpg`). Any other path (outside `/$book-image/`, `..`, commas) → 422 `fields.pictures`.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -1980,9 +2087,26 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "previewTitle": {
+                    "nullable": true,
+                    "maxLength": 191,
+                    "description": "Optional. Title of the sample chapter (\"read a sample\"), at most 191 characters. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "previewContent": {
+                    "nullable": true,
+                    "maxLength": 20000,
+                    "description": "Optional. Sample chapter text, at most 20,000 characters. Plain text: paragraphs separated by a blank line, a line starting with `## ` is a subheading. `null` / `\"\"` clears it.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                },
-                "additionalProperties": false
+                }
               }
             }
           }
@@ -2001,8 +2125,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2020,8 +2143,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2039,8 +2161,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2058,8 +2179,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2078,8 +2198,7 @@
                       "description": "`Book not found.` or `Promotion not found.`",
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2110,8 +2229,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2669,8 +2787,7 @@
                   "password": {
                     "type": "string"
                   }
-                },
-                "additionalProperties": false
+                }
               }
             },
             "application/x-www-form-urlencoded": {
@@ -2692,8 +2809,7 @@
                   "password": {
                     "type": "string"
                   }
-                },
-                "additionalProperties": false
+                }
               }
             },
             "multipart/form-data": {
@@ -2715,8 +2831,7 @@
                   "password": {
                     "type": "string"
                   }
-                },
-                "additionalProperties": false
+                }
               }
             }
           }
@@ -2743,8 +2858,7 @@
                     "exp": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2773,8 +2887,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2822,8 +2935,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -2959,7 +3071,8 @@
                       "type": "string"
                     },
                     "config": {}
-                  }
+                  },
+                  "additionalProperties": false
                 }
               }
             }
@@ -3004,6 +3117,1744 @@
           }
         },
         "operationId": "getApiMe"
+      }
+    },
+    "/api/order": {
+      "get": {
+        "tags": [
+          "Order Management"
+        ],
+        "summary": "List my orders",
+        "description": "Orders of the current user only, newest first. Optional `status` filter (`PENDING` / `CANCELLED`).",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "multipleOf": 1,
+              "default": 1,
+              "description": "Default 1.",
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "multipleOf": 1,
+              "default": 10,
+              "description": "Default 10, at most 100.",
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "CANCELLED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "list",
+                    "pagination"
+                  ],
+                  "properties": {
+                    "list": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "code",
+                          "status",
+                          "recipientName",
+                          "phone",
+                          "province",
+                          "ward",
+                          "street",
+                          "note",
+                          "paymentMethod",
+                          "subtotal",
+                          "discount",
+                          "shippingFee",
+                          "total",
+                          "createdAt",
+                          "updatedAt",
+                          "items"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "description": "Order code: `BK` + yyMMdd (Vietnam time) + 4 random uppercase letters/digits, e.g. `BK261121A7K2`.",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "PENDING",
+                              "CANCELLED"
+                            ]
+                          },
+                          "recipientName": {
+                            "type": "string"
+                          },
+                          "phone": {
+                            "description": "Normalized: digits only, leading `0`.",
+                            "type": "string"
+                          },
+                          "province": {
+                            "type": "string"
+                          },
+                          "ward": {
+                            "type": "string"
+                          },
+                          "street": {
+                            "type": "string"
+                          },
+                          "note": {
+                            "nullable": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "paymentMethod": {
+                            "type": "string",
+                            "enum": [
+                              "COD",
+                              "BANK_TRANSFER"
+                            ]
+                          },
+                          "subtotal": {
+                            "type": "number"
+                          },
+                          "discount": {
+                            "type": "number"
+                          },
+                          "shippingFee": {
+                            "type": "number"
+                          },
+                          "total": {
+                            "type": "number"
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "format": "date",
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ]
+                          },
+                          "updatedAt": {
+                            "format": "date-time",
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              {
+                                "format": "date",
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ]
+                          },
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "id",
+                                "bookId",
+                                "name",
+                                "slug",
+                                "picture",
+                                "price",
+                                "unitPrice",
+                                "quantity",
+                                "lineTotal"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "bookId": {
+                                  "nullable": true,
+                                  "description": "`null` when the book has been deleted since.",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "name": {
+                                  "description": "Snapshot of the book name at order time.",
+                                  "type": "string"
+                                },
+                                "slug": {
+                                  "type": "string"
+                                },
+                                "picture": {
+                                  "nullable": true,
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "price": {
+                                  "description": "Regular price at order time.",
+                                  "type": "number"
+                                },
+                                "unitPrice": {
+                                  "description": "Selling price at order time.",
+                                  "type": "number"
+                                },
+                                "quantity": {
+                                  "type": "number"
+                                },
+                                "lineTotal": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "required": [
+                        "total",
+                        "totalPage",
+                        "currentPage",
+                        "lengthData"
+                      ],
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "totalPage": {
+                          "type": "number"
+                        },
+                        "currentPage": {
+                          "type": "number"
+                        },
+                        "lengthData": {
+                          "description": "Number of orders in `list`.",
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Response for status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Response for status 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Response for status 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg",
+                    "fields"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "fields": {
+                      "type": "object",
+                      "patternProperties": {
+                        "^(.*)$": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getApiOrder"
+      },
+      "post": {
+        "tags": [
+          "Order Management"
+        ],
+        "summary": "Place an order",
+        "description": "Place an order for the current user from the browser cart. Returns **201** with the order. Everything is created in one transaction.\n\n`items`: 1 – 50 lines, `quantity` integer 1 – 99. `bookId` accepts a book **id or slug**. Lines pointing to the same book are merged (quantities added; the merged quantity must still be at most 99).\n\nValidation → **422** `{ msg: \"Invalid data.\", fields }`:\n- `recipientName`: trimmed, 1 – 191 characters.\n- `phone`: spaces, dots and hyphens removed, must be a Vietnamese mobile number `^(0|\\+84)(3|5|7|8|9)\\d{8}$`; stored with a leading `0` (`+84912345678` → `0912345678`).\n- `province` must exist in GET /api/address; `ward` must belong to that province (GET /api/address/{province}).\n- `street`: trimmed, 1 – 255 characters. `note`: optional, at most 1,000 characters.\n- `items`: any book that is not found or UNAVAILABLE → `fields.items` with one message per book. No order is created.\n- `paymentMethod`: `COD` (default) or `BANK_TRANSFER`. New orders have status `PENDING`.\n\nEach order line stores a snapshot (name, slug, first picture, prices) so the order stays readable after the book changes or is deleted (`bookId` becomes `null`).\n\n**Pricing rule (server-side, client prices are never trusted).** `price` = regular price, `unitPrice` = selling price = the book's `currentPrice` at order time (regular price minus promotions in effect). `lineTotal = unitPrice × quantity`; `subtotal = Σ lineTotal`; `discount = Σ (price − unitPrice) × quantity` (informational, already included in `unitPrice`). `shippingFee` = **0** when at least one book has a FREE_SHIPPING promotion in effect (`isActive` and `startDate <= now <= endDate`) or `subtotal >= 500,000` (FREE_SHIP_THRESHOLD), otherwise **30,000** (SHIPPING_FEE). `total = subtotal + shippingFee`. Amounts are integers in VND.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "items",
+                  "recipientName",
+                  "phone",
+                  "province",
+                  "ward",
+                  "street"
+                ],
+                "properties": {
+                  "items": {
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "description": "Cart lines, 1 – 50. Duplicate books are merged.",
+                    "error": "Items must contain 1 to 50 lines.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "bookId",
+                        "quantity"
+                      ],
+                      "properties": {
+                        "bookId": {
+                          "minLength": 1,
+                          "description": "Book id or slug.",
+                          "error": "Book id is required.",
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "multipleOf": 1,
+                          "minimum": 1,
+                          "maximum": 99,
+                          "description": "Integer 1 – 99.",
+                          "error": "Quantity must be an integer from 1 to 99.",
+                          "type": "number"
+                        }
+                      }
+                    }
+                  },
+                  "recipientName": {
+                    "maxLength": 191,
+                    "description": "Trimmed, 1 – 191 characters.",
+                    "error": "Recipient name must be at most 191 characters.",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "maxLength": 30,
+                    "description": "Vietnamese mobile number. Spaces, dots and hyphens are removed; the result must match `^(0|\\+84)(3|5|7|8|9)\\d{8}$`. Stored with a leading `0`.",
+                    "error": "Phone number is invalid.",
+                    "type": "string"
+                  },
+                  "province": {
+                    "maxLength": 191,
+                    "description": "Province name exactly as returned by GET /api/address.",
+                    "error": "Province is invalid.",
+                    "type": "string"
+                  },
+                  "ward": {
+                    "maxLength": 191,
+                    "description": "Ward name of that province, as returned by GET /api/address/{province}.",
+                    "error": "Ward is invalid.",
+                    "type": "string"
+                  },
+                  "street": {
+                    "maxLength": 255,
+                    "description": "House number and street. Trimmed, 1 – 255 characters.",
+                    "error": "Street must be at most 255 characters.",
+                    "type": "string"
+                  },
+                  "note": {
+                    "nullable": true,
+                    "maxLength": 1000,
+                    "description": "Optional, at most 1,000 characters. Blank → `null`.",
+                    "error": "Note must be at most 1,000 characters.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "paymentMethod": {
+                    "type": "string",
+                    "enum": [
+                      "COD",
+                      "BANK_TRANSFER"
+                    ]
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "items",
+                  "recipientName",
+                  "phone",
+                  "province",
+                  "ward",
+                  "street"
+                ],
+                "properties": {
+                  "items": {
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "description": "Cart lines, 1 – 50. Duplicate books are merged.",
+                    "error": "Items must contain 1 to 50 lines.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "bookId",
+                        "quantity"
+                      ],
+                      "properties": {
+                        "bookId": {
+                          "minLength": 1,
+                          "description": "Book id or slug.",
+                          "error": "Book id is required.",
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "multipleOf": 1,
+                          "minimum": 1,
+                          "maximum": 99,
+                          "description": "Integer 1 – 99.",
+                          "error": "Quantity must be an integer from 1 to 99.",
+                          "type": "number"
+                        }
+                      }
+                    }
+                  },
+                  "recipientName": {
+                    "maxLength": 191,
+                    "description": "Trimmed, 1 – 191 characters.",
+                    "error": "Recipient name must be at most 191 characters.",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "maxLength": 30,
+                    "description": "Vietnamese mobile number. Spaces, dots and hyphens are removed; the result must match `^(0|\\+84)(3|5|7|8|9)\\d{8}$`. Stored with a leading `0`.",
+                    "error": "Phone number is invalid.",
+                    "type": "string"
+                  },
+                  "province": {
+                    "maxLength": 191,
+                    "description": "Province name exactly as returned by GET /api/address.",
+                    "error": "Province is invalid.",
+                    "type": "string"
+                  },
+                  "ward": {
+                    "maxLength": 191,
+                    "description": "Ward name of that province, as returned by GET /api/address/{province}.",
+                    "error": "Ward is invalid.",
+                    "type": "string"
+                  },
+                  "street": {
+                    "maxLength": 255,
+                    "description": "House number and street. Trimmed, 1 – 255 characters.",
+                    "error": "Street must be at most 255 characters.",
+                    "type": "string"
+                  },
+                  "note": {
+                    "nullable": true,
+                    "maxLength": 1000,
+                    "description": "Optional, at most 1,000 characters. Blank → `null`.",
+                    "error": "Note must be at most 1,000 characters.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "paymentMethod": {
+                    "type": "string",
+                    "enum": [
+                      "COD",
+                      "BANK_TRANSFER"
+                    ]
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "items",
+                  "recipientName",
+                  "phone",
+                  "province",
+                  "ward",
+                  "street"
+                ],
+                "properties": {
+                  "items": {
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "description": "Cart lines, 1 – 50. Duplicate books are merged.",
+                    "error": "Items must contain 1 to 50 lines.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "bookId",
+                        "quantity"
+                      ],
+                      "properties": {
+                        "bookId": {
+                          "minLength": 1,
+                          "description": "Book id or slug.",
+                          "error": "Book id is required.",
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "multipleOf": 1,
+                          "minimum": 1,
+                          "maximum": 99,
+                          "description": "Integer 1 – 99.",
+                          "error": "Quantity must be an integer from 1 to 99.",
+                          "type": "number"
+                        }
+                      }
+                    }
+                  },
+                  "recipientName": {
+                    "maxLength": 191,
+                    "description": "Trimmed, 1 – 191 characters.",
+                    "error": "Recipient name must be at most 191 characters.",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "maxLength": 30,
+                    "description": "Vietnamese mobile number. Spaces, dots and hyphens are removed; the result must match `^(0|\\+84)(3|5|7|8|9)\\d{8}$`. Stored with a leading `0`.",
+                    "error": "Phone number is invalid.",
+                    "type": "string"
+                  },
+                  "province": {
+                    "maxLength": 191,
+                    "description": "Province name exactly as returned by GET /api/address.",
+                    "error": "Province is invalid.",
+                    "type": "string"
+                  },
+                  "ward": {
+                    "maxLength": 191,
+                    "description": "Ward name of that province, as returned by GET /api/address/{province}.",
+                    "error": "Ward is invalid.",
+                    "type": "string"
+                  },
+                  "street": {
+                    "maxLength": 255,
+                    "description": "House number and street. Trimmed, 1 – 255 characters.",
+                    "error": "Street must be at most 255 characters.",
+                    "type": "string"
+                  },
+                  "note": {
+                    "nullable": true,
+                    "maxLength": 1000,
+                    "description": "Optional, at most 1,000 characters. Blank → `null`.",
+                    "error": "Note must be at most 1,000 characters.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "paymentMethod": {
+                    "type": "string",
+                    "enum": [
+                      "COD",
+                      "BANK_TRANSFER"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Response for status 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg",
+                    "order"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "description": "`Order placed successfully.`",
+                      "type": "string"
+                    },
+                    "order": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "code",
+                        "status",
+                        "recipientName",
+                        "phone",
+                        "province",
+                        "ward",
+                        "street",
+                        "note",
+                        "paymentMethod",
+                        "subtotal",
+                        "discount",
+                        "shippingFee",
+                        "total",
+                        "createdAt",
+                        "updatedAt",
+                        "items"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "description": "Order code: `BK` + yyMMdd (Vietnam time) + 4 random uppercase letters/digits, e.g. `BK261121A7K2`.",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PENDING",
+                            "CANCELLED"
+                          ]
+                        },
+                        "recipientName": {
+                          "type": "string"
+                        },
+                        "phone": {
+                          "description": "Normalized: digits only, leading `0`.",
+                          "type": "string"
+                        },
+                        "province": {
+                          "type": "string"
+                        },
+                        "ward": {
+                          "type": "string"
+                        },
+                        "street": {
+                          "type": "string"
+                        },
+                        "note": {
+                          "nullable": true,
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "paymentMethod": {
+                          "type": "string",
+                          "enum": [
+                            "COD",
+                            "BANK_TRANSFER"
+                          ]
+                        },
+                        "subtotal": {
+                          "type": "number"
+                        },
+                        "discount": {
+                          "type": "number"
+                        },
+                        "shippingFee": {
+                          "type": "number"
+                        },
+                        "total": {
+                          "type": "number"
+                        },
+                        "createdAt": {
+                          "format": "date-time",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "format": "date",
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ]
+                        },
+                        "updatedAt": {
+                          "format": "date-time",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "format": "date",
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ]
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "bookId",
+                              "name",
+                              "slug",
+                              "picture",
+                              "price",
+                              "unitPrice",
+                              "quantity",
+                              "lineTotal"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "bookId": {
+                                "nullable": true,
+                                "description": "`null` when the book has been deleted since.",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "name": {
+                                "description": "Snapshot of the book name at order time.",
+                                "type": "string"
+                              },
+                              "slug": {
+                                "type": "string"
+                              },
+                              "picture": {
+                                "nullable": true,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "price": {
+                                "description": "Regular price at order time.",
+                                "type": "number"
+                              },
+                              "unitPrice": {
+                                "description": "Selling price at order time.",
+                                "type": "number"
+                              },
+                              "quantity": {
+                                "type": "number"
+                              },
+                              "lineTotal": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Response for status 400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Response for status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Response for status 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Response for status 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg",
+                    "fields"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "fields": {
+                      "description": "Invalid fields: `recipientName`, `phone`, `province` (not in the address list), `ward` (not in that province), `street`, `note`, `items` (empty / too many / bad quantity, or one message per book that is not found or unavailable).",
+                      "type": "object",
+                      "patternProperties": {
+                        "^(.*)$": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postApiOrder"
+      }
+    },
+    "/api/order/{id}": {
+      "get": {
+        "tags": [
+          "Order Management"
+        ],
+        "summary": "Get my order",
+        "description": "Get one of the current user's orders by id or code. Another user's order returns **404** (its existence is not revealed).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "description": "Order id or order code (e.g. `BK261121A7K2`).",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "code",
+                    "status",
+                    "recipientName",
+                    "phone",
+                    "province",
+                    "ward",
+                    "street",
+                    "note",
+                    "paymentMethod",
+                    "subtotal",
+                    "discount",
+                    "shippingFee",
+                    "total",
+                    "createdAt",
+                    "updatedAt",
+                    "items"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "description": "Order code: `BK` + yyMMdd (Vietnam time) + 4 random uppercase letters/digits, e.g. `BK261121A7K2`.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "CANCELLED"
+                      ]
+                    },
+                    "recipientName": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "description": "Normalized: digits only, leading `0`.",
+                      "type": "string"
+                    },
+                    "province": {
+                      "type": "string"
+                    },
+                    "ward": {
+                      "type": "string"
+                    },
+                    "street": {
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "paymentMethod": {
+                      "type": "string",
+                      "enum": [
+                        "COD",
+                        "BANK_TRANSFER"
+                      ]
+                    },
+                    "subtotal": {
+                      "type": "number"
+                    },
+                    "discount": {
+                      "type": "number"
+                    },
+                    "shippingFee": {
+                      "type": "number"
+                    },
+                    "total": {
+                      "type": "number"
+                    },
+                    "createdAt": {
+                      "format": "date-time",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "format": "date",
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        }
+                      ]
+                    },
+                    "updatedAt": {
+                      "format": "date-time",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "format": "date",
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        }
+                      ]
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "bookId",
+                          "name",
+                          "slug",
+                          "picture",
+                          "price",
+                          "unitPrice",
+                          "quantity",
+                          "lineTotal"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "bookId": {
+                            "nullable": true,
+                            "description": "`null` when the book has been deleted since.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "name": {
+                            "description": "Snapshot of the book name at order time.",
+                            "type": "string"
+                          },
+                          "slug": {
+                            "type": "string"
+                          },
+                          "picture": {
+                            "nullable": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "price": {
+                            "description": "Regular price at order time.",
+                            "type": "number"
+                          },
+                          "unitPrice": {
+                            "description": "Selling price at order time.",
+                            "type": "number"
+                          },
+                          "quantity": {
+                            "type": "number"
+                          },
+                          "lineTotal": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Response for status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Response for status 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Response for status 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "description": "`Order not found.` — also returned for another user's order.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getApiOrderById"
+      }
+    },
+    "/api/order/{id}/cancel": {
+      "patch": {
+        "tags": [
+          "Order Management"
+        ],
+        "summary": "Cancel my order",
+        "description": "Cancel one of the current user's orders. Only `PENDING` orders can be cancelled (→ `CANCELLED`); an already cancelled order returns **409**. Another user's order returns **404**.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "description": "Order id or order code.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg",
+                    "order"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "description": "`Order cancelled.`",
+                      "type": "string"
+                    },
+                    "order": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "code",
+                        "status",
+                        "recipientName",
+                        "phone",
+                        "province",
+                        "ward",
+                        "street",
+                        "note",
+                        "paymentMethod",
+                        "subtotal",
+                        "discount",
+                        "shippingFee",
+                        "total",
+                        "createdAt",
+                        "updatedAt",
+                        "items"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "description": "Order code: `BK` + yyMMdd (Vietnam time) + 4 random uppercase letters/digits, e.g. `BK261121A7K2`.",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PENDING",
+                            "CANCELLED"
+                          ]
+                        },
+                        "recipientName": {
+                          "type": "string"
+                        },
+                        "phone": {
+                          "description": "Normalized: digits only, leading `0`.",
+                          "type": "string"
+                        },
+                        "province": {
+                          "type": "string"
+                        },
+                        "ward": {
+                          "type": "string"
+                        },
+                        "street": {
+                          "type": "string"
+                        },
+                        "note": {
+                          "nullable": true,
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "paymentMethod": {
+                          "type": "string",
+                          "enum": [
+                            "COD",
+                            "BANK_TRANSFER"
+                          ]
+                        },
+                        "subtotal": {
+                          "type": "number"
+                        },
+                        "discount": {
+                          "type": "number"
+                        },
+                        "shippingFee": {
+                          "type": "number"
+                        },
+                        "total": {
+                          "type": "number"
+                        },
+                        "createdAt": {
+                          "format": "date-time",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "format": "date",
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ]
+                        },
+                        "updatedAt": {
+                          "format": "date-time",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            {
+                              "format": "date",
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            }
+                          ]
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "bookId",
+                              "name",
+                              "slug",
+                              "picture",
+                              "price",
+                              "unitPrice",
+                              "quantity",
+                              "lineTotal"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "bookId": {
+                                "nullable": true,
+                                "description": "`null` when the book has been deleted since.",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "name": {
+                                "description": "Snapshot of the book name at order time.",
+                                "type": "string"
+                              },
+                              "slug": {
+                                "type": "string"
+                              },
+                              "picture": {
+                                "nullable": true,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "price": {
+                                "description": "Regular price at order time.",
+                                "type": "number"
+                              },
+                              "unitPrice": {
+                                "description": "Selling price at order time.",
+                                "type": "number"
+                              },
+                              "quantity": {
+                                "type": "number"
+                              },
+                              "lineTotal": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Response for status 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Response for status 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Response for status 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "description": "`Order not found.` — also returned for another user's order.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Response for status 409",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "description": "`Order is already cancelled.`",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "patchApiOrderByIdCancel"
+      }
+    },
+    "/api/order/quote": {
+      "post": {
+        "tags": [
+          "Order Management"
+        ],
+        "summary": "Quote a cart",
+        "description": "Price a cart without placing an order (no login needed). The cart lives in the browser; call this to show up-to-date prices, availability and totals.\n\n`items`: 1 – 50 lines, `quantity` integer 1 – 99. `bookId` accepts a book **id or slug**. Lines pointing to the same book are merged (quantities added; the merged quantity must still be at most 99).\n\n- A book that does not exist → line with `available: false`, `error: \"Book not found.\"`, empty `name`/`slug`, prices 0.\n- A book with status UNAVAILABLE → `available: false`, `error: \"Book is unavailable.\"`.\n- Unavailable lines are **excluded from the totals**. `canCheckout` is `true` only when there is at least one line and every line is available.\n- `bookId` in the response is the book's id, even when a slug was sent.\n- When no line is available, `shippingFee` is 0.\n\n**Pricing rule (server-side, client prices are never trusted).** `price` = regular price, `unitPrice` = selling price = the book's `currentPrice` at order time (regular price minus promotions in effect). `lineTotal = unitPrice × quantity`; `subtotal = Σ lineTotal`; `discount = Σ (price − unitPrice) × quantity` (informational, already included in `unitPrice`). `shippingFee` = **0** when at least one book has a FREE_SHIPPING promotion in effect (`isActive` and `startDate <= now <= endDate`) or `subtotal >= 500,000` (FREE_SHIP_THRESHOLD), otherwise **30,000** (SHIPPING_FEE). `total = subtotal + shippingFee`. Amounts are integers in VND.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "items"
+                ],
+                "properties": {
+                  "items": {
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "description": "Cart lines, 1 – 50. Duplicate books are merged.",
+                    "error": "Items must contain 1 to 50 lines.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "bookId",
+                        "quantity"
+                      ],
+                      "properties": {
+                        "bookId": {
+                          "minLength": 1,
+                          "description": "Book id or slug.",
+                          "error": "Book id is required.",
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "multipleOf": 1,
+                          "minimum": 1,
+                          "maximum": 99,
+                          "description": "Integer 1 – 99.",
+                          "error": "Quantity must be an integer from 1 to 99.",
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "items"
+                ],
+                "properties": {
+                  "items": {
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "description": "Cart lines, 1 – 50. Duplicate books are merged.",
+                    "error": "Items must contain 1 to 50 lines.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "bookId",
+                        "quantity"
+                      ],
+                      "properties": {
+                        "bookId": {
+                          "minLength": 1,
+                          "description": "Book id or slug.",
+                          "error": "Book id is required.",
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "multipleOf": 1,
+                          "minimum": 1,
+                          "maximum": 99,
+                          "description": "Integer 1 – 99.",
+                          "error": "Quantity must be an integer from 1 to 99.",
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "items"
+                ],
+                "properties": {
+                  "items": {
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "description": "Cart lines, 1 – 50. Duplicate books are merged.",
+                    "error": "Items must contain 1 to 50 lines.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "bookId",
+                        "quantity"
+                      ],
+                      "properties": {
+                        "bookId": {
+                          "minLength": 1,
+                          "description": "Book id or slug.",
+                          "error": "Book id is required.",
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "multipleOf": 1,
+                          "minimum": 1,
+                          "maximum": 99,
+                          "description": "Integer 1 – 99.",
+                          "error": "Quantity must be an integer from 1 to 99.",
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "items",
+                    "subtotal",
+                    "discount",
+                    "shippingFee",
+                    "freeShipping",
+                    "freeShipThreshold",
+                    "total",
+                    "canCheckout"
+                  ],
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "bookId",
+                          "name",
+                          "slug",
+                          "picture",
+                          "price",
+                          "unitPrice",
+                          "quantity",
+                          "lineTotal",
+                          "available",
+                          "error"
+                        ],
+                        "properties": {
+                          "bookId": {
+                            "description": "The book's id (or the value sent, when the book was not found).",
+                            "type": "string"
+                          },
+                          "name": {
+                            "description": "Empty string when the book was not found.",
+                            "type": "string"
+                          },
+                          "slug": {
+                            "description": "Empty string when the book was not found.",
+                            "type": "string"
+                          },
+                          "picture": {
+                            "nullable": true,
+                            "description": "File path of the first existing picture (view it at `/view-file/<path>`).",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "price": {
+                            "description": "Regular price. 0 when the book was not found.",
+                            "type": "number"
+                          },
+                          "unitPrice": {
+                            "description": "Selling price (`currentPrice`). 0 when the book was not found.",
+                            "type": "number"
+                          },
+                          "quantity": {
+                            "type": "number"
+                          },
+                          "lineTotal": {
+                            "description": "`unitPrice × quantity`.",
+                            "type": "number"
+                          },
+                          "available": {
+                            "description": "`false` when the book was not found or is UNAVAILABLE. Such lines are excluded from totals.",
+                            "type": "boolean"
+                          },
+                          "error": {
+                            "nullable": true,
+                            "description": "`Book not found.` or `Book is unavailable.`; `null` when available.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "subtotal": {
+                      "type": "number"
+                    },
+                    "discount": {
+                      "type": "number"
+                    },
+                    "shippingFee": {
+                      "type": "number"
+                    },
+                    "freeShipping": {
+                      "description": "`true` when shipping is free (FREE_SHIPPING promotion or subtotal over the threshold).",
+                      "type": "boolean"
+                    },
+                    "freeShipThreshold": {
+                      "description": "FREE_SHIP_THRESHOLD = 500000.",
+                      "type": "number"
+                    },
+                    "total": {
+                      "type": "number"
+                    },
+                    "canCheckout": {
+                      "description": "`true` when there is at least one line and every line is available.",
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Response for status 400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Response for status 422",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "msg",
+                    "fields"
+                  ],
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "fields": {
+                      "description": "Invalid `items` (empty, more than 50 lines, bad quantity, merged quantity over 99).",
+                      "type": "object",
+                      "patternProperties": {
+                        "^(.*)$": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postApiOrderQuote"
       }
     },
     "/api/profile": {
@@ -3179,8 +5030,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -3266,8 +5116,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -4706,8 +6555,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -4889,8 +6737,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -4919,8 +6766,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -4976,8 +6822,7 @@
                     "description": "Seconds to wait before responding: 0 to 30.",
                     "type": "number"
                   }
-                },
-                "additionalProperties": false
+                }
               }
             },
             "application/x-www-form-urlencoded": {
@@ -5017,8 +6862,7 @@
                     "description": "Seconds to wait before responding: 0 to 30.",
                     "type": "number"
                   }
-                },
-                "additionalProperties": false
+                }
               }
             },
             "multipart/form-data": {
@@ -5058,8 +6902,7 @@
                     "description": "Seconds to wait before responding: 0 to 30.",
                     "type": "number"
                   }
-                },
-                "additionalProperties": false
+                }
               }
             }
           }
@@ -5078,8 +6921,7 @@
                     "msg": {
                       "type": "string"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }
@@ -5109,8 +6951,7 @@
                         }
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               }
             }

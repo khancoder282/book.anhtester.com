@@ -8,6 +8,7 @@ import path from "path";
 import fs from "fs";
 import { file_path } from "./file-controller";
 import { calcCurrentPrice, recalcBookPrices, syncStaleBookPrices } from "../utils/pricing";
+import { checkPictures, removeBookImages } from "../utils/book-images";
 
 export function slugify(str: string) {
   return str
@@ -49,7 +50,10 @@ const slugSchema = t.String({
 });
 // t.UnionEnum tự gán default = giá trị đầu tiên → dùng Union literal cho PATCH để không ghi đè trạng thái
 const statusSchema = t.Union([t.Literal("AVAILABLE"), t.Literal("UNAVAILABLE")]);
-const picturesSchema = t.Array(t.String(), { description: "File paths of uploaded images (see File Management)." });
+const PICTURES_RULE =
+  "Paths of images uploaded with POST /api/file into `/$book-image/` (e.g. `/$book-image/dac-nhan-tam/bia-truoc.jpg`). " +
+  "Any other path (outside `/$book-image/`, `..`, commas) → 422 `fields.pictures`.";
+const picturesSchema = t.Array(t.String(), { description: PICTURES_RULE });
 /** Cùng luật với category-controller.ts (tên category là khoá chính và nằm trong URL khi xoá). */
 const CATEGORY_MAX_LENGTH = 24;
 const CATEGORY_RULE =
@@ -72,6 +76,8 @@ const promotionsSchema = t.Array(t.String(), { description: "Promotion ids. Ever
 // Gửi `null` hoặc chuỗi rỗng để xoá giá trị. Chuỗi được trim; chuỗi rỗng sau trim lưu thành null.
 const MIN_PUBLISH_YEAR = 1000;
 const MAX_PAGE_COUNT = 100_000;
+/** Cột TEXT của MySQL tối đa 65.535 byte; chữ Việt UTF-8 tới 3 byte/ký tự → giới hạn 20.000 ký tự. */
+const MAX_PREVIEW_LENGTH = 20_000;
 const bookExtraSchemas = {
   author: t.Nullable(t.String({ maxLength: 191, description: 'Optional. Author name(s), at most 191 characters. `null` / `""` clears it.' })),
   publisher: t.Nullable(t.String({ maxLength: 191, description: 'Optional. Publisher, at most 191 characters. `null` / `""` clears it.' })),
@@ -95,6 +101,16 @@ const bookExtraSchemas = {
       '`null` / `""` clears it.',
   })),
   language: t.Nullable(t.String({ maxLength: 50, description: 'Optional. Language of the book (e.g. `Tiếng Việt`, `English`), at most 50 characters. `null` / `""` clears it.' })),
+  previewTitle: t.Nullable(t.String({
+    maxLength: 191,
+    description: 'Optional. Title of the sample chapter ("read a sample"), at most 191 characters. `null` / `""` clears it.',
+  })),
+  previewContent: t.Nullable(t.String({
+    maxLength: MAX_PREVIEW_LENGTH,
+    description:
+      `Optional. Sample chapter text, at most ${MAX_PREVIEW_LENGTH.toLocaleString("en-US")} characters. Plain text: paragraphs separated by a blank line, ` +
+      'a line starting with `## ` is a subheading. `null` / `""` clears it.',
+  })),
 };
 const bookExtraResponse = {
   author: t.Nullable(t.String()),
@@ -103,6 +119,11 @@ const bookExtraResponse = {
   pageCount: t.Nullable(t.Number()),
   isbn: t.Nullable(t.String({ description: "ISBN without hyphens." })),
   language: t.Nullable(t.String()),
+};
+/** Chỉ API chi tiết trả nội dung đọc thử; danh sách trả `hasPreview` cho nhẹ. */
+const bookPreviewResponse = {
+  previewTitle: t.Nullable(t.String()),
+  previewContent: t.Nullable(t.String({ description: "Sample chapter text (paragraphs separated by a blank line, `## ` = subheading)." })),
 };
 const bookExtraSelect = {
   author: true,
@@ -113,8 +134,8 @@ const bookExtraSelect = {
   language: true,
 } as const;
 const BOOK_EXTRA_RULE =
-  "- `author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language` are optional (see the schema for limits); " +
-  "`null` or a blank string clears them.";
+  "- `author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language`, `previewTitle`, `previewContent` are optional " +
+  "(see the schema for limits); `null` or a blank string clears them.";
 
 type BookExtra = {
   author?: string | null;
@@ -123,6 +144,8 @@ type BookExtra = {
   pageCount?: number | null;
   isbn?: string | null;
   language?: string | null;
+  previewTitle?: string | null;
+  previewContent?: string | null;
 };
 
 function isValidIsbn(isbn: string) {
@@ -146,6 +169,11 @@ function parseBookExtra(body: BookExtra, fields: Record<string, string[]>): Book
   if (body.author !== undefined) data.author = text(body.author);
   if (body.publisher !== undefined) data.publisher = text(body.publisher);
   if (body.language !== undefined) data.language = text(body.language);
+  if (body.previewTitle !== undefined) data.previewTitle = text(body.previewTitle);
+  if (body.previewContent !== undefined) {
+    // Chuẩn hoá xuống dòng (Windows gửi CRLF), giữ nguyên dòng trống giữa các đoạn văn
+    data.previewContent = text(body.previewContent?.replace(/\r\n?/g, "\n"));
+  }
   if (body.pageCount !== undefined) data.pageCount = body.pageCount;
   if (body.publishYear !== undefined) {
     const year = body.publishYear;
@@ -183,6 +211,8 @@ const bodyBookCreate = t.Object({
   pageCount: t.Optional(bookExtraSchemas.pageCount),
   isbn: t.Optional(bookExtraSchemas.isbn),
   language: t.Optional(bookExtraSchemas.language),
+  previewTitle: t.Optional(bookExtraSchemas.previewTitle),
+  previewContent: t.Optional(bookExtraSchemas.previewContent),
 });
 
 // PATCH: mọi trường đều tuỳ chọn và KHÔNG có giá trị mặc định (Elysia sẽ điền mặc định nếu có).
@@ -191,7 +221,9 @@ const bodyBookUpdate = t.Object({
   slug: t.Optional(slugSchema),
   description: t.Optional(t.String()),
   status: t.Optional(statusSchema),
-  pictures: t.Optional(t.Array(t.String(), { description: "Replaces all pictures. `[]` removes all." })),
+  pictures: t.Optional(t.Array(t.String(), {
+    description: `Replaces all pictures. \`[]\` removes all. Image files dropped from the list are deleted from the server unless another book still uses them. ${PICTURES_RULE}`,
+  })),
   categories: t.Optional(t.Array(t.String({ minLength: 1 }), {
     minItems: 1,
     description: `Replaces the whole category list (not merged). ${CATEGORY_RULE}`,
@@ -206,6 +238,8 @@ const bodyBookUpdate = t.Object({
   pageCount: t.Optional(bookExtraSchemas.pageCount),
   isbn: t.Optional(bookExtraSchemas.isbn),
   language: t.Optional(bookExtraSchemas.language),
+  previewTitle: t.Optional(bookExtraSchemas.previewTitle),
+  previewContent: t.Optional(bookExtraSchemas.previewContent),
 });
 
 const msgSchema = t.Object({ msg: t.String() });
@@ -340,6 +374,8 @@ bookController
               picture: true,
               viewCount: true,
               ...bookExtraSelect,
+              previewTitle: true,
+              previewContent: true,
               createdAt: true,
               updatedAt: true,
               promotions: {
@@ -363,8 +399,9 @@ bookController
           prisma.book.count({ where }),
         ]);
 
-        const mappedList = list.map((item) => ({
+        const mappedList = list.map(({ previewContent, ...item }) => ({
           ...item,
+          hasPreview: !!previewContent,
           categories: item.categories.map((c) => c.name),
           picture: mapPictures(item.picture || ""),
         }));
@@ -443,6 +480,8 @@ bookController
               currentPrice: t.Number({ description: "Selling price after promotions in effect. Always between 0 and `price`." }),
               viewCount: t.Number(),
               ...bookExtraResponse,
+              previewTitle: t.Nullable(t.String()),
+              hasPreview: t.Boolean({ description: "`true` when the book has a sample chapter (`previewContent`). Read it from GET /book/{id}." }),
               promotions: t.Array(
                 t.Object({
                   name: t.String(),
@@ -506,6 +545,8 @@ bookController
           updatedAt: true,
           viewCount: true,
           ...bookExtraSelect,
+          previewTitle: true,
+          previewContent: true,
           auth: {
             select: {
               name: true,
@@ -597,6 +638,7 @@ bookController
           currentPrice: t.Number({ description: "Selling price after promotions in effect. Always between 0 and `price`." }),
           viewCount: t.Number(),
           ...bookExtraResponse,
+          ...bookPreviewResponse,
           status: t.Union([
             t.Literal('AVAILABLE'),
             t.Literal('UNAVAILABLE'),
@@ -671,6 +713,9 @@ bookController
       const extraErrors: Fields = {};
       const extra = parseBookExtra(body, extraErrors);
       if (Object.keys(extraErrors).length) return invalid(set, extraErrors);
+      // Ảnh chỉ được là file trong /$book-image/ (chặn đường dẫn kiểu "/../src")
+      const pic = checkPictures(body.pictures ?? []);
+      if ("error" in pic) return invalid(set, { pictures: [pic.error] });
 
       try {
         const cat = await checkCategories(prisma, body.categories);
@@ -708,7 +753,7 @@ bookController
               status: body.status ?? "AVAILABLE",
               price,
               ...extra,
-              picture: (body.pictures ?? []).filter(Boolean).join(","),
+              picture: pic.pictures.join(","),
               currentPrice: calcCurrentPrice(price, promotions),
               promotions: { connect: promotionIds.map((id) => ({ id })) },
               categories: { connect: categories.map((c) => ({ name: c })) },
@@ -770,7 +815,7 @@ bookController
       try {
         const old = await prisma.book.findUnique({
           where: { id: params.id },
-          select: { id: true, name: true },
+          select: { id: true, name: true, picture: true },
         });
         if (!old) {
           set.status = 404;
@@ -791,6 +836,12 @@ bookController
           else data.slug = slug;
         }
         Object.assign(data, parseBookExtra(body, fields));
+        let newPictures: string[] | undefined;
+        if (body.pictures !== undefined) {
+          const pic = checkPictures(body.pictures);
+          if ("error" in pic) fields.pictures = [pic.error];
+          else newPictures = pic.pictures;
+        }
         let categories: string[] | undefined;
         if (body.categories !== undefined) {
           const cat = await checkCategories(prisma, body.categories);
@@ -802,7 +853,7 @@ bookController
         if (body.description !== undefined) data.description = body.description;
         if (body.status !== undefined) data.status = body.status;
         if (body.price !== undefined) data.price = body.price;
-        if (body.pictures !== undefined) data.picture = body.pictures.filter(Boolean).join(",");
+        if (newPictures) data.picture = newPictures.join(",");
 
         const dup = await findDuplicate(
           prisma,
@@ -840,6 +891,12 @@ bookController
           // Giá gốc hoặc danh sách khuyến mãi có thể đã đổi
           await recalcBookPrices(tx, [old.id]);
         });
+
+        // Ảnh bị bỏ khỏi sách → xoá file (nếu không sách nào khác dùng), tránh đầy ổ đĩa
+        if (newPictures) {
+          const dropped = (old.picture || "").split(",").filter((p) => p && !newPictures!.includes(p));
+          await removeBookImages(prisma, dropped);
+        }
 
         return {
           msg: "Book updated successfully.",
@@ -895,19 +952,13 @@ bookController
     "/:id",
     async ({ params, prisma, set }) => {
       try {
-        await prisma.$transaction(async (ctx) => {
-          const book = await ctx.book.delete({
-            where: {
-              id: params.id,
-            },
-            select: {
-              picture: true
-            }
-          });
-          book.picture.split(",").forEach((p) => {
-            p && p.length > 5 && fs.rmSync(path.join(file_path, p), { recursive: true, force: true });
-          })
+        const book = await prisma.book.delete({
+          where: { id: params.id },
+          select: { picture: true },
         });
+        // Xoá ảnh của sách sau khi đã xoá trong DB. Chỉ xoá file trong /$book-image/ mà không sách nào khác dùng,
+        // không xoá đệ quy (trước đây `rmSync(..., { recursive: true })` không kiểm đường dẫn).
+        await removeBookImages(prisma, (book.picture || "").split(","));
 
         return {
           msg: "Deleted successfully.",
@@ -938,7 +989,9 @@ bookController
         422: validationSchema,
       },
       detail: {
-        description: "Delete a book and its picture files.",
+        description:
+          "Delete a book. Its picture files in `/$book-image/` are deleted too (unless another book still uses the same file), " +
+          "and the book image folder is removed when it becomes empty.",
       },
     }
   );

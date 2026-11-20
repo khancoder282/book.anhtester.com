@@ -15,6 +15,26 @@ import { PrismaClient, type Promotion } from "../../src/prisma/client";
 import data from "./data.json";
 import { addressRows } from "./address";
 
+/** Một sách trong data.json; trường không bắt buộc thiếu thì lưu null. `toc` chỉ dùng cho make_images.py. */
+type BookSeed = {
+  name: string;
+  slug: string;
+  author?: string;
+  publisher?: string;
+  publishYear?: number;
+  pageCount?: number;
+  isbn?: string;
+  language?: string;
+  categories: string[];
+  price: number;
+  status: string;
+  owner: string;
+  views: number;
+  description: string;
+  previewTitle?: string;
+  previewContent?: string;
+};
+
 const args = process.argv.slice(2);
 const SEED_DIR = import.meta.dir;
 const BACKEND_DIR = path.resolve(SEED_DIR, "../..");
@@ -102,6 +122,8 @@ async function main() {
     prisma.address.deleteMany(),
   ]);
   resetUploadDir();
+  // Thư mục upload vừa bị xoá sạch → avatar cũ của admin (nếu có) không còn file
+  await prisma.user.update({ where: { id: admin.id }, data: { avatarUrl: "" } });
 
   // 2. Category, địa chỉ
   await prisma.category.createMany({ data: data.categories.map((name) => ({ name })) });
@@ -109,6 +131,7 @@ async function main() {
 
   // 3. User (mỗi user tạo cách nhau vài ngày)
   const userIds: Record<string, string> = { admin: admin.id };
+  const userCreatedAt: Record<string, number> = {}; // admin có sẵn (có thể vừa tạo) nên không tính
   for (const [i, u] of data.users.entries()) {
     const createdAt = new Date(now - (60 - i * 6) * DAY);
     const avatarUrl = u.avatar
@@ -128,6 +151,7 @@ async function main() {
       },
     });
     userIds[u.key] = user.id;
+    userCreatedAt[u.key] = createdAt.getTime();
   }
 
   // 4. Khuyến mãi (ngày tính tương đối so với lúc chạy seed)
@@ -147,18 +171,34 @@ async function main() {
     });
   }
 
-  // 5. Sách + ảnh
-  for (const [i, b] of data.books.entries()) {
+  // 5. Sách + ảnh (bìa trước, bìa sau, 2 trang trong — file nào có thì lấy)
+  // createdAt: RECENT_BOOKS sách cuối danh sách nằm trong 7 ngày gần đây (UI gắn nhãn "New"),
+  // các sách còn lại rải từ ~10 đến ~112 ngày trước và không sớm hơn ngày tạo của chủ sách (trừ admin).
+  const RECENT_BOOKS = 5;
+  const PICTURES = ["bia-truoc.jpg", "bia-sau.jpg", "trang-1.jpg", "trang-2.jpg"];
+  const books = data.books as BookSeed[];
+  for (const [i, b] of books.entries()) {
     const bookPromos = data.promotions.filter((p) => p.books.includes(b.slug)).map((p) => promotions[p.code]);
     const dir = path.join(ASSETS, "books", b.slug);
-    const pictures = ["bia-truoc.jpg", "bia-sau.jpg"].map((f) => putFile(path.join(dir, f), `$book-image/${b.slug}`));
-    const createdAt = new Date(now - (30 - i) * DAY);
+    const pictures = PICTURES.filter((f) => fs.existsSync(path.join(dir, f))).map((f) =>
+      putFile(path.join(dir, f), `$book-image/${b.slug}`),
+    );
+    const older = books.length - RECENT_BOOKS;
+    const daysAgo = i >= older ? (books.length - i) * 1.1 : 10 + (older - 1 - i) * 3;
+    const createdAt = new Date(Math.max(now - daysAgo * DAY, (userCreatedAt[b.owner] ?? 0) + DAY / 2));
     await prisma.book.create({
       data: {
         name: b.name,
         slug: b.slug,
-        description: `Tác giả: ${b.author}. ${b.description}`,
-        author: b.author,
+        description: b.description,
+        author: b.author ?? null,
+        publisher: b.publisher ?? null,
+        publishYear: b.publishYear ?? null,
+        pageCount: b.pageCount ?? null,
+        isbn: b.isbn ?? null,
+        language: b.language ?? null,
+        previewTitle: b.previewTitle ?? null,
+        previewContent: b.previewContent ?? null,
         picture: pictures.join(","),
         price: b.price,
         currentPrice: currentPrice(b.price, bookPromos),

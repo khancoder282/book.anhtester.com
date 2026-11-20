@@ -3,7 +3,7 @@ import Elysia from "elysia";
 import { PrismaClient } from "./prisma/client";
 import { jwtHandle } from "./plugins/jwt-app";
 
-const prisma = new PrismaClient();
+export const prisma = new PrismaClient();
 
 /** Tag của các nhóm API bị ẩn khỏi Swagger. */
 export const HIDDEN_FILE_TAG = "File Management";
@@ -75,6 +75,13 @@ export const regis = new Elysia()
           {
             name: "Promotion Management",
             description: "Manage promotions, update information, and provide promotion details."
+          },
+          {
+            name: "Order Management",
+            description:
+              "Shopping cart checkout. The cart lives in the browser: quote it (no login), place an order, list / view / cancel your own orders. " +
+              "Prices are always computed by the server from the books' current selling price; shipping is free over 500,000 VND " +
+              "or when a book has a FREE_SHIPPING promotion in effect, otherwise 30,000 VND."
           }
         ],
         components: {

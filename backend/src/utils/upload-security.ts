@@ -46,6 +46,12 @@ export function isValidName(name: string | undefined | null): boolean {
   if (!n || n.length > 255) return false;
   if (n === "." || n === "..") return false;
   if (/[\u0000-\u001f<>:"/\\|?*]/.test(n)) return false;
+  // 2026-11-21: không nhận `%` (tên kiểu "..%2F.." trông như mã URL, /view-file giải mã thành đường dẫn khác),
+  // tên bắt đầu bằng "." (file ẩn kiểu .htaccess, .env) và tên kết thúc bằng "." / khoảng trắng
+  // (Windows tự cắt đi nên tên lưu khác tên gửi).
+  if (n.includes("%")) return false;
+  if (n.startsWith(".")) return false;
+  if (n.endsWith(".")) return false;
   return true;
 }
 

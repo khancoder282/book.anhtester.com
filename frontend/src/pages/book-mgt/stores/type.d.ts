@@ -14,6 +14,9 @@ type BookForm = {
   pageCount?: number | '' | null;
   isbn?: string | null;
   language?: string | null;
+  // Đọc thử (2026-11-21), không bắt buộc. Chỉ API chi tiết trả previewContent.
+  previewTitle?: string | null;
+  previewContent?: string | null;
   // for edit
   pictureDel?: FileItem[];
   id?: string;
@@ -56,6 +59,9 @@ type BookView = {
   pageCount: number | null;
   isbn: string | null;
   language: string | null;
+  previewTitle: string | null;
+  /** true khi sách có chương đọc thử (nội dung lấy ở API chi tiết) */
+  hasPreview: boolean;
   auth: {
     name: string;
     avatarUrl: string;

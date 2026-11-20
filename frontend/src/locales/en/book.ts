@@ -127,7 +127,7 @@ export const book = {
     slugRequired: 'Slug is required.',
     slugMaxLength: 'Slug must be less than 100 characters.',
     descriptionMaxLength: 'Description must be less than 500 characters.',
-    fileSize: 'File size must be less than 5MB',
+    fileSize: 'New images must be at most 4MB in total per save.',
     maxFiles: 'You can upload up to 30 files',
     minFiles: 'You must upload at least 1 file',
     priceRequired: 'Price is required.',

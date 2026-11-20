@@ -127,7 +127,7 @@ export function ContentFieldsLogin() {
           fullWidth
           size="large"
           type="submit"
-          color="inherit"
+          color="secondary"
           variant="contained"
           sx={{ mb: -2 }}
         >

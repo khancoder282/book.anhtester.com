@@ -359,7 +359,7 @@ export default function Page() {
               total={totalCategory}
               title={t('home.stats.category')}
               unit={t('home.stats.categories')}
-              icon="ic-blog"
+              icon="ic-category"
               href="/category-management"
               color="error"
             />

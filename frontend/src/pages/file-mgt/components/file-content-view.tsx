@@ -37,6 +37,7 @@ import { useTable } from 'src/components/grid-view/hook/use-table';
 import { ButtonDelete } from 'src/components/buttons/button-delete';
 import { getIcon, formatSize } from 'src/components/fields/upload-field';
 import { TableView } from 'src/components/grid-view/components/table-view';
+import { searchInputProps } from 'src/components/fields/search-input-props';
 
 import table from './style';
 import { columns } from '../columns';
@@ -183,6 +184,7 @@ export default function FileContentView({
         <OutlinedInput
           fullWidth
           placeholder={t('file.searchPlaceholder')}
+          inputProps={searchInputProps}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           sx={{ maxWidth: 300 }}

@@ -1,8 +1,12 @@
 @import 'simplebar-react/dist/simplebar.min.css';
 
+/* Thanh cuộn của simplebar (menu trái, bảng...) cùng kiểu gradient AT UI với thanh cuộn trang */
 .simplebar-scrollbar:before {
-  background-color: var(--palette-text-disabled);
+  background: linear-gradient(180deg, #42bc40, #268a24 55%, #fb8a2e);
+}
+.simplebar-horizontal .simplebar-scrollbar:before {
+  background: linear-gradient(90deg, #42bc40, #268a24 55%, #fb8a2e);
 }
 .simplebar-scrollbar.simplebar-visible:before {
-  opacity: 0.48;
+  opacity: 0.7;
 }

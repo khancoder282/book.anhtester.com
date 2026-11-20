@@ -15,6 +15,7 @@ import { useTranslate } from 'src/locales';
 
 import { Iconify } from 'src/components/iconify';
 import { UploadField } from 'src/components/fields/upload-field';
+import { MAX_UPLOAD_TOTAL, totalNewFileSize } from 'src/components/fields/upload-limits';
 
 import { uploadFile } from '../api/upload-file';
 import { useDialogUpload } from '../store/use-dialog-upload';
@@ -115,8 +116,7 @@ export function DialogUpload({ reload }: { reload: () => void }) {
               required: t('file.upload.fileRequired'),
               validate: {
                 maxFileSize: (files) =>
-                  files.every((file) => file.size < 1024 * 1024 * 5) ||
-                  t('file.upload.maxFileSize'),
+                  totalNewFileSize(files) <= MAX_UPLOAD_TOTAL || t('file.upload.maxFileSize'),
                 // Khớp giới hạn của API POST /api/file (tối đa 20 tệp, chỉ các loại trong ALLOWED_EXT)
                 maxLength: (files) => files.length <= MAX_FILES || t('file.upload.maxFiles'),
                 allowedType: (files) =>

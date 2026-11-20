@@ -2,6 +2,7 @@
 // Màn quản lý user, form thêm/sửa user (dùng cả ở sign-up), profile, setting.
 export const user = {
   title: 'User Management',
+  subtitle: 'Accounts that can sign in, their contact info and status.',
   newUser: 'New user',
   searchPlaceholder: 'Search user (name, email, phone or address)',
   deleteConfirm: 'Confirm you want to delete user "{name}".',

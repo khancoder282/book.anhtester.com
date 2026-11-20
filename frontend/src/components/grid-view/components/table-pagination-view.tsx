@@ -7,6 +7,8 @@ import {
   TablePagination,
 } from '@mui/material';
 
+import { useKeepInView } from 'src/hooks/use-keep-in-view';
+
 import { type TKey, useTranslate } from 'src/locales';
 
 import type { UseTableReturn } from '../hook/use-table';
@@ -34,19 +36,28 @@ export function TablePaginationView<T>({
 }) {
   const { t } = useTranslate();
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+  // Chuyển trang / đổi số dòng: giữ thanh phân trang đứng yên, không để trang bị đẩy lên đầu (2026-11-21)
+  const { ref, keep } = useKeepInView<HTMLDivElement>();
   const ariaLabel = (item: string) => (ARIA_KEYS[item] ? t(ARIA_KEYS[item]) : `Go to ${item} page`);
 
   if (type === 'table') {
     return (
       <TablePagination
+        ref={ref}
         component="div"
         size={isMobile ? 'small' : 'medium'}
         count={total}
         color="primary"
         page={config.page - 1}
-        onPageChange={(_, page) => config.setPage(page + 1)}
+        onPageChange={(_, page) => {
+          keep();
+          config.setPage(page + 1);
+        }}
         rowsPerPage={config.rowsPerPage}
-        onRowsPerPageChange={(e) => config.setRowsPerPage(parseInt(e.target.value, 10))}
+        onRowsPerPageChange={(e) => {
+          keep();
+          config.setRowsPerPage(parseInt(e.target.value, 10));
+        }}
         labelRowsPerPage={labelRowsPerPage ?? t('components.table.rowsPerPage')}
         labelDisplayedRows={({ from, to, count }) =>
           t('components.table.displayedRows', {
@@ -63,6 +74,7 @@ export function TablePaginationView<T>({
 
   return (
     <Box
+      ref={ref}
       p={1}
       display="flex"
       alignItems="center"
@@ -77,7 +89,10 @@ export function TablePaginationView<T>({
           size="small"
           color="inherit"
           value={config.rowsPerPage}
-          onChange={(e) => config.setRowsPerPage(Number(e.target.value))}
+          onChange={(e) => {
+            keep();
+            config.setRowsPerPage(Number(e.target.value));
+          }}
         >
           {rowsPerPageList.map((rowsPerPage) => (
             <MenuItem key={rowsPerPage} value={rowsPerPage}>
@@ -91,7 +106,10 @@ export function TablePaginationView<T>({
         color="primary"
         page={config.page}
         count={Math.ceil(total / config.rowsPerPage)}
-        onChange={(_, page) => config.setPage(page)}
+        onChange={(_, page) => {
+          keep();
+          config.setPage(page);
+        }}
         getItemAriaLabel={(item, page, selected) => {
           if (item !== 'page') return ariaLabel(item);
           return selected

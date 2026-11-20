@@ -34,7 +34,7 @@ const allNavData: NavItem[] = [
   {
     title: 'nav.category',
     path: '/category-management',
-    icon: icon('ic-blog'),
+    icon: icon('ic-category'),
   },
   {
     title: 'nav.promotion',

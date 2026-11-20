@@ -1,8 +1,10 @@
 export const category = {
   title: 'Category Management',
+  subtitle: 'Book categories shown as filters on the Book page.',
   newCategory: 'New category',
   searchPlaceholder: 'Search category...',
   summary: '{count} categories · {links} book links',
+  summaryFiltered: '{shown} of {count} categories · {links} of {totalLinks} book links',
   columns: {
     name: 'Name',
     status: 'Status',

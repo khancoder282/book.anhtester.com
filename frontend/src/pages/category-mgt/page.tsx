@@ -35,7 +35,9 @@ import { Label } from 'src/components/label';
 import { toast } from 'src/components/toast';
 import { Iconify } from 'src/components/iconify';
 import { dialog } from 'src/components/dialog-confirm/confirm';
+import { PageHeader } from 'src/components/page-header/page-header';
 import { NoData } from 'src/components/grid-view/components/not-data';
+import { searchInputProps } from 'src/components/fields/search-input-props';
 
 import { Category } from '../book-mgt/api/categorys';
 
@@ -71,6 +73,8 @@ export default function CategoryMgt() {
   }, [data, search, sort, lang]);
 
   const totalBooks = useMemo(() => data.reduce((sum, c) => sum + c.bookCount, 0), [data]);
+  // Đang tìm thì số liệu theo kết quả lọc, kèm tổng để so
+  const shownBooks = useMemo(() => rows.reduce((sum, c) => sum + c.bookCount, 0), [rows]);
 
   const toggleSort = (key: SortKey) =>
     setSort((s) => ({ key, dir: s.key === key && s.dir === 'asc' ? 'desc' : 'asc' }));
@@ -195,22 +199,25 @@ export default function CategoryMgt() {
         {t('category.title')} - {CONFIG.appName}
       </Title>
       <DashboardContent>
-        <Box sx={{ mb: 5, display: 'flex', alignItems: 'center' }}>
-          <Typography variant="h4" sx={{ flexGrow: 1 }}>
-            {t('category.title')}
-          </Typography>
-          {auth && (
-            <Button
-              id="btn-new-category"
-              variant="contained"
-              color="inherit"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              onClick={openCreate}
-            >
-              {t('category.newCategory')}
-            </Button>
-          )}
-        </Box>
+        <PageHeader
+          icon="solar:widget-4-bold-duotone"
+          tone="purple"
+          title={t('category.title')}
+          subtitle={t('category.subtitle')}
+          action={
+            auth && (
+              <Button
+                id="btn-new-category"
+                variant="contained"
+                color="secondary"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+                onClick={openCreate}
+              >
+                {t('category.newCategory')}
+              </Button>
+            )
+          }
+        />
 
         <Card>
           <Stack
@@ -226,7 +233,7 @@ export default function CategoryMgt() {
               placeholder={t('category.searchPlaceholder')}
               sx={{ width: { xs: 1, sm: 320 } }}
               slotProps={{
-                htmlInput: { id: 'search-category' },
+                htmlInput: { ...searchInputProps, id: 'search-category' },
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
@@ -238,7 +245,14 @@ export default function CategoryMgt() {
             />
             <Box flexGrow={1} />
             <Typography variant="body2" color="text.secondary" id="category-summary">
-              {t('category.summary', { count: data.length, links: totalBooks })}
+              {search.trim()
+                ? t('category.summaryFiltered', {
+                    shown: rows.length,
+                    count: data.length,
+                    links: shownBooks,
+                    totalLinks: totalBooks,
+                  })
+                : t('category.summary', { count: data.length, links: totalBooks })}
             </Typography>
           </Stack>
 
@@ -312,7 +326,9 @@ export default function CategoryMgt() {
                             variant="body2"
                             color={row.isActive ? 'success.main' : 'text.disabled'}
                           >
-                            {t(row.isActive ? 'category.status.active' : 'category.status.inactive')}
+                            {t(
+                              row.isActive ? 'category.status.active' : 'category.status.inactive'
+                            )}
                           </Typography>
                         </Stack>
                       ) : (

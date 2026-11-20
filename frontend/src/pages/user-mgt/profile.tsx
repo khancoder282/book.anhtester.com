@@ -15,6 +15,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import Title from 'src/components/title';
 import { Iconify } from 'src/components/iconify';
+import { PageHeader } from 'src/components/page-header/page-header';
 
 import { formControl } from './store/form';
 import { ContentUser } from './components/content-user';
@@ -60,17 +61,14 @@ export default function Profile() {
   return (
     <DashboardContent>
       <Title>{`${t('user.profile.pageTitle')} - ${CONFIG.appName}`}</Title>
-      <Stack spacing={2} mb={5}>
-        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          {t('user.profile.title')}
-        </Typography>
-        <Breadcrumbs sx={{ mb: 3 }}>
+      <PageHeader icon="solar:user-rounded-bold" tone="blue" title={t('user.profile.title')}>
+        <Breadcrumbs sx={{ mt: 0.5 }}>
           <Link component={RouterLink} href="/user-management" color="textPrimary" variant="body2">
             {t('user.breadcrumb.userManagement')}
           </Link>
           <Typography variant="body2">{t('user.profile.breadcrumb')}</Typography>
         </Breadcrumbs>
-      </Stack>
+      </PageHeader>
       <Card sx={{ p: 3, pt: 4, display: 'flex', flexDirection: 'column' }}>
         <ContentUser isActive={false} oldPassword />
         <Box display="flex" justifyContent="end" mt={3} gap={2}>
@@ -84,7 +82,7 @@ export default function Profile() {
           </Button>
           <Button
             size="large"
-            color="inherit"
+            color="secondary"
             variant="contained"
             loading={isLoading}
             startIcon={<Iconify icon="solar:diskette-bold" />}

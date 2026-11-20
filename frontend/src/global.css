@@ -1,13 +1,10 @@
 /** **************************************
 * Fonts: app
 *************************************** */
-@import '@fontsource-variable/dm-sans';
-
-@import '@fontsource/barlow/400.css';
-@import '@fontsource/barlow/500.css';
-@import '@fontsource/barlow/600.css';
-@import '@fontsource/barlow/700.css';
-@import '@fontsource/barlow/800.css';
+/* Inter: chữ giao diện (giống AT UI kit của LMS, đủ dấu tiếng Việt).
+   Merriweather: chữ có chân cho tên sách, tiêu đề lớn và trình đọc thử. */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/merriweather';
 
 /** **************************************
 * Plugins
@@ -66,4 +63,80 @@ input[type='number']::-webkit-inner-spin-button {
 }
 .hidden-scrollbar::-webkit-scrollbar {
   display: none;
+}
+/** **************************************
+* AT UI: con trỏ chuột, thanh cuộn, màu bôi đen (2026-11-21)
+*************************************** */
+/* Con trỏ: mũi tên xanh lá logo, bàn tay cam khi trỏ vào thứ bấm được.
+   SVG ở public/assets/cursors/. Thiết bị cảm ứng không có con trỏ nên không ảnh hưởng. */
+html,
+body {
+  cursor: url('/assets/cursors/arrow.svg') 7 3, auto;
+}
+html a,
+html button,
+html summary,
+html label[for],
+html select,
+html [role='button'],
+html [role='tab'],
+html [role='option'],
+html [role='menuitem'],
+html .MuiButtonBase-root,
+html .MuiChip-clickable,
+html .MuiSwitch-root,
+html .MuiSlider-root {
+  cursor: url('/assets/cursors/pointer.svg') 13 9, pointer;
+}
+html input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+html textarea,
+html [contenteditable='true'] {
+  cursor: text;
+}
+html :disabled,
+html .Mui-disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  color: #fff;
+  background: #42bc40;
+}
+input,
+textarea {
+  caret-color: #268a24;
+}
+
+/* Thanh cuộn gradient (Chrome/Edge/Safari). Firefox chỉ hỗ trợ màu đơn qua scrollbar-color. */
+html {
+  scrollbar-color: #42bc40 transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #42bc40, #268a24 55%, #fb8a2e) padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4fd04c, #2e9e2c 55%, #e06004) padding-box;
+}
+::-webkit-scrollbar-thumb:horizontal {
+  background: linear-gradient(90deg, #42bc40, #268a24 55%, #fb8a2e) padding-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Ô tìm kiếm dùng type="search" (chặn trình duyệt tự điền, xem components/fields/search-input-props.ts):
+   ẩn nút × mặc định của trình duyệt vì ô đã có nút xoá riêng */
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
 }

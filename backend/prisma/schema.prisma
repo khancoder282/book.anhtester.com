@@ -22,6 +22,7 @@ model User {
   book          Book[]
   config        Json?
   refreshTokens UserRefreshToken[]
+  orders        Order[]
 
   @@index([name, email])
 }
@@ -80,12 +81,16 @@ model Book {
   pageCount    Int?
   isbn         String?     @db.VarChar(13)
   language     String?     @db.VarChar(50)
+  // Đọc thử (2026-11-21): tiêu đề + nội dung chương mẫu, không bắt buộc
+  previewTitle   String?   @db.VarChar(191)
+  previewContent String?   @db.Text
   authId       String?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   auth         User?       @relation(fields: [authId], references: [id])
   categories   Category[]  @relation("BookCategories")
   promotions   Promotion[] @relation("PromotionBooks")
+  orderItems   OrderItem[]
 
   @@index([name, slug])
 }
@@ -105,4 +110,55 @@ enum PromotionType {
   PERCENTAGE
   FIXED_AMOUNT
   FREE_SHIPPING
+}
+
+// Đơn hàng (2026-11-21): giỏ hàng nằm ở trình duyệt, server chỉ lưu đơn đã đặt.
+enum OrderStatus {
+  PENDING
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  BANK_TRANSFER
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  code          String        @unique
+  userId        String
+  status        OrderStatus   @default(PENDING)
+  recipientName String        @db.VarChar(191)
+  phone         String        @db.VarChar(20)
+  province      String        @db.VarChar(191)
+  ward          String        @db.VarChar(191)
+  street        String        @db.VarChar(255)
+  note          String?       @db.Text
+  paymentMethod PaymentMethod @default(COD)
+  subtotal      Int
+  discount      Int
+  shippingFee   Int
+  total         Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items         OrderItem[]
+
+  @@index([userId, createdAt])
+}
+
+// Dòng đơn lưu ảnh chụp (snapshot) thông tin sách lúc đặt; xoá sách thì bookId = null, đơn vẫn còn.
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  bookId    String?
+  name      String  @db.VarChar(191)
+  slug      String  @db.VarChar(191)
+  picture   String?
+  price     Int
+  unitPrice Int
+  quantity  Int
+  lineTotal Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  book      Book?   @relation(fields: [bookId], references: [id], onDelete: SetNull)
 }

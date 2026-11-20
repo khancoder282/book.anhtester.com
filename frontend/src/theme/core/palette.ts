@@ -90,28 +90,29 @@ export const grey = createPaletteChannel(themeConfig.palette.grey);
 // Text color
 export const text = {
   light: createPaletteChannel({
-    primary: grey[800],
-    secondary: grey[600],
-    disabled: grey[500],
+    primary: grey[900],
+    secondary: grey[500],
+    disabled: grey[400],
   }),
   dark: createPaletteChannel({
-    primary: grey[100],
+    primary: '#E6EAF2',
     secondary: grey[400],
-    disabled: grey[300],
+    disabled: grey[600],
   }),
 };
 
 // Background color
 export const background = {
+  // AT UI: surface trắng, nền trang "sunken" #F3F5F8, dark: #161B26 / #0F131B
   light: createPaletteChannel({
     paper: '#FFFFFF',
     default: grey[100],
     neutral: grey[200],
   }),
   dark: createPaletteChannel({
-    paper: grey[800],
-    default: grey[900],
-    neutral: '#28323D',
+    paper: '#161B26',
+    default: '#0F131B',
+    neutral: '#273042',
   }),
 };
 
@@ -159,5 +160,5 @@ export const palette: Partial<Record<ThemeColorScheme, ColorSystemOptions['palet
     text: text.dark,
     background: background.dark,
     action: action.dark,
-  }
+  },
 };

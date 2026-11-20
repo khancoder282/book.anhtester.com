@@ -171,7 +171,37 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
         <Tabs
           textColor="inherit"
           variant="scrollable"
+          scrollButtons="auto"
           indicatorColor="primary"
+          // Tab thể loại dạng pill theo AT UI kit: tab đang chọn tô gradient xanh lá
+          sx={{
+            flex: 1,
+            minHeight: 44,
+            '& .MuiTabs-indicator': { display: 'none' },
+            '& .MuiTabs-list': { gap: 1, py: 0.5 },
+            '& .MuiTab-root': {
+              minHeight: 38,
+              px: 2,
+              mr: '0 !important',
+              borderRadius: 999,
+              fontWeight: 600,
+              color: 'text.secondary',
+              bgcolor: 'var(--at-sunken)',
+              boxShadow: 'inset 0 0 0 1px var(--at-line)',
+              transition: 'all .15s',
+              '&:hover': { color: 'text.primary' },
+              '& .MuiChip-root, & .label': { transition: 'none' },
+            },
+            '& .MuiTab-root.Mui-selected': {
+              color: '#fff',
+              backgroundImage: 'var(--at-grad-green)',
+              boxShadow: 'var(--at-glow-green)',
+              '& span[class*="label"], & .MuiBox-root > span:last-of-type': {
+                color: 'inherit',
+                bgcolor: 'rgba(255,255,255,.22)',
+              },
+            },
+          }}
           // Chưa tải xong / category không tồn tại thì không chọn tab nào (tránh cảnh báo MUI)
           value={!category || data.some((c) => c.name === category) ? category : false}
           onChange={(_, value) => setCategory(value)}
@@ -200,7 +230,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
         )}
       </Stack>
 
-      <Divider sx={{ mb: 2 }} />
+      <Divider sx={{ mt: 1, mb: 2, borderStyle: 'dashed' }} />
 
       <Dialog open={open} fullWidth maxWidth="xs">
         <DialogTitle>

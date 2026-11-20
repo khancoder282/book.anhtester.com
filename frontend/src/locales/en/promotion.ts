@@ -17,6 +17,7 @@ export const promotion = {
   },
   // Trang danh sách
   title: 'Promotion Management',
+  subtitle: 'Discount codes attached to books and their running time.',
   newPromotion: 'New Promotion',
   columns: {
     code: 'CODE',

@@ -67,6 +67,22 @@ const routesSection: RouteObject[] = [
         Component: lazy(() => import('src/pages/user-mgt/setting')),
       },
       {
+        path: 'cart',
+        Component: lazy(() => import('src/pages/shop/cart-page')),
+      },
+      {
+        path: 'checkout',
+        Component: lazy(() => import('src/pages/shop/checkout-page')),
+      },
+      {
+        path: 'orders',
+        Component: lazy(() => import('src/pages/shop/orders-page')),
+      },
+      {
+        path: 'orders/:code',
+        Component: lazy(() => import('src/pages/shop/order-detail-page')),
+      },
+      {
         path: 'db-management',
         Component: lazy(() => import('src/pages/db-mgt/page')),
       },

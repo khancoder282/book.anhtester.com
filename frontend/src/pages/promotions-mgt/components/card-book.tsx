@@ -16,6 +16,8 @@ import {
 import { useRequest } from 'src/hooks/use-request';
 import { useDebounce } from 'src/hooks/use-debound';
 
+import { formatFilePath } from 'src/utils/format-filepath';
+
 import { useTranslate } from 'src/locales';
 import { getBooks } from 'src/pages/book-mgt/api/get-books';
 
@@ -105,11 +107,21 @@ export function CardBook() {
           {selected.length > 0 && (
             <>
               <Divider />
-              <Box p={2} display="flex" flexWrap="unset" gap={1}>
+              {/* Sách đã chọn: chip tự xuống hàng, tên dài cắt "…" (di chuột xem đủ tên) */}
+              <Box
+                p={2}
+                display="flex"
+                flexWrap="wrap"
+                gap={1}
+                data-testid="selected-books"
+                sx={{ maxHeight: 220, overflowY: 'auto' }}
+              >
                 {selected.map((item) => (
                   <Chip
+                    title={item.name}
+                    sx={{ maxWidth: { xs: 1, sm: 360 } }}
                     avatar={
-                      <Avatar src={item.picture[0]}>
+                      <Avatar src={formatFilePath(item.picture[0])}>
                         <Iconify width={0.6} icon="solar:album-outline" />
                       </Avatar>
                     }

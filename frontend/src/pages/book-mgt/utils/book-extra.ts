@@ -10,4 +10,6 @@ export const bookExtraPayload = (book: BookForm) => ({
   pageCount: numberOrNull(book.pageCount),
   isbn: textOrNull(book.isbn),
   language: textOrNull(book.language),
+  previewTitle: textOrNull(book.previewTitle),
+  previewContent: textOrNull(book.previewContent),
 });

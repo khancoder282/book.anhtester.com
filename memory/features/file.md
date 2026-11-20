@@ -7,7 +7,7 @@ Frontend: `src/pages/file-mgt/`. Route: `/file-management` (đang ẩn bằng `C
 |---|---|---|---|
 | GET | `/api/file` | **Tuỳ `path`** | `path` là **thư mục** (liệt kê, có `search`) → cần token, thiếu → 401. `path` là **một file** → công khai (ảnh bìa, avatar tải bằng `<img>`) |
 | GET | `/api/file/info` | Không | `{ usedStorage, maxStorage }`. Tính bằng code (`dirSize`), chạy cả Windows lẫn Linux (trước đây gọi `du` → 500 trên Windows) |
-| POST | `/api/file` | Có | `multipart/form-data`: `files[]` (1–20 file, tối đa **5MB mỗi file**), `path` (tạo thư mục nếu chưa có, kể cả nhiều cấp) |
+| POST | `/api/file` | Có | `multipart/form-data`: `files[]` (1–20 file, **tổng cả lần upload ≤ 4MB** từ 2026-11-21), `path` (tạo thư mục nếu chưa có, kể cả nhiều cấp). Tối đa 20 lần / phút / user → 429 + `Retry-After` |
 | DELETE | `/api/file` | Có | Query `path` (lặp lại để xoá nhiều), xử lý **hết** các path (trước đây gặp thư mục là dừng) |
 | PUT | `/api/file/rename` | Có | `{ path, name }` — `name` chỉ là tên, không có thư mục |
 | POST | `/api/file/copy` | Có | `{ oldPath, newPath }` |
@@ -32,3 +32,12 @@ Xem/tải file: `GET /view-file/*` (công khai), route nằm ngoài `/api` và k
 - Đường dẫn trả về (`paths`, `newPath`, `list[].path`) luôn dùng `/`, kể cả trên Windows (trước đây trả `\`).
 - Frontend: dialog upload kiểm đuôi file và tối đa 20 tệp (khớp API). Ô ảnh bìa / avatar (`components/fields/upload-field.tsx`, `accepImg`) vẫn cho chọn `.svg` → API trả 422.
 - Thư mục có tiền tố `$` là thư mục hệ thống (ảnh sách, avatar).
+
+## Giới hạn upload (2026-11-21)
+
+- `MAX_UPLOAD_TOTAL` = 4MB cho **tổng** các file trong một request (user chốt), kiểm trong handler trước khi đọc nội dung → 422 `fields.files` "Total upload size must not exceed 4MB (got x.xxMB)". Không đặt `maxSize` ở `t.Files` vì lỗi schema của Elysia chỉ ra "Expected kind 'Files'". Frontend dùng `components/fields/upload-limits.ts` (form sách chỉ tính ảnh **mới**).
+- `UPLOAD_RATE_LIMIT` = 20 lần / phút / user (`utils/rate-limit.ts`, cửa sổ trượt trong bộ nhớ; chỉ đúng khi backend 1 tiến trình, khởi động lại thì đếm lại).
+- `isValidName` (`utils/upload-security.ts`) thêm: không chứa `%`, không bắt đầu bằng `.`, không kết thúc bằng `.`. Áp cho tên file upload, từng đoạn thư mục đích, đổi tên / copy / move. Trước đó `path=..%2F..` tạo được thư mục tên đúng như vậy (không thoát ra ngoài, nhưng `/view-file` giải mã thành đường dẫn khác).
+- Đã thử tấn công 2026-11-21 (script Bun ở scratchpad, không commit): HTML đổi đuôi .jpg, SVG có script, .php / .php.jpg, exe đổi đuôi .png, file rỗng, .htaccess, `../`, `..\`, tên 300 ký tự, `C:/Windows`, không token → đều bị chặn. PNG thật có nhét `<script>` phía sau lên được nhưng phục vụ kèm `nosniff` + CSP `sandbox` nên không chạy.
+- Còn chưa làm: hạn mức tổng dung lượng thư mục upload (`maxStorage` 1GB chỉ để hiển thị ở `/api/file/info`).
+- User xác nhận 2026-11-21: user đăng nhập nào cũng xoá được file của người khác là **đúng thiết kế** (chưa phân quyền). Ảnh sách được xoá qua xoá sách / cập nhật sách (`utils/book-images.ts`). Không báo đây là bug.

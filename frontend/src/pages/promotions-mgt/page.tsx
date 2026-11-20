@@ -15,6 +15,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import Title from 'src/components/title';
 import { Iconify } from 'src/components/iconify';
 import { useTable } from 'src/components/grid-view/hook/use-table';
+import { PageHeader } from 'src/components/page-header/page-header';
 import { TableView } from 'src/components/grid-view/components/table-view';
 import { TableFilterView } from 'src/components/grid-view/components/table-filter-view';
 import { TablePaginationView } from 'src/components/grid-view/components/table-pagination-view';
@@ -59,28 +60,25 @@ export default function Page() {
   return (
     <DashboardContent>
       <Title>{`${t('promotion.title')} - ${CONFIG.appName}`}</Title>
-      <Box
-        sx={{
-          mb: 5,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          {t('promotion.title')}
-        </Typography>
-        {auth && (
-          <Button
-            variant="contained"
-            color="inherit"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            LinkComponent={RouterLink}
-            href="/promotion-book-management/handle?name=create-new-promotion"
-          >
-            {t('promotion.newPromotion')}
-          </Button>
-        )}
-      </Box>
+      <PageHeader
+        icon="ph:seal-percent-fill"
+        tone="orange"
+        title={t('promotion.title')}
+        subtitle={t('promotion.subtitle')}
+        action={
+          auth && (
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              LinkComponent={RouterLink}
+              href="/promotion-book-management/handle?name=create-new-promotion"
+            >
+              {t('promotion.newPromotion')}
+            </Button>
+          )
+        }
+      />
       <Card>
         <TableFilterView config={config} filter={fields} />
         <TableView

@@ -89,4 +89,16 @@ export const components: Translation<typeof en> = {
     close: 'Đóng',
     clear: 'Xoá',
   },
+  lightbox: {
+    zoomIn: 'Phóng to (+)',
+    zoomOut: 'Thu nhỏ (-)',
+    rotate: 'Xoay 90°',
+    reset: 'Về mặc định (0)',
+    openOriginal: 'Mở ảnh gốc',
+    close: 'Đóng (Esc)',
+    prev: 'Ảnh trước (←)',
+    next: 'Ảnh sau (→)',
+    image: 'Ảnh',
+    hint: 'Lăn chuột hoặc nhấp đúp để phóng to · kéo để di chuyển · ← → để chuyển ảnh · Esc để đóng',
+  },
 };

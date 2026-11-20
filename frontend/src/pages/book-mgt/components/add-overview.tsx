@@ -26,9 +26,11 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import Title from 'src/components/title';
 import { Iconify } from 'src/components/iconify';
 import { dialog } from 'src/components/dialog-confirm/confirm';
+import { PageHeader } from 'src/components/page-header/page-header';
 
 import { getBook } from '../api/get-book';
 import { CardDetail } from './card-detail';
+import { CardPreview } from './card-preview';
 import { CardProperty } from './card-property';
 import { CardMoreInfo } from './card-more-info';
 import { deleteBook } from '../api/delete-book';
@@ -79,6 +81,8 @@ export function AddOverview() {
         pageCount: '',
         isbn: '',
         language: '',
+        previewTitle: '',
+        previewContent: '',
       });
     } else {
       getBook(id)
@@ -106,11 +110,12 @@ export function AddOverview() {
       <Title>
         {`${id ? t('book.form.modifyTitle') : t('book.form.createTitle')} - ${CONFIG.appName}`}
       </Title>
-      <Stack spacing={2} mb={5}>
-        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          {id ? t('book.form.modifyTitle') : t('book.form.createTitle')}
-        </Typography>
-        <Breadcrumbs sx={{ mb: 3 }}>
+      <PageHeader
+        icon="solar:book-2-bold-duotone"
+        tone="green"
+        title={id ? t('book.form.modifyTitle') : t('book.form.createTitle')}
+      >
+        <Breadcrumbs sx={{ mt: 0.5 }}>
           <Link component={RouterLink} href="/book-management" color="textPrimary" variant="body2">
             {t('book.form.breadcrumb')}
           </Link>
@@ -118,13 +123,14 @@ export function AddOverview() {
             {id ? t('book.form.modifyTitle') : t('book.form.createTitle')}
           </Typography>
         </Breadcrumbs>
-      </Stack>
+      </PageHeader>
 
       <Container maxWidth="md">
         <Stack spacing={4} component="form" noValidate>
           <CardDetail />
           <CardProperty />
           <CardMoreInfo />
+          <CardPreview />
           <CardPromotion />
           <Box display="flex" flexWrap="wrap" gap={2}>
             <Controller
@@ -160,7 +166,7 @@ export function AddOverview() {
               loading={isLoading}
               disabled={!isDirty}
               variant="contained"
-              color="inherit"
+              color="secondary"
               onClick={handleSubmit(async (data) =>
                 id ? await handleUpdateBook(id, data) : await handleCreateBook(data)
               )}

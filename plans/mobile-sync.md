@@ -26,6 +26,11 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-20-16](#2026-11-20-16) | 2026-11-20 | Form sách: bảng giá theo khuyến mãi, cảnh báo KM chưa áp dụng, hộp chi tiết KM | Không | Không | ⏳ Chưa làm |
 | [2026-11-20-17](#2026-11-20-17) | 2026-11-20 | Sách: 6 trường không bắt buộc (tác giả, NXB, năm, số trang, ISBN, ngôn ngữ) | **Có**: thêm trường ở POST/PATCH/GET `/api/book` | **Có** (+ `prisma db push` thêm 6 cột) | ⏳ Chưa làm |
 | [2026-11-20-18](#2026-11-20-18) | 2026-11-20 | Swagger ẩn File + Database; bật CORS `/api/*` | Không đổi endpoint; thêm header CORS | Có (để Swagger production có thay đổi) | Không cần làm |
+| [2026-11-21-01](#2026-11-21-01) | 2026-11-21 | Đơn hàng (backend): báo giá giỏ, đặt đơn, xem / huỷ đơn | **Có**: thêm nhóm `/api/order` (5 endpoint) | **Có** (+ `prisma db push` thêm 2 bảng, 2 enum) | ⏳ Chưa làm (UI web xong, xem 2026-11-21-04) |
+| [2026-11-21-02](#2026-11-21-02) | 2026-11-21 | Giao diện theo AT UI kit, chữ to hơn, sidebar thu gọn, scrollbar / con trỏ, tiêu đề trang | Không | Không | ⏳ Chưa làm |
+| [2026-11-21-03](#2026-11-21-03) | 2026-11-21 | Màn Book kiểu nhà sách, trang chi tiết (zoom ảnh, đọc thử, cùng thể loại) | **Có**: thêm `previewTitle`, `previewContent` (POST/PATCH/GET chi tiết), `hasPreview` + `previewTitle` (GET danh sách) | **Có** (+ `prisma db push` thêm 2 cột) | ⏳ Chưa làm |
+| [2026-11-21-04](#2026-11-21-04) | 2026-11-21 | Giỏ hàng, thanh toán 4 bước, Đơn hàng của tôi (UI) | Không (dùng `/api/order` của 2026-11-21-01) | **Có** (đi cùng 2026-11-21-01) | ⏳ Chưa làm |
+| [2026-11-21-05](#2026-11-21-05) | 2026-11-21 | Upload ≤ 4MB / lần + giới hạn 20 lần / phút, chặn tên lạ; ảnh sách tự xoá; trang Book 20 cuốn / trang + phân trang; bảng không nhảy khi chuyển trang; chip sách đã chọn không tràn | **Có**: `POST /api/file` (422 tổng > 4MB, 429, tên), `pictures` của sách (422) | **Có** | ⏳ Chưa làm |
 
 ---
 
@@ -462,3 +467,138 @@ Sửa 8 bug `SYSTEM EXP01`, `FILE EXP01–04`, `CATEGORY EXP01–03`, lỗi `GET
 - Backend trả header CORS cho mọi `/api/*` (`Access-Control-Allow-Origin: *`, không credentials), preflight `OPTIONS` trả 204. Sửa lỗi "Failed to fetch" khi Send từ Swagger mở ở origin khác server đang chọn (VD `http://localhost:3039/swagger` gọi `http://localhost:4566`).
 
 **Mobile**: không cần làm gì (app native Capacitor gọi thẳng production). Deploy backend để Swagger production có thay đổi.
+
+---
+
+<a id="2026-11-21-01"></a>
+## 2026-11-21-01 · Đơn hàng (backend)
+
+**API mới** (nhóm Swagger *Order Management*, chi tiết: `memory/features/order.md`):
+
+| Method | Path | Token | Việc |
+|---|---|---|---|
+| POST | `/api/order/quote` | Không | Báo giá giỏ `{ items: [{ bookId, quantity }] }` → dòng (`available`, `error`), `subtotal`, `discount`, `shippingFee`, `freeShipping`, `freeShipThreshold`, `total`, `canCheckout` |
+| POST | `/api/order` | Có | Đặt đơn: `items`, `recipientName`, `phone`, `province`, `ward`, `street`, `note?`, `paymentMethod?` (`COD` / `BANK_TRANSFER`) → 201 `{ msg, order }`; lỗi 422 `{ msg, fields }` |
+| GET | `/api/order` | Có | Đơn của mình, `page`, `limit` (≤ 100), `status?` |
+| GET | `/api/order/{id}` | Có | id hoặc mã đơn (`BK261121A7K2`); đơn người khác → 404 |
+| PATCH | `/api/order/{id}/cancel` | Có | `PENDING` → `CANCELLED`; đã huỷ → 409 |
+
+- Giá do server tính từ `currentPrice` của sách; phí vận chuyển 30.000, miễn phí khi tạm tính ≥ 500.000 hoặc có sách gắn KM FREE_SHIPPING đang hiệu lực.
+- `phone` phải là số di động Việt Nam (`0` hoặc `+84`, đầu 3/5/7/8/9, 10 số), `province` / `ward` phải lấy từ `GET /api/address` và `GET /api/address/{tỉnh}`.
+- Giỏ hàng lưu ở client (web: `frontend/src/store/cart.ts`), không có API giỏ hàng.
+
+**Web**: UI xong 2026-11-21, xem [2026-11-21-04](#2026-11-21-04).
+
+**Mobile cần**: ⚠️ app gọi API production, nên phải **deploy backend + chạy `bunx prisma db push` trên VPS** (thêm bảng `Order`, `OrderItem`, enum `OrderStatus`, `PaymentMethod`, không đụng dữ liệu cũ) trước khi làm màn giỏ hàng / checkout bên mobile.
+
+---
+
+<a id="2026-11-21-02"></a>
+## 2026-11-21-02 · Giao diện theo AT UI kit
+
+Tone màu lấy từ AT UI kit của repo `anhtester_lms` (`public/build/css/at-ui.css`). Quy ước: **cam** = hành động chính (1 nút / màn), **xanh lá logo** = phụ / đang chọn, **xanh dương** = thông tin / xem trước, **đỏ** = xoá. Tone phụ (`sky` xanh dương nhạt, `indigo`, `cyan`, `purple`, `pink`, `teal`, `mint`, `amber`) cho nhãn thể loại, bìa mặc định, ô icon tiêu đề.
+
+- Palette MUI (`theme-config.ts`): primary `#42BC40 → #268A24`, secondary `#FB8A2E → #E06004`, info `#1570CD`, error `#C9302C`, grey = slate. Màu chủ đạo user chọn ở Cài đặt vẫn đè được primary (mặc định `#42BC40` dùng đúng palette AT).
+- Nút `contained` tô gradient light → main + bóng cùng màu; card bo 16px, viền mảnh; ô nhập bo 11px, vòng focus xanh; đầu bảng chữ in hoa nhỏ, hàng bảng hover xanh nhạt.
+- Font: **Inter** (giao diện, đủ dấu tiếng Việt, thay DM Sans) và **Merriweather** (tên sách, tiêu đề lớn, trình đọc thử, thay Barlow), cài bằng `@fontsource-variable/*` nên chạy offline.
+- **Chữ to hơn toàn site**: body1 17px, body2 15.5px, caption 13.5px, nút 15px, h4–h6 tăng 1–2px.
+- **Sidebar thu gọn**: nút tròn xanh ở mép sidebar; thu gọn còn 88px (icon + tooltip). Lưu `localStorage` khoá `book-anhtester:nav-collapsed` → chỉ áp dụng cho trình duyệt đó. Drawer trên màn nhỏ không đổi.
+- Thanh cuộn gradient xanh lá → cam, con trỏ chuột mũi tên xanh lá / bàn tay cam (`public/assets/cursors/*.svg`), màu bôi đen chữ xanh lá.
+- Tiêu đề trang dùng `PageHeader` (ô icon gradient + tiêu đề + mô tả + nút) ở User, Category, Promotion, form sách / khuyến mãi, Hồ sơ, Cài đặt, Đơn hàng. Nút chính (tạo mới, lưu, đăng nhập, đăng ký) đổi sang màu cam.
+- Dashboard: thẻ số liệu bỏ chữ "mgt" (en: Users / Books / Categories / Promotions; vi: Người dùng / Sách / Danh mục / Khuyến mãi).
+- Header có nút giỏ hàng (số trên huy hiệu = tổng số cuốn).
+- Ô avatar (Hồ sơ, form user): ảnh không tải được thì hiện lại icon "Upload photo" (trước đây thành vòng tròn trống).
+- Mọi ô tìm kiếm (User, Book, Category, Promotion, băng rôn Book) đổi sang `type="search"` + `autocomplete="off"` (`components/fields/search-input-props.ts`): Chrome không còn tự điền email đã lưu vào ô tìm trang User làm danh sách bị lọc sẵn khi mở trang. ⚠️ Locator kiểu `input[type="text"]` cho ô tìm phải đổi; dùng placeholder / role `searchbox`.
+- Trang Category: dòng tổng `#category-summary` nhảy theo ô tìm ("1 of 9 categories · 7 of 56 book links").
+
+**Locator mới**: `[data-testid="nav-toggle"]` (`aria-expanded`), `[data-testid="nav-desktop"][data-collapsed="true|false"]`, mục menu khi thu gọn có `aria-label` = tên mục; `[data-testid="page-header"]`; `[data-testid="header-cart"]`, `[data-testid="header-cart-count"]`. ⚠️ Nút tạo mới ở User / Category / Promotion chỉ đổi màu, không đổi chữ / id.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/theme/theme-config.ts`, `theme/core/{palette,typography,components}.tsx`, `theme/at-tones.ts` (mới), `theme/theme-provider.tsx` | cùng đường dẫn | Chép nguyên; kiểm lại cỡ chữ trên màn nhỏ |
+| `frontend/src/global.css`, `components/scrollbar/styles.css`, `public/assets/cursors/` | cùng đường dẫn | Chép; con trỏ chuột không có tác dụng trên điện thoại |
+| `frontend/src/app.tsx` | cùng đường dẫn | Palette mặc định dùng `themeConfig.palette.primary` |
+| `frontend/src/store/nav-collapse.ts`, `layouts/dashboard/{nav,layout,css-vars}.tsx` | cùng đường dẫn | Tuỳ chọn (mobile dùng drawer) |
+| `frontend/src/components/page-header/page-header.tsx` + các trang dùng nó | cùng đường dẫn | Chép |
+| `frontend/src/components/fields/avatar-field.tsx` | cùng đường dẫn | Chép |
+| `frontend/package.json` | cùng file | Thêm `@fontsource-variable/inter`, `@fontsource-variable/merriweather` |
+
+**Mobile cần**: không phụ thuộc backend, làm được ngay.
+
+---
+
+<a id="2026-11-21-03"></a>
+## 2026-11-21-03 · Màn Book kiểu nhà sách + trang chi tiết + đọc thử
+
+**API** (cần deploy backend + `bunx prisma db push` trên VPS: thêm 2 cột nullable `previewTitle` VARCHAR(191), `previewContent` TEXT, không mất dữ liệu):
+
+- `POST /api/book`, `PATCH /api/book/{id}` nhận thêm `previewTitle` (≤191) và `previewContent` (≤20.000 ký tự; đoạn cách nhau bằng dòng trống, dòng `## ` là tiêu đề nhỏ); `null` / `""` để xoá.
+- `GET /api/book/{id}` trả thêm `previewTitle`, `previewContent`. `GET /api/book` trả `previewTitle` + `hasPreview` (boolean), **không** trả nội dung cho nhẹ.
+
+**Web**:
+- Danh sách: băng rôn gradient (tìm nhanh theo tên / tác giả / NXB / ISBN, số sách, số thể loại, 3 sách xem nhiều), tab thể loại dạng pill, dòng "Hiển thị x / y cuốn sách", lưới tối đa **4 cột**. Thẻ sách: bìa dọc 2:3 có gáy + mép giấy, nhãn giảm % / Mới / Đọc thử / Hết hàng, thể loại, tên (Merriweather), tác giả, lượt xem, giá, nút thêm giỏ. Bỏ kiểu 3 thẻ lớn đầu trang dành cho khách.
+- Chi tiết: breadcrumb, ảnh lớn **rê chuột 1 giây thì lật sang trang kế** (hiệu ứng lật trang 3D, giữ chuột thì lật tiếp; locator lớp đang lật `book-gallery-flip`), dải ảnh nhỏ, **xem toàn màn hình** (`ImageLightbox`: zoom nút / con lăn / nhấp đúp, kéo, xoay, ← →, Esc), pill trạng thái / lượt xem / số trang / ngôn ngữ, khung giá (giá bán, giá gốc, % giảm, KM, gợi ý miễn phí ship), ô số lượng + **Thêm vào giỏ** + **Mua ngay** (thiếu chỗ thì hàng nút xuống dưới), **Đọc thử** (dialog: cỡ chữ A- / A+, nền Sáng / Giấy / Tối nhớ theo trình duyệt, thanh tiến độ đọc), sao chép liên kết / ISBN, thông số có icon, người đăng, kệ **sách cùng thể loại**.
+- Form sách: thẻ mới **Chương đọc thử** (tiêu đề + nội dung, đếm ký tự).
+
+**Locator mới**: thẻ `[data-testid="book-card-<slug>"]` (giữ `#book-<id>`, `#img-book-<id>`), `book-card-add-to-cart`, `book-card-{discount,new,preview,unavailable,category,author,current-price}`; băng rôn `book-hero`, `book-hero-search`, `book-hero-search-submit`, `book-results`. Chi tiết: `book-detail-name`, `book-current-price`, `book-qty-{decrease,input,increase}`, `book-add-to-cart`, `book-buy-now`, `book-read-sample`, `book-continue-reading`, `book-gallery-main`, `book-gallery-thumb-<i>`, `book-gallery-fullscreen`, `image-lightbox`, `lightbox-{zoom-in,zoom-out,rotate,reset,close,prev,next,counter,zoom}`, `book-reader`, `reader-{font-smaller,font-larger,theme-light,theme-paper,theme-dark,close,title,content}`, `related-books`. Giữ `book-more-info`, `book-<field>`. Form: `card-preview`, `preview-title-input`, `preview-content-input`. ⚠️ Tiêu đề h4 "Book Management" ở trang danh sách đã thay bằng băng rôn.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/pages/book-mgt/page.tsx`, `components/{book-hero,book-3d,card-book-view,filter-book,book-cover}.tsx` | cùng đường dẫn | Chép; màn nhỏ lưới 2 cột |
+| `frontend/src/pages/book-mgt/detail.tsx`, `components/{book-gallery,book-reader,related-books}.tsx`, `components/lightbox/image-lightbox.tsx`, `components/quantity-input/` | cùng đường dẫn | Chép; reader tự toàn màn hình khi hẹp |
+| `frontend/src/pages/book-mgt/components/card-preview.tsx`, `utils/book-extra.ts`, `stores/type.d.ts`, `hooks/use-add-to-cart.ts` | cùng đường dẫn | Chép |
+| `frontend/src/locales/{en,vi}/bookstore.ts` (mới) | cùng đường dẫn | Chép + đăng ký trong `locales/index.ts` |
+
+**Mobile cần**: giao diện làm được ngay; đọc thử + `hasPreview` chỉ có dữ liệu sau khi deploy backend và nhập nội dung trên production.
+
+---
+
+<a id="2026-11-21-04"></a>
+## 2026-11-21-04 · Giỏ hàng, thanh toán, đơn hàng (UI)
+
+- **Giỏ hàng** lưu ở trình duyệt (`store/cart.ts`, `localStorage` khoá `book-anhtester:cart`, tối đa 50 đầu sách, mỗi sách 1–99 cuốn), không cần đăng nhập. Giá luôn lấy từ `POST /api/order/quote`. Trang `/cart`: dòng sách (ảnh, giá, số lượng, thành tiền, xoá), báo hết hàng / không tồn tại, tóm tắt (tạm tính, tiết kiệm, phí ship, thanh "mua thêm X để miễn phí ship", tổng).
+- **Thanh toán** `/checkout` 4 bước: Giỏ hàng → Địa chỉ giao hàng (cần đăng nhập; tên, số điện thoại, tỉnh / phường từ API address, số nhà, ghi chú, COD / chuyển khoản; điền sẵn từ hồ sơ) → Xác nhận & thanh toán → Hoàn tất (mã đơn, tổng tiền). Đặt xong giỏ được xoá. Lỗi 422 của server gán vào từng ô; lỗi `items` quay về bước giỏ.
+- **Đơn hàng của tôi** `/orders` (lọc Tất cả / Đã đặt / Đã huỷ) và chi tiết `/orders/<mã>` có nút **Huỷ đơn** (hộp xác nhận). Menu tài khoản có mục "Đơn hàng của tôi".
+
+**Locator**: `header-cart`, `cart-line-<slug>`, `cart-qty-<slug>-{decrease,input,increase}`, `cart-remove-<slug>`, `cart-clear`, `cart-checkout`, `cart-empty`, `order-summary`, `summary-{subtotal,discount,shipping,total,freeship}`; `checkout-stepper`, `checkout-step-{cart,address,confirm}`, `checkout-{recipient-name,phone,province,ward,street,note}`, `checkout-payment-{COD,BANK_TRANSFER}`, `checkout-next`, `checkout-back`, `checkout-place-order`, `checkout-sign-in`, `checkout-success`, `success-order-code`, `success-order-total`, `success-view-order`; `orders-list`, `order-<code>`, `order-status`, `orders-empty`, `order-detail-code`, `order-cancel`, `order-cancel-confirm`, `order-not-found`.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/store/cart.ts`, `layouts/components/cart-button.tsx`, `layouts/nav-config-account.tsx` | cùng đường dẫn | Chép |
+| `frontend/src/pages/shop/**` (mới) | cùng đường dẫn | Chép; bố cục 1 cột trên màn nhỏ |
+| `frontend/src/routes/sections.tsx` | cùng đường dẫn | Thêm route `cart`, `checkout`, `orders`, `orders/:code` |
+| `frontend/src/locales/{en,vi}/shop.ts` (mới) | cùng đường dẫn | Chép + đăng ký trong `locales/index.ts` |
+
+**Mobile cần**: ⚠️ phải deploy backend + `prisma db push` trên VPS (mục 2026-11-21-01) trước, vì app gọi API production.
+
+---
+
+<a id="2026-11-21-05"></a>
+## 2026-11-21-05 · Upload an toàn hơn, tự xoá ảnh sách, phân trang trang Book
+
+**API** (cần deploy backend, không đổi DB):
+
+- `POST /api/file`:
+  - **Tổng dung lượng các file trong một lần upload ≤ 4MB** (trước: mỗi file ≤ 5MB). Vượt → 422 `fields.files`: `Total upload size must not exceed 4MB (got x.xxMB).`
+  - Mỗi user tối đa **20 lần upload / phút** → vượt thì 429 `{ msg }` + header `Retry-After` (giây).
+  - Tên file / thư mục không được chứa `%`, bắt đầu bằng `.` hoặc kết thúc bằng `.` → 400 `Invalid file name.` / `Invalid path.` (áp cả cho đổi tên / copy / move).
+- `POST /api/book`, `PATCH /api/book/{id}`: `pictures` chỉ nhận file nằm trong `/$book-image/` (không `..`, không dấu phẩy) → sai thì 422 `fields.pictures`. Đường dẫn được chuẩn hoá (`\` → `/`, có `/` đầu).
+- **Ảnh sách tự xoá**: `DELETE /api/book/{id}` xoá file ảnh của sách (trừ ảnh sách khác còn dùng) và thư mục ảnh rỗng; `PATCH` bỏ ảnh khỏi `pictures` thì xoá file ảnh bị bỏ. Server tự dọn ảnh mồ côi trong `$book-image` (không sách nào dùng, cũ hơn 24 giờ) lúc khởi động và mỗi giờ.
+- ⚠️ Lỗ đã vá: trước đây xoá sách gọi `rmSync(path.join(upload, p), { recursive: true })` không kiểm đường dẫn, sách có `pictures: ["/../src"]` thì xoá sách là xoá luôn thư mục code server.
+
+**Web**:
+- Trang Book: **20 cuốn / trang + thanh phân trang** (thay cho cuộn tải thêm 36 cuốn). Trang hiện tại trên URL `?page=`; đổi thể loại / tìm / giá / sắp xếp thì về trang 1; dòng kết quả "Hiển thị 21–40 / 40 cuốn sách".
+- Mọi bảng có phân trang (User, Promotion, chọn sách trong form khuyến mãi): bấm chuyển trang / đổi số dòng thì thanh phân trang **đứng yên tại chỗ** 1,5 giây cho tới khi dữ liệu mới vẽ xong (trước đây có lúc trang bị nhảy lên đầu). Hook `src/hooks/use-keep-in-view.ts`.
+- Form sách / hộp upload file kiểm tổng ảnh mới ≤ 4MB (khớp API), thông báo mới.
+- Form khuyến mãi: dải chip "sách đã chọn" tự xuống hàng (trước bị tràn ngang khi chọn nhiều sách), tên dài cắt "…", ảnh nhỏ trên chip hiện đúng bìa sách. Locator `[data-testid="selected-books"]`.
+
+**Locator**: `[data-testid="book-pagination"]` (nút `Go to page N`, `Go to next page`…), `[data-testid="book-results"]` đổi chữ (from–to).
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/pages/book-mgt/page.tsx`, `stores/filter.ts` | cùng đường dẫn | Chép (mobile có thể giữ cuộn tải thêm nếu hợp màn nhỏ hơn) |
+| `frontend/src/components/grid-view/components/table-pagination-view.tsx`, `hooks/use-keep-in-view.ts` | cùng đường dẫn | Chép |
+| `frontend/src/pages/promotions-mgt/components/card-book.tsx` | cùng đường dẫn | Chép |
+| `frontend/src/components/fields/upload-limits.ts`, `pages/book-mgt/components/card-detail.tsx`, `pages/file-mgt/components/dialog-upload.tsx`, `locales/{en,vi}/{book,file,bookstore}.ts` | cùng đường dẫn | Chép |
+
+**Mobile cần**: ⚠️ sau khi deploy backend, app upload ảnh > 4MB một lần sẽ bị 422 — kiểm app có nén / chia ảnh trước khi gửi không.

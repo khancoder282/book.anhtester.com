@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 import { Box, type BoxProps } from '@mui/material';
 
-type LogoProps = BoxProps;
+type LogoProps = BoxProps & { src?: string };
 export function Logo(props: LogoProps) {
   return (
     <Link to="/" viewTransition style={{ textAlign: 'center' }}>

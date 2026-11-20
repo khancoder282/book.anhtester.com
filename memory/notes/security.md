@@ -7,6 +7,7 @@
 > - Không có role: user chỉ sửa / khoá / xoá **chính mình** (`PATCH`, `DELETE /api/user/{id}` với id khác → 403).
 > - `GET /api/file` liệt kê thư mục cần token (tải một file vẫn công khai để `<img>` dùng được); `GET /api/db/table` cần token; `POST /api/status` giới hạn `code` 200–599, `time` ≤ 30 giây.
 >
+> - 2026-11-21: vá xoá sách xoá được thư mục ngoài upload (ảnh sách giờ phải nằm trong `/$book-image/`, xoá file từng cái, không đệ quy); upload tổng ≤ 4MB / lần, 20 lần / phút / user, cấm tên có `%` / bắt đầu hoặc kết thúc bằng dấu chấm. Chi tiết `features/file.md`, `features/book.md`.
 > **Còn lại (chưa sửa, không có bug report):** chưa có rate limit cho `/api/login`; JWT vẫn rơi về `"secret-key"` nếu thiếu `JWT_SECRET`; `GET /api/file/info` công khai (chỉ trả 2 con số dung lượng, cố ý). Phần dưới là ghi chú gốc trước khi sửa, giữ để tra lịch sử.
 
 > **Đợt exploratory testing 2026-11-20 đã ghi chi tiết 30 bug (9 Critical) trong [`docs/bugs/README.md`](../../docs/bugs/README.md).** Các bug bảo mật nghiêm trọng nhất là: đọc file bất kỳ qua `/view-file` (`BUG_system_1795111377_EXP01`), ghi file ra ngoài thư mục upload (`BUG_file_1795111378_EXP01`), stored XSS đọc token (`BUG_file_1795111379_EXP02`), chiếm tài khoản qua `search` kết hợp refresh token đã revoke (`BUG_user_1795111372_EXP02` + `BUG_auth_1795111365_EXP01`). Phần dưới đây là ghi chú ban đầu, chi tiết xem trong từng file bug.

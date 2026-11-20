@@ -31,3 +31,5 @@ Code: `backend/src/routers/category-controller.ts`. Prefix: `/api/category-book`
 - Tạo sách cũng tạo category (`connectOrCreate`/`createMany`) theo luật riêng của book-controller: chỉ chặn chuỗi rỗng, chưa áp trim / 24 ký tự / `/`.
 - `GET` không phân trang, không nhận `limit`; Dashboard đếm bằng `pagination.total`.
 - `Category.delete` ở frontend đã `encodeURIComponent` tên (2026-11-20).
+
+- Dòng tổng `#category-summary` (2026-11-21): đang gõ tìm thì đổi thành "x / tổng danh mục · y / tổng lượt gắn sách" theo kết quả lọc (khoá i18n `category.summaryFiltered`); ô tìm trống thì như cũ.

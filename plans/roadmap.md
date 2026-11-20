@@ -30,18 +30,25 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 2.1b | Dashboard: thu nhỏ banner | ⏳ | Tách từ 2.1 |
 | 2.2 | Dashboard: biểu đồ (sách xem nhiều, khuyến mãi sắp hết hạn), hoạt động gần đây | ⏳ | Có thể cần API thống kê |
 | 2.3 | Màn Book: nút chuyển dạng thẻ / dạng bảng | ⏳ | |
-| 2.4 | Màn Book: lọc theo khoảng giá, trạng thái, ngày; giữ bộ lọc trên URL | ⏳ | |
+| 2.4 | Màn Book: lọc theo khoảng giá, trạng thái, ngày; giữ bộ lọc trên URL | ⏳ | Bộ lọc thể loại / tìm / giá / sắp xếp / trang đã nằm trên URL (2026-11-21); còn lọc trạng thái, ngày |
 | 2.5 | Thao tác hàng loạt (chọn nhiều dòng để xoá / khoá / bật) ở User, Book, Promotion | ⏳ | Có thể cần API bulk |
 | 2.6 | Form sách: bảng giá theo khuyến mãi (giá hiện tại, giá khi KM sắp chạy bắt đầu), cảnh báo KM chưa trừ vào giá, bấm chip KM xem chi tiết chương trình | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-16](mobile-sync.md#2026-11-20-16) |
 | 2.7 | Sách có thêm thông tin không bắt buộc: tác giả, NXB, năm xuất bản, số trang, ISBN, ngôn ngữ (DB + API + form + trang chi tiết) | ✅ 2026-11-20 | Thêm 6 cột (`prisma db push`). Chi tiết: [mobile-sync.md#2026-11-20-17](mobile-sync.md#2026-11-20-17) |
 | 2.8 | Swagger: ẩn nhóm File Management và Database (API vẫn chạy) | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-18](mobile-sync.md#2026-11-20-18) |
 | 2.9 | Bật CORS cho `/api/*` (không credentials): hết "Failed to fetch" khi Send từ Swagger khác origin (VD `localhost:3039/swagger`) | ✅ 2026-11-20 | Chi tiết: [mobile-sync.md#2026-11-20-18](mobile-sync.md#2026-11-20-18) |
+| 2.10 | Giao diện theo **AT UI kit** (repo `anhtester_lms`): màu xanh lá logo / cam / xanh dương / đỏ / slate + tone phụ (xanh dương nhạt, chàm, cyan, tím, hồng, teal, mint, hổ phách), nút gradient có bóng, card bo 16px, font Inter + Merriweather, **chữ to hơn toàn site**, thanh cuộn gradient, con trỏ chuột màu, tiêu đề trang có ô icon, nút chính màu cam, bỏ chữ "mgt" ở Dashboard | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-02](mobile-sync.md#2026-11-21-02) |
+| 2.11 | Sidebar thu gọn / mở rộng (chỉ còn icon + tooltip), nhớ theo từng trình duyệt (localStorage) | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-02](mobile-sync.md#2026-11-21-02) |
+| 2.12 | Màn Book kiểu nhà sách: băng rôn + tìm nhanh + 3 sách xem nhiều, thẻ bìa dọc có gáy 3D, tab thể loại dạng pill, lưới tối đa 4 cột | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-03](mobile-sync.md#2026-11-21-03) |
+| 2.13 | Trang chi tiết sách: rê chuột 1 giây lật trang + xem ảnh toàn màn hình (zoom, kéo, xoay, phím ← →), khung giá, số lượng + thêm giỏ / mua ngay, thông số có icon, sách cùng thể loại; **Đọc thử** chương mẫu (API `previewTitle`, `previewContent`, `hasPreview`) | ✅ 2026-11-21 | Thêm 2 cột (`prisma db push`). Chi tiết: [mobile-sync.md#2026-11-21-03](mobile-sync.md#2026-11-21-03) |
+| 2.14 | Dữ liệu mẫu đầy đủ: 40 sách (thêm 20 sách hư cấu), đủ NXB / năm / số trang / ISBN / ngôn ngữ, 39 sách có đọc thử, mỗi sách 4 ảnh (bìa trước, bìa sau, 2 trang trong) | ✅ 2026-11-21 | `bun run seed --yes`. Chi tiết: `memory/notes/seed-data.md` |
+| 2.15 | Upload an toàn: tổng ≤ 4MB / lần, 20 lần / phút / user, chặn tên có `%` / bắt đầu hoặc kết thúc bằng dấu chấm; ảnh sách chỉ nằm trong `/$book-image/`, xoá / sửa sách thì tự xoá ảnh, dọn ảnh mồ côi mỗi giờ; vá lỗ xoá sách có thể xoá thư mục ngoài upload | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-05](mobile-sync.md#2026-11-21-05) |
+| 2.16 | Trang Book 20 cuốn / trang + thanh phân trang (`?page=`); bảng có phân trang giữ nguyên vị trí khi chuyển trang; chip sách đã chọn ở form khuyến mãi không tràn | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-05](mobile-sync.md#2026-11-21-05) |
 
 ## Đợt 3: Tính năng mới
 
 | # | Việc | Trạng thái | Ghi chú |
 |---|---|---|---|
-| 3.1 | **Đơn hàng**: giỏ hàng, tạo đơn, áp mã KM, tồn kho, trạng thái `PENDING → PAID → SHIPPED` / `CANCELLED` | ⏳ | Đổi schema (Order, OrderItem, tồn kho ở Book) |
+| 3.1 | **Đơn hàng**: giỏ hàng, tạo đơn, áp mã KM, tồn kho, trạng thái `PENDING → PAID → SHIPPED` / `CANCELLED` | 🚧 2026-11-21 | Xong 2026-11-21: backend `/api/order` (báo giá, đặt đơn, danh sách / chi tiết / huỷ đơn của mình) + UI giỏ hàng (lưu ở trình duyệt), thanh toán 4 bước (giỏ → địa chỉ giao → xác nhận → hoàn tất), Đơn hàng của tôi, chi tiết + huỷ đơn. Còn: áp mã KM khi thanh toán, tồn kho, `PAID → SHIPPED`, màn admin quản lý đơn. Chi tiết: [mobile-sync.md#2026-11-21-01](mobile-sync.md#2026-11-21-01), [#2026-11-21-04](mobile-sync.md#2026-11-21-04) |
 | 3.2 | **Phân quyền theo vai trò** (admin / staff / viewer) | ⏳ | Đổi schema User, guard theo role |
 | 3.3 | Import / Export CSV cho sách và user | ⏳ | |
 | 3.4 | Nhật ký hoạt động (ai sửa gì, lúc nào) | ⏳ | |

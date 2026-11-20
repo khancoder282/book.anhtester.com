@@ -18,6 +18,7 @@ export const promotion: Translation<typeof en> = {
     freeShipping: 'Miễn phí ship',
   },
   title: 'Quản lý khuyến mãi',
+  subtitle: 'Mã giảm giá gắn với sách và thời gian áp dụng.',
   newPromotion: 'Thêm khuyến mãi',
   columns: {
     code: 'MÃ',

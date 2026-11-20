@@ -79,6 +79,8 @@ Prisma client được generate vào `backend/src/prisma/`, không phải `node_
 - `src/plugins/`: `auth.ts` (guard), `jwt-app.ts`, `black-list-token.ts`, `filterTable.ts` (phân trang, sort, search), `logging-file.ts`, `middle-prisma.ts`.
 - Auth: `POST /api/register`, `POST /api/login` (trả access token, refresh token lưu hash trong `UserRefreshToken`), `POST /api/refetch-token`, `GET /api/me`.
 - Không có phân quyền role: mọi user đều như nhau.
+- Upload (chốt 2026-11-21): **tổng các file trong một lần upload ≤ 4MB**, tối đa 20 lần / phút / user, tên không chứa `%` / không bắt đầu hay kết thúc bằng dấu chấm. Ảnh sách chỉ nằm trong `/$book-image/`; xoá / sửa sách thì tự xoá ảnh không còn dùng, server dọn ảnh mồ côi mỗi giờ (`utils/book-images.ts`). Không bao giờ xoá file theo đường dẫn client gửi mà chưa qua `resolveUpload` + kiểm nằm trong thư mục cho phép.
+- Trang Book hiển thị **20 cuốn / trang** + thanh phân trang (`?page=`), chốt 2026-11-21.
 
 ## Cấu trúc frontend
 
@@ -87,6 +89,8 @@ Prisma client được generate vào `backend/src/prisma/`, không phải `node_
 - `src/routes/`, `src/layouts/`, `src/theme/`, `src/store/` (zustand).
 - `src/locales/`: đa ngôn ngữ vi/en (chốt 2026-11-20). **Mọi chữ hiển thị mới phải qua `t()`** của `useTranslate()`, thêm khoá ở `en/<ns>.ts` rồi `vi/<ns>.ts`. Mặc định `en`. Không dịch message từ backend. Chi tiết: [memory/features/i18n.md](memory/features/i18n.md).
 - Link Swagger trên trang chủ là `/swagger` (tương đối), nên Vite cần proxy `/swagger` khi dev.
+- **Giao diện theo AT UI kit** (chốt 2026-11-21, tone lấy từ repo LMS `anhtester_lms`, `public/build/css/at-ui.css`): **cam** (`color="secondary"`) = hành động chính, 1 nút / màn; **xanh lá logo** (`primary`) = phụ / đang chọn; **xanh dương** (`info`) = thông tin / xem trước; **đỏ** (`error`) = xoá. Tone phụ (`sky` xanh dương nhạt, `indigo`, `cyan`, `purple`, `pink`, `teal`, `mint`, `amber`) dùng qua `src/theme/at-tones.ts` (`atGrad`, `atBg`, `atInk`, `toneOf`), không tự đặt mã màu rời rạc. Tiêu đề trang dùng `PageHeader`. Chữ to hơn mặc định của template (body1 17px, body2 15.5px) cho mọi trang. Sidebar thu gọn chỉ nhớ theo trình duyệt (localStorage). Chi tiết: [memory/features/ui-theme.md](memory/features/ui-theme.md).
+- Icon Iconify phải thêm vào `src/components/iconify/icon-sets.ts` (bản offline, kiểu `IconifyName` chặt) trước khi dùng.
 
 ## MCP để test (`.mcp.json`)
 

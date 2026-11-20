@@ -7,12 +7,23 @@ import fileController from "./routers/file-controller";
 import bookController from "./routers/book-controller";
 import categoryController from "./routers/category-controller";
 import promotionController from "./routers/promotion-controller";
+import orderController from "./routers/order-controller";
 import path from "path";
 import dayjs from "dayjs";
 import { addressController } from "./routers/address-controller";
 import fs from "fs";
 import databaseController from "./routers/database-controller";
 import { UPLOAD_ROOT, resolveInside, resolveUpload, serveFile } from "./utils/upload-security";
+import { prisma } from "./regis";
+import { sweepOrphanBookImages } from "./utils/book-images";
+
+// Dọn ảnh sách mồ côi (upload rồi bỏ dở, không sách nào dùng, cũ hơn 24 giờ): lúc khởi động và mỗi giờ (2026-11-21)
+const sweepBookImages = () =>
+  sweepOrphanBookImages(prisma)
+    .then((n) => n && console.log(`[book-images] removed ${n} orphan image(s)`))
+    .catch((e) => console.error("[book-images] sweep failed", e instanceof Error ? e.message : e));
+setTimeout(sweepBookImages, 30_000);
+setInterval(sweepBookImages, 60 * 60 * 1000);
 
 const ASSETS_ROOT = path.resolve(process.cwd(), "public", "assets");
 
@@ -120,6 +131,7 @@ new Elysia()
       .use(fileController)
       .use(bookController)
       .use(promotionController)
+      .use(orderController)
       .use(addressController)
       .use(databaseController)
   )

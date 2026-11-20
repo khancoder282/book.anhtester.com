@@ -19,6 +19,7 @@ import { createPaletteChannel } from 'minimal-shared/utils';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
+import { themeConfig } from './theme/theme-config';
 import { useThemeData, generateColorPalette } from './hooks/use-theme-data';
 
 // ----------------------------------------------------------------------
@@ -32,6 +33,10 @@ export default function App({ children }: AppProps) {
   useRouteTitle();
   const { lang, t } = useTranslate();
   const { primary = '#42BC40' } = useThemeData();
+  // Màu mặc định (xanh lá logo) dùng đúng palette AT UI kit; user chọn màu khác thì sinh palette từ màu đó
+  const primaryPalette = createPaletteChannel(
+    primary.toUpperCase() === '#42BC40' ? themeConfig.palette.primary : generateColorPalette(primary)
+  );
 
   return (
     <ThemeProvider
@@ -49,16 +54,8 @@ export default function App({ children }: AppProps) {
           },
         },
         colorSchemes: {
-          dark: {
-            palette: {
-              primary: createPaletteChannel(generateColorPalette(primary)),
-            },
-          },
-          light: {
-            palette: {
-              primary: createPaletteChannel(generateColorPalette(primary)),
-            },
-          },
+          dark: { palette: { primary: primaryPalette } },
+          light: { palette: { primary: primaryPalette } },
         },
       }}
     >

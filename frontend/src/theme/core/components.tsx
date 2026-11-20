@@ -6,6 +6,8 @@ import SvgIcon from '@mui/material/SvgIcon';
 
 import { Iconify } from 'src/components/iconify';
 
+import { atGrad, atGlow } from '../at-tones';
+
 // ----------------------------------------------------------------------
 
 const MuiBackdrop: Components<Theme>['MuiBackdrop'] = {
@@ -19,11 +21,40 @@ const MuiBackdrop: Components<Theme>['MuiBackdrop'] = {
   },
 };
 
+// Nút đặc kiểu AT UI kit: gradient (light → main) + bóng cùng màu + viền sáng phía trên,
+// sáng lên khi hover, nhún khi bấm. Lấy theo palette nên đổi màu chủ đạo ở Cài đặt vẫn khớp.
+const CONTAINED_COLORS = ['primary', 'secondary', 'info', 'success', 'warning', 'error'] as const;
+
 const MuiButton: Components<Theme>['MuiButton'] = {
   defaultProps: {
     disableElevation: true,
   },
   styleOverrides: {
+    root: ({ theme, ownerState }) => {
+      const color = ownerState.color ?? 'primary';
+      const isPalette = (CONTAINED_COLORS as readonly string[]).includes(color);
+      const p = isPalette ? theme.vars.palette[color as (typeof CONTAINED_COLORS)[number]] : null;
+      const grad = p ? `linear-gradient(135deg, ${p.light}, ${p.main})` : atGrad('slate');
+      const glow = p ? `0 4px 12px ${varAlpha(p.mainChannel, 0.3)}` : atGlow('slate');
+      const glowHover = p ? `0 6px 16px ${varAlpha(p.mainChannel, 0.38)}` : atGlow('slate');
+      return {
+        borderRadius: 11,
+        transition:
+          'filter .15s ease, box-shadow .15s ease, transform .08s ease, background-color .15s ease',
+        '&:active:not(.Mui-disabled)': { transform: 'translateY(1px) scale(.97)' },
+        ...(ownerState.variant === 'contained' && {
+          color: '#fff',
+          backgroundImage: grad,
+          boxShadow: `${glow}, var(--at-gloss)`,
+          '&:hover': {
+            color: '#fff',
+            filter: 'brightness(1.06) saturate(1.05)',
+            boxShadow: `${glowHover}, var(--at-gloss)`,
+          },
+          '&.Mui-disabled': { backgroundImage: 'none', boxShadow: 'none' },
+        }),
+      };
+    },
     containedInherit: ({ theme }) => ({
       color: theme.vars.palette.common.white,
       backgroundColor: theme.vars.palette.grey[800],
@@ -32,6 +63,7 @@ const MuiButton: Components<Theme>['MuiButton'] = {
         backgroundColor: theme.vars.palette.grey[800],
       },
     }),
+    sizeSmall: { borderRadius: 10 },
     sizeLarge: {
       minHeight: 48,
     },
@@ -51,8 +83,10 @@ const MuiCard: Components<Theme>['MuiCard'] = {
     root: ({ theme }) => ({
       zIndex: 0,
       position: 'relative',
-      boxShadow: theme.vars.customShadows.card,
-      borderRadius: Number(theme.shape.borderRadius) * 2,
+      // AT UI panel: viền mảnh + bóng nhẹ, bo 16px
+      border: '1px solid var(--at-line)',
+      boxShadow: 'var(--at-shadow)',
+      borderRadius: 16,
     }),
   },
 };
@@ -71,8 +105,19 @@ const MuiCardHeader: Components<Theme>['MuiCardHeader'] = {
 
 const MuiOutlinedInput: Components<Theme>['MuiOutlinedInput'] = {
   styleOverrides: {
+    root: ({ theme }) => ({
+      borderRadius: 11,
+      transition: 'box-shadow .15s ease',
+      '&.Mui-focused': {
+        boxShadow: `0 0 0 3px ${varAlpha(theme.vars.palette.primary.lightChannel, 0.2)}`,
+      },
+      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+        borderColor: theme.vars.palette.primary.main,
+      },
+    }),
     notchedOutline: ({ theme }) => ({
-      borderColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.2),
+      borderWidth: 1.5,
+      borderColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.24),
     }),
   },
 };
@@ -105,13 +150,30 @@ const MuiPaper: Components<Theme>['MuiPaper'] = {
   },
 };
 
+// Đầu bảng kiểu nhãn AT UI (.at-label): chữ in hoa nhỏ, giãn chữ, nền "sunken"
 const MuiTableCell: Components<Theme>['MuiTableCell'] = {
   styleOverrides: {
+    root: {
+      borderBottomColor: 'var(--at-line)',
+    },
     head: ({ theme }) => ({
-      fontSize: theme.typography.pxToRem(14),
+      fontSize: theme.typography.pxToRem(13),
+      letterSpacing: '0.05em',
+      textTransform: 'uppercase',
       color: theme.vars.palette.text.secondary,
-      fontWeight: theme.typography.fontWeightSemiBold,
-      backgroundColor: theme.vars.palette.background.neutral,
+      fontWeight: theme.typography.fontWeightBold,
+      backgroundColor: 'var(--at-sunken)',
+    }),
+  },
+};
+
+const MuiTableRow: Components<Theme>['MuiTableRow'] = {
+  styleOverrides: {
+    root: ({ theme }) => ({
+      transition: 'background-color .15s',
+      '&.MuiTableRow-hover:hover': {
+        backgroundColor: varAlpha(theme.vars.palette.primary.lightChannel, 0.06),
+      },
     }),
   },
 };
@@ -391,6 +453,7 @@ export const components = {
   MuiMenuItem,
   MuiCheckbox,
   MuiTableCell,
+  MuiTableRow,
   MuiCardHeader,
   MuiOutlinedInput,
   MuiFormControlLabel,

@@ -89,4 +89,16 @@ export const components = {
     close: 'Close',
     clear: 'Clear',
   },
+  lightbox: {
+    zoomIn: 'Zoom in (+)',
+    zoomOut: 'Zoom out (-)',
+    rotate: 'Rotate 90°',
+    reset: 'Reset (0)',
+    openOriginal: 'Open original image',
+    close: 'Close (Esc)',
+    prev: 'Previous image (←)',
+    next: 'Next image (→)',
+    image: 'Image',
+    hint: 'Scroll or double-click to zoom · drag to move · ← → to switch · Esc to close',
+  },
 };

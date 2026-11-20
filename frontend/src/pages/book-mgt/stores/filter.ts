@@ -33,6 +33,7 @@ export function useFilterBook() {
     (v: keyof typeof mappingSort) => {
       if (v === 'Feature') sParams.delete('sort');
       sParams.set('sort', v);
+      sParams.delete('page'); // đổi bộ lọc / sắp xếp thì về trang 1
       setSParams(sParams);
     },
     [sParams, setSParams]
@@ -53,6 +54,7 @@ export function useFilterBook() {
     (v: string) => {
       if (v) sParams.set('searchName', v);
       else sParams.delete('searchName');
+      sParams.delete('page'); // đổi bộ lọc / sắp xếp thì về trang 1
       setSParams(sParams);
     },
     [sParams, setSParams]
@@ -63,6 +65,7 @@ export function useFilterBook() {
     (v: string) => {
       if (v) sParams.set('category', v);
       else sParams.delete('category');
+      sParams.delete('page'); // đổi bộ lọc / sắp xếp thì về trang 1
       setSParams(sParams);
     },
     [sParams, setSParams]
@@ -87,6 +90,7 @@ export function useFilterBook() {
       else sParams.delete('from');
       if (v.to) sParams.set('to', v.to.toString());
       else sParams.delete('to');
+      sParams.delete('page'); // đổi bộ lọc / sắp xếp thì về trang 1
       setSParams(sParams);
     },
     [sParams, setSParams]
@@ -107,7 +111,8 @@ export function useFilterBook() {
           },
         }),
         ...(searchName && {
-          OR: ['name', 'description', 'slug'].map((field) => ({
+          // Tìm cả tác giả, NXB, ISBN (ô tìm ở băng rôn trang Book, 2026-11-21)
+          OR: ['name', 'description', 'slug', 'author', 'publisher', 'isbn'].map((field) => ({
             [field]: {
               contains: searchName,
             },

@@ -129,7 +129,7 @@ export const book: Translation<typeof en> = {
     slugRequired: 'Slug là bắt buộc.',
     slugMaxLength: 'Slug phải ít hơn 100 ký tự.',
     descriptionMaxLength: 'Mô tả phải ít hơn 500 ký tự.',
-    fileSize: 'Kích thước tệp phải nhỏ hơn 5MB',
+    fileSize: 'Tổng dung lượng ảnh mới mỗi lần lưu tối đa 4MB.',
     maxFiles: 'Chỉ được tải lên tối đa 30 tệp',
     minFiles: 'Phải tải lên ít nhất 1 tệp',
     priceRequired: 'Giá là bắt buộc.',

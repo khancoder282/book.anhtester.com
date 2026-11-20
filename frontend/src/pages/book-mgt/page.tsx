@@ -1,93 +1,86 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
-import { Box, Grid, Button, Typography } from '@mui/material';
-
-import { RouterLink } from 'src/routes/components';
+import { Grid, Stack, Typography, Pagination } from '@mui/material';
 
 import { useRequest } from 'src/hooks/use-request';
-import { useThrottle } from 'src/hooks/use-throttle';
 import { useScrollTop } from 'src/hooks/use-scroll-top';
 
 import { useAuth } from 'src/store/auth';
 import { useTranslate } from 'src/locales';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { Iconify } from 'src/components/iconify';
 import { NoData } from 'src/components/grid-view/components/not-data';
 import { ButtonScrollTop } from 'src/components/buttons/button-scroll-top';
 
 import { getBooks } from './api/get-books';
+import { Category } from './api/categorys';
 import { useFilterBook } from './stores/filter';
 import { FilterBook } from './components/filter-book';
 import { CardBookView } from './components/card-book-view';
-import { CardBookViewSmoll } from './components/card-book-view-smoll';
+import { BookHero, NewBookButton } from './components/book-hero';
+
+/** Số sách mỗi trang (user chốt 2026-11-21: 20 cuốn, phần còn lại chuyển trang bằng thanh phân trang) */
+export const BOOKS_PER_PAGE = 20;
 
 export function BookView() {
   const { t } = useTranslate();
   const { auth } = useAuth();
-  const [loading, setLoading] = useState(false);
   const config = useFilterBook();
-  const { filter, sortObj } = config;
+  const { filter, sortObj, searchParams } = config;
+  const [, setSearchParams] = useSearchParams();
   const [showScrollTop] = useScrollTop();
+  const resultsRef = useRef<HTMLDivElement>(null);
 
-  const rowsPerPage = 36;
-
-  const callData = useCallback(
-    ({ page: pagef }: { page?: number } = {}) =>
-      getBooks({
-        ...filter,
-        sortBy: sortObj.orderBy,
-        sort: sortObj.order!,
-        page: pagef || 1,
-        limit: rowsPerPage,
-      }),
-    [filter, sortObj]
-  );
+  // Trang hiện tại nằm trên URL (?page=), đổi bộ lọc / sắp xếp thì về trang 1 (stores/filter.ts)
+  const page = Math.max(1, Number(searchParams.get('page')) || 1);
+  const setPage = (p: number) => {
+    const next = new URLSearchParams(searchParams);
+    if (p <= 1) next.delete('page');
+    else next.set('page', String(p));
+    setSearchParams(next);
+    resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const {
-    setData,
-    data: { list = [], pagination: { totalPage, currentPage } } = {
+    loading,
+    data: { list = [], pagination: { totalPage, total } } = {
       list: [],
-      pagination: {
-        currentPage: 0,
-        totalPage: 0,
-      },
+      pagination: { totalPage: 0, total: 0 },
     },
-  } = useRequest(callData);
-
-  const hasMore = useMemo(() => currentPage < Math.min(totalPage, 10), [currentPage, totalPage]);
-
-  const handleScroll = useThrottle(
-    useCallback(async () => {
-      const scrollTop = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-
-      const scrolledPercent = (scrollTop + windowHeight) / documentHeight;
-
-      if (scrolledPercent >= 0.8 && !loading && hasMore) {
-        setLoading(true);
-        callData({ page: currentPage + 1 })
-          .then((e) => {
-            setData((prev) => ({
-              list: (prev?.list ?? []).concat(e.list),
-              pagination: e.pagination,
-            }));
-          })
-          .finally(() => setLoading(false));
-      }
-    }, [callData, currentPage, hasMore, loading, setData]),
-    300
+  } = useRequest(
+    useCallback(
+      () =>
+        getBooks({
+          ...filter,
+          sortBy: sortObj.orderBy,
+          sort: sortObj.order!,
+          page,
+          limit: BOOKS_PER_PAGE,
+        }),
+      [filter, sortObj, page]
+    )
   );
+  const from = total === 0 ? 0 : (page - 1) * BOOKS_PER_PAGE + 1;
+  const to = Math.min(page * BOOKS_PER_PAGE, total);
 
-  useEffect(() => {
-    const onScroll = () => handleScroll();
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-    };
-  }, [handleScroll]);
+  // Băng rôn: 3 sách xem nhiều nhất + tổng số sách / thể loại (không phụ thuộc bộ lọc)
+  const { data: featured } = useRequest(
+    useCallback(
+      () =>
+        getBooks({
+          // Khách chỉ thấy sách đang bán (giống danh sách bên dưới, xem stores/filter.ts)
+          search: auth ? '' : JSON.stringify({ status: 'AVAILABLE' }),
+          sortBy: 'desc',
+          sort: 'viewCount',
+          page: 1,
+          limit: 3,
+        }),
+      [auth]
+    )
+  );
+  const { data: categories = [] } = useRequest(useCallback(() => Category.get(), []));
+  const categoryCount = categories.filter((c) => c.isActive && c.bookCount > 0).length;
 
   const renderLinkNew = (() => {
     const path = '/book-management/handle';
@@ -101,79 +94,65 @@ export function BookView() {
   })();
 
   return (
-    <DashboardContent>
-      <Box
-        sx={{
-          mb: 5,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          {t('book.title')}
-        </Typography>
-        {auth && (
-          <Button
-            variant="contained"
-            color="inherit"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            LinkComponent={RouterLink}
-            href={renderLinkNew}
-          >
-            {t('book.newBook')}
-          </Button>
-        )}
-      </Box>
+    <DashboardContent maxWidth="xl">
+      <BookHero
+        total={featured?.pagination.total ?? 0}
+        categoryCount={categoryCount}
+        featured={featured?.list ?? []}
+        search={config.searchName}
+        onSearch={config.setSearchName}
+        action={auth && <NewBookButton href={renderLinkNew} />}
+      />
 
       <FilterBook config={config} />
 
+      <Typography
+        ref={resultsRef}
+        variant="body2"
+        color="text.secondary"
+        sx={{ mb: 2, scrollMarginTop: 96 }}
+        data-testid="book-results"
+      >
+        {t('bookstore.results', { from, to, total })}
+        {config.searchName && ` ${t('bookstore.resultsFor', { keyword: config.searchName })}`}
+      </Typography>
+
       <Grid
         container
-        columns={{
-          xs: 1,
-          sm: 2,
-          md: 4,
-        }}
-        spacing={2}
+        columns={{ xs: 2, sm: 3, md: 4 }}
+        spacing={{ xs: 1.5, sm: 2.5 }}
+        sx={{ opacity: loading ? 0.55 : 1, transition: 'opacity .2s' }}
       >
-        {list.map((item, i) => (
-          <Grid size={i == 0 && !auth ? 2 : 1} key={item.id}>
-            {i < 3 && !auth ? (
-              <CardBookViewSmoll book={item} isFirst={i === 0} />
-            ) : (
-              <CardBookView book={item} isEdit={!!auth} />
-            )}
+        {list.map((item) => (
+          <Grid size={1} key={item.id}>
+            <CardBookView book={item} isEdit={!!auth} />
           </Grid>
         ))}
       </Grid>
 
-      <Box display="flex" justifyContent="center" mt={5}>
-        {hasMore ? (
-          <Typography variant="subtitle2" color="textPrimary" display="flex" alignItems="center">
-            <Iconify
-              sx={{ animation: 'spin 1s linear infinite', mr: 1 }}
-              icon="mingcute:loading-fill"
-            />
-            {t('book.loadingMore')}
-          </Typography>
-        ) : (
-          list.length > 300 && (
-            <Button
-              variant="outlined"
-              color="inherit"
-              startIcon={<Iconify icon="eva:arrow-ios-upward-fill" />}
-              onClick={() =>
-                window.scrollTo({
-                  top: 0,
-                  behavior: 'smooth',
-                })
-              }
-            >
-              {t('book.limitReached', { count: list.length })}
-            </Button>
-          )
-        )}
-      </Box>
+      {totalPage > 1 && (
+        <Stack alignItems="center" sx={{ mt: 5 }}>
+          <Pagination
+            page={Math.min(page, totalPage)}
+            count={totalPage}
+            onChange={(_, p) => setPage(p)}
+            color="primary"
+            shape="rounded"
+            size="large"
+            showFirstButton
+            showLastButton
+            data-testid="book-pagination"
+            sx={{
+              '& .MuiPaginationItem-root': { fontWeight: 600 },
+              '& .MuiPaginationItem-root.Mui-selected': {
+                color: '#fff',
+                backgroundImage: 'var(--at-grad-green)',
+                boxShadow: 'var(--at-glow-green)',
+              },
+            }}
+          />
+        </Stack>
+      )}
 
       {list.length === 0 && <NoData sx={{ minHeight: 350 }} />}
       <ButtonScrollTop in={showScrollTop} />

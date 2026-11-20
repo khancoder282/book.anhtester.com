@@ -61,7 +61,7 @@ export const file: Translation<typeof en> = {
     pathInvalid: 'Đường dẫn chỉ được chứa ký tự a-z, A-Z, 0-9, _, - và /',
     uploadIn: 'Tải lên vào: {path}',
     fileRequired: 'Vui lòng chọn tệp',
-    maxFileSize: 'Mỗi tệp phải nhỏ hơn 5MB',
+    maxFileSize: 'Tổng dung lượng các tệp đã chọn tối đa 4MB.',
     maxFiles: 'Chỉ được tải lên tối đa 20 tệp',
     typeNotAllowed: 'Chỉ được tải lên các loại tệp: {types}',
     removeAll: 'Xoá tất cả',
