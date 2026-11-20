@@ -20,9 +20,9 @@ FILEDIR="upload"
 ```
 
 Những chỗ dễ sai:
-- `.env.example` trên `main` ghi `SECRET`, nhưng code đọc `JWT_SECRET`. Thiếu biến này thì code âm thầm dùng `"secret-key"`.
-- `.env.example` trên `main` ghi `DATABASE_URL="file:./dev.db"` (SQLite), nhưng schema là `mysql`, nên phải đổi.
-- **`PORT` phải khớp với target proxy trong `frontend/vite.config.ts`**: `deploy-vps` dùng 4566, `main` dùng 4544. Lệch cổng thì frontend gọi API sẽ lỗi.
+- `.env.example` trên `main` cũ (trước 2026-11-21) ghi `SECRET`, nhưng code đọc `JWT_SECRET`. Thiếu biến này thì code âm thầm dùng `"secret-key"`.
+- `.env.example` trên `main` cũ ghi `DATABASE_URL="file:./dev.db"` (SQLite), nhưng schema là `mysql`, nên phải đổi.
+- **`PORT` phải khớp với target proxy trong `frontend/vite.config.ts`**: **4566** (`main` cũ trước 2026-11-21 dùng 4544). Lệch cổng thì frontend gọi API sẽ lỗi.
 
 ## Lệnh
 

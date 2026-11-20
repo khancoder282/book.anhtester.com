@@ -24,7 +24,8 @@ Runtime là **Bun** cho cả hai phần (backend dùng `Bun.env`, `Bun.password`
 
 ## Quy tắc git
 
-- Làm việc, commit và push trên nhánh **`deploy-vps`** (`git push origin deploy-vps`). Không commit hay push lên `main`.
+- Làm việc và commit trên nhánh **`deploy-vps`**. Không commit trực tiếp trên nhánh `main`.
+- **Mỗi lần push thì đẩy cả `main`** (chốt 2026-11-21): `git push origin deploy-vps && git push origin deploy-vps:main`. `main` luôn trùng `deploy-vps` (fast-forward). Push `main` bị từ chối vì không fast-forward thì dừng lại hỏi user, **không** force push.
 - Đang ở nhánh khác thì chuyển về `deploy-vps` trước khi commit.
 
 ## Chạy local
@@ -42,8 +43,8 @@ FILEDIR="upload"
 ```
 
 - Biến JWT là `JWT_SECRET`, không phải `SECRET`. Nếu thiếu, code tự lấy giá trị mặc định "secret-key".
-- `PORT` phải khớp với target proxy trong `frontend/vite.config.ts`: **4566** trên nhánh `deploy-vps`, 4544 trên `main`.
-- `schema.prisma` khai báo `provider = "mysql"`. `DATABASE_URL="file:./dev.db"` trong `.env.example` cũ của `main` là sai.
+- `PORT` phải khớp với target proxy trong `frontend/vite.config.ts`: **4566**.
+- `schema.prisma` khai báo `provider = "mysql"`. `DATABASE_URL="file:./dev.db"` trong `.env.example` cũ (bản `main` trước 2026-11-21) là sai.
 
 Lần đầu:
 

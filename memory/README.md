@@ -29,8 +29,8 @@ Cập nhật lần cuối: 2026-11-21, nhánh `deploy-vps`.
 | [notes/build-deploy.md](notes/build-deploy.md) | Build frontend vào backend, những chỗ dễ vướng khi build |
 | [notes/security.md](notes/security.md) | Lỗ hổng và điểm yếu đã xác nhận |
 | [notes/browser-tooling.md](notes/browser-tooling.md) | Browser pane và Playwright MCP, lỗi profile bị giữ |
-| [notes/git-state.md](notes/git-state.md) | Nhánh, stash, các thay đổi chưa commit |
-| [notes/main-vs-deploy-vps.md](notes/main-vs-deploy-vps.md) | Khác biệt giữa `main` và `deploy-vps` |
+| [notes/git-state.md](notes/git-state.md) | Nhánh, stash, cách push |
+| [notes/main-vs-deploy-vps.md](notes/main-vs-deploy-vps.md) | `main` trùng `deploy-vps` từ 2026-11-21 (push cả hai); khác biệt của `main` cũ |
 | [notes/seed-data.md](notes/seed-data.md) | Dữ liệu mẫu: lệnh seed, nội dung, cách sinh ảnh |
 | [notes/testing-pitfalls.md](notes/testing-pitfalls.md) | Bẫy khi test từ shell Windows (mã hoá tiếng Việt, đổi đường dẫn, `/tmp`) và dữ liệu test |
 
