@@ -31,11 +31,14 @@ export function NotFoundView() {
           justifyContent: 'center',
         }}
       >
-        <Typography variant="h3" sx={{ mb: 2 }}>
+        <Typography data-testid="not-found-title" variant="h3" sx={{ mb: 2 }}>
           {t('home.notFound.title')}
         </Typography>
 
-        <Typography sx={{ color: 'text.secondary', maxWidth: 480, textAlign: 'center' }}>
+        <Typography
+          data-testid="not-found-description"
+          sx={{ color: 'text.secondary', maxWidth: 480, textAlign: 'center' }}
+        >
           {t('home.notFound.description')}
         </Typography>
 
@@ -50,7 +53,14 @@ export function NotFoundView() {
           }}
         />
 
-        <Button component={RouterLink} href="/" size="large" variant="contained" color="inherit">
+        <Button
+          data-testid="not-found-home"
+          component={RouterLink}
+          href="/"
+          size="large"
+          variant="contained"
+          color="inherit"
+        >
           {t('home.notFound.goHome')}
         </Button>
       </Container>

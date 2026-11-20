@@ -4,6 +4,10 @@ export const components = {
     clickToDelete: 'Click to delete',
     scrollTop: 'Click to top',
   },
+  password: {
+    show: 'Show password',
+    hide: 'Hide password',
+  },
   dialog: {
     confirmDelete: 'Confirm delete',
     message: 'Message',

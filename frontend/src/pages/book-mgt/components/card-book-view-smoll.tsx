@@ -23,6 +23,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
   return (
     <Card
       id={`book-${book.id}`}
+      data-testid={`book-card-small-${book.slug}`}
       component={RouterLink}
       href={`/book-management/detail/${book.slug}`}
       sx={{ height: 390, position: 'relative', display: 'block', textDecoration: 'none' }}
@@ -34,11 +35,17 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
           options={{ loop: true }}
         >
           {book.picture.map((img) => (
-            <BookCover key={img} src={img} name={book.name} sx={{ flex: '0 0 100%', height: 1 }} />
+            <BookCover
+              key={img}
+              testId="book-card-small-cover"
+              src={img}
+              name={book.name}
+              sx={{ flex: '0 0 100%', height: 1 }}
+            />
           ))}
         </CarouselDefault>
       ) : (
-        <BookCover name={book.name} sx={{ height: 1 }} />
+        <BookCover testId="book-card-small-cover" name={book.name} sx={{ height: 1 }} />
       )}
       <Box
         sx={{
@@ -57,6 +64,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
         {book.promotions?.map((p) => (
           <Label
             key={p.id}
+            data-testid={`book-card-small-promotion-${p.id}`}
             variant="filled"
             color={MappingType[p.type].color}
             startIcon={<Iconify icon={MappingType[p.type].icon} />}
@@ -64,7 +72,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
           />
         ))}
         {book.createdAt && dayjs(book.createdAt) > dayjs().add(-7, 'day') && (
-          <Label variant="filled" color="info" sx={{}}>
+          <Label data-testid="book-card-small-new" variant="filled" color="info" sx={{}}>
             {t('book.newLabel')}
           </Label>
         )}
@@ -95,6 +103,7 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
         </Typography>
         <Link color="white">
           <Typography
+            data-testid="book-card-small-name"
             variant={isFirst ? 'h6' : 'subtitle2'}
             sx={{
               textOverflow: 'ellipsis',
@@ -134,12 +143,18 @@ export function CardBookViewSmoll({ book, isFirst }: { book: BookView; isFirst?:
             <Iconify icon="solar:eye-bold" width={16} />
             {fShortenNumber(book.viewCount)}
           </Box>
-          <Typography variant="h6" position="relative" ml="auto">
+          <Typography
+            data-testid="book-card-small-price"
+            variant="h6"
+            position="relative"
+            ml="auto"
+          >
             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'vnd' }).format(
               book.currentPrice
             )}
             {book.currentPrice !== book.price && (
               <Typography
+                data-testid="book-card-small-old-price"
                 sx={{ textDecoration: 'line-through', opacity: 0.48 }}
                 position="absolute"
                 bottom="100%"

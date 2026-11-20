@@ -19,6 +19,7 @@ export function TableFilterItemView<T>({
   remove,
   isOnly,
   setValue,
+  testId = 'table',
 }: {
   index: number;
   fields: FieldType<T>[];
@@ -26,7 +27,9 @@ export function TableFilterItemView<T>({
   remove: (index: number) => void;
   isOnly: boolean;
   setValue: UseFormSetValue<Fields>;
+  testId?: string;
 }) {
+  const tid = `${testId}-filter`;
   const { t } = useTranslate();
   const size: 'small' | 'medium' = 'medium';
   const [key] = useWatch({
@@ -37,7 +40,12 @@ export function TableFilterItemView<T>({
   const { type, options = [] } = opt as FieldType<T>;
   return (
     <Stack direction="row" spacing={2} alignItems="start">
-      <IconButton id="remove" onClick={() => remove(index)} sx={{ alignSelf: 'center' }}>
+      <IconButton
+        id="remove"
+        data-testid={`${tid}-remove-${index}`}
+        onClick={() => remove(index)}
+        sx={{ alignSelf: 'center' }}
+      >
         <Iconify icon="mingcute:close-line" />
       </IconButton>
       {!isOnly &&
@@ -53,6 +61,7 @@ export function TableFilterItemView<T>({
                 size={size}
                 disabled={index > 1}
                 {...field}
+                SelectDisplayProps={{ 'data-testid': `${tid}-mode-${index}` } as object}
                 sx={{ minWidth: 80, opacity: index > 1 ? 0.4 : 1 }}
               >
                 <MenuItem value="AND">{t('components.filter.and')}</MenuItem>
@@ -75,6 +84,9 @@ export function TableFilterItemView<T>({
               setValue(`fields.${index}.value`, '');
             }}
             label={t('components.filter.field')}
+            slotProps={{
+              select: { SelectDisplayProps: { 'data-testid': `${tid}-field-${index}` } as object },
+            }}
             select
             sx={{ maxWidth: 150 }}
             fullWidth
@@ -95,6 +107,11 @@ export function TableFilterItemView<T>({
             size={size}
             {...field}
             label={t('components.filter.operator')}
+            slotProps={{
+              select: {
+                SelectDisplayProps: { 'data-testid': `${tid}-operator-${index}` } as object,
+              },
+            }}
             select
             sx={{ maxWidth: 150 }}
             fullWidth
@@ -121,6 +138,7 @@ export function TableFilterItemView<T>({
               error={invalid}
               {...field}
               label={t('components.filter.value')}
+              testId={`${tid}-value-${index}`}
               value={dayjs.isDayjs(field.value) ? field.value : null}
               fullWidth
               onChange={(v) => field.onChange(v)}
@@ -140,6 +158,11 @@ export function TableFilterItemView<T>({
               size={size}
               {...field}
               label={t('components.filter.value')}
+              slotProps={{
+                select: {
+                  SelectDisplayProps: { 'data-testid': `${tid}-value-${index}` } as object,
+                },
+              }}
               error={invalid}
               select
               fullWidth
@@ -165,6 +188,7 @@ export function TableFilterItemView<T>({
               size={size}
               {...field}
               label={t('components.filter.value')}
+              slotProps={{ htmlInput: { 'data-testid': `${tid}-value-${index}` } }}
               fullWidth
               error={invalid}
             />
@@ -183,6 +207,11 @@ export function TableFilterItemView<T>({
               size={size}
               {...field}
               label={t('components.filter.value')}
+              slotProps={{
+                select: {
+                  SelectDisplayProps: { 'data-testid': `${tid}-value-${index}` } as object,
+                },
+              }}
               error={invalid}
               fullWidth
               helperText={error?.message}

@@ -2,6 +2,8 @@ import { useWatch, Controller } from 'react-hook-form';
 
 import { Stack, Switch, TextField, useMediaQuery, FormControlLabel } from '@mui/material';
 
+import { textFieldTestId } from 'src/utils/test-id';
+
 import { useTranslate } from 'src/locales';
 
 import { LabelBorder } from 'src/components/label/label-border';
@@ -17,6 +19,11 @@ type ContentUserProps = {
   oldPassword?: boolean;
   isAvatar?: boolean;
   isColumn?: boolean;
+  /**
+   * Tiền tố của `id` và `data-testid` các ô nhập: `<prefix>-name`, `<prefix>-email`, `<prefix>-password`...
+   * Sign up dùng `register`, profile dùng `profile`, dialog thêm / sửa user dùng `user`.
+   */
+  testIdPrefix?: string;
 };
 
 export function ContentUser({
@@ -24,6 +31,7 @@ export function ContentUser({
   oldPassword = false,
   isAvatar = true,
   isColumn = false,
+  testIdPrefix = 'user',
 }: ContentUserProps) {
   const [id, old, pass] = useWatch({
     control: formControl.control,
@@ -31,6 +39,7 @@ export function ContentUser({
   });
 
   const { t } = useTranslate();
+  const tid = (field: string) => `${testIdPrefix}-${field}`;
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   return (
@@ -70,6 +79,7 @@ export function ContentUser({
             }}
             render={({ field, fieldState: { invalid } }) => (
               <AvatarField
+                testId={tid('avatar')}
                 error={invalid}
                 {...field}
                 opt={{ maxSize: 1024 * 1024 * 3, maxFiles: 1 }}
@@ -91,6 +101,8 @@ export function ContentUser({
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <TextField
+              id={tid('name')}
+              slotProps={textFieldTestId(tid('name'))}
               label={t('user.form.name')}
               error={invalid}
               helperText={error?.message}
@@ -111,6 +123,8 @@ export function ContentUser({
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <TextField
+              id={tid('phone')}
+              slotProps={textFieldTestId(tid('phone'))}
               label={t('user.form.phone')}
               error={invalid}
               helperText={error?.message}
@@ -129,7 +143,12 @@ export function ContentUser({
             },
           }}
           render={({ field, fieldState: { invalid, error } }) => (
-            <AddressField error={invalid} helperText={error?.message} {...field} />
+            <AddressField
+              id={tid('address')}
+              error={invalid}
+              helperText={error?.message}
+              {...field}
+            />
           )}
         />
       </Stack>
@@ -163,6 +182,8 @@ export function ContentUser({
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <TextField
+              id={tid('email')}
+              slotProps={textFieldTestId(tid('email'))}
               label={t('user.form.email')}
               error={invalid}
               helperText={error?.message}
@@ -186,6 +207,7 @@ export function ContentUser({
             }}
             render={({ field, fieldState: { invalid, error } }) => (
               <PasswordField
+                id={tid('old-password')}
                 label={t('user.form.oldPassword')}
                 error={invalid}
                 helperText={error?.message}
@@ -213,6 +235,7 @@ export function ContentUser({
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <PasswordField
+              id={tid('password')}
               label={t('user.form.password')}
               error={invalid}
               helperText={error?.message}
@@ -236,6 +259,7 @@ export function ContentUser({
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <PasswordField
+              id={tid('password-confirmation')}
               label={t('user.form.passwordConfirmation')}
               error={invalid}
               helperText={error?.message}
@@ -253,7 +277,12 @@ export function ContentUser({
               <FormControlLabel
                 {...field}
                 checked={field.value}
-                control={<Switch />}
+                control={
+                  <Switch
+                    id={tid('active')}
+                    slotProps={{ input: { 'data-testid': tid('active') } as object }}
+                  />
+                }
                 label={
                   field.value ? t('user.form.activeForLogin') : t('user.form.inactiveForLogin')
                 }

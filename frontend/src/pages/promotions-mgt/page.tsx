@@ -68,6 +68,7 @@ export default function Page() {
         action={
           auth && (
             <Button
+              data-testid="promotion-add"
               variant="contained"
               color="secondary"
               startIcon={<Iconify icon="mingcute:add-line" />}
@@ -80,8 +81,9 @@ export default function Page() {
         }
       />
       <Card>
-        <TableFilterView config={config} filter={fields} />
+        <TableFilterView testId="promotion" config={config} filter={fields} />
         <TableView
+          testId="promotion"
           config={config}
           columns={columns()}
           data={list}
@@ -91,7 +93,12 @@ export default function Page() {
             auth ? (row) => row && <ActionList request={request} row={row} /> : undefined
           }
         />
-        <TablePaginationView total={total} config={config} rowsPerPageList={[5, 10, 15, 20, 25]} />
+        <TablePaginationView
+          testId="promotion"
+          total={total}
+          config={config}
+          rowsPerPageList={[5, 10, 15, 20, 25]}
+        />
       </Card>
     </DashboardContent>
   );

@@ -25,6 +25,11 @@ export const regis = new Elysia()
   .use(
     openapi({
       path: "/swagger",
+      // Favicon của trang Swagger (Scalar) dùng chung icon với frontend (`frontend/public/assets/icon.png`).
+      // Dev: Vite (3039) phục vụ /assets; production: backend phục vụ /assets từ public/.
+      scalar: {
+        favicon: "/assets/icon.png",
+      } as Record<string, unknown>,
       // File Management và Database vẫn chạy (frontend dùng API file để upload ảnh sách)
       // nhưng ẩn khỏi Swagger theo yêu cầu (2026-11-20), giống trang File / Database đã ẩn trên UI.
       exclude: {

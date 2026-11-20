@@ -18,6 +18,7 @@ type TableRowViewProps<T> = {
   };
   isStickyAction?: boolean;
   keyName: keyof T;
+  testId?: string;
 };
 
 export default function TableRowView<T>({
@@ -29,7 +30,9 @@ export default function TableRowView<T>({
   select,
   isStickyAction = false,
   keyName,
+  testId = 'table',
 }: TableRowViewProps<T>) {
+  const rowKey = String(row[keyName]);
   const { setAnchorEl, setRow, setOpen } = usePopupAction();
   const isCheck = useMemo(
     () => select?.selected?.some((item) => item[keyName] === row[keyName]),
@@ -49,6 +52,7 @@ export default function TableRowView<T>({
   );
   return (
     <TableRow
+      data-testid={`${testId}-row-${rowKey}`}
       sx={{
         height,
         cursor: 'pointer',
@@ -60,7 +64,11 @@ export default function TableRowView<T>({
     >
       {select && (
         <TableCell padding="checkbox">
-          <Checkbox checked={isCheck} onClick={handleCheckbox} />
+          <Checkbox
+            checked={isCheck}
+            onClick={handleCheckbox}
+            slotProps={{ input: { 'data-testid': `${testId}-row-select-${rowKey}` } as object }}
+          />
         </TableCell>
       )}
       {columns.map((column, i) => (
@@ -83,6 +91,7 @@ export default function TableRowView<T>({
           }
         >
           <IconButton
+            data-testid={`${testId}-row-menu-${rowKey}`}
             onClick={(e) => {
               setAnchorEl(e.currentTarget);
               setRow(row);

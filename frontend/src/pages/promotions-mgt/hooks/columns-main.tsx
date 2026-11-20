@@ -15,7 +15,12 @@ export const columns: () => Columns<PromotionType>[] = () => [
     label: translate('promotion.columns.code'),
     sort: 'code',
     render: (row) => (
-      <Typography variant="body2" textTransform="uppercase" fontWeight="bold">
+      <Typography
+        data-testid={`promotion-row-code-${row?.id}`}
+        variant="body2"
+        textTransform="uppercase"
+        fontWeight="bold"
+      >
         {row?.code}
       </Typography>
     ),
@@ -23,9 +28,9 @@ export const columns: () => Columns<PromotionType>[] = () => [
   {
     label: translate('promotion.columns.name'),
     sort: 'name',
-    render: ({ name, description }) => (
+    render: ({ id, name, description }) => (
       <Stack overflow="hidden">
-        <Typography variant="body2" noWrap>
+        <Typography data-testid={`promotion-row-name-${id}`} variant="body2" noWrap>
           {name}
         </Typography>
         <Typography color="textSecondary" variant="caption">
@@ -39,6 +44,7 @@ export const columns: () => Columns<PromotionType>[] = () => [
     sort: 'type',
     render: (row) => (
       <Label
+        data-testid={`promotion-row-type-${row?.id}`}
         color={MappingType[row?.type]?.color}
         startIcon={<Iconify icon={MappingType[row?.type]?.icon} />}
         sx={{ mr: 1 }}
@@ -53,7 +59,11 @@ export const columns: () => Columns<PromotionType>[] = () => [
     render: (row) => {
       const status = getPromotionStatus(row);
       return (
-        <Label color={PROMOTION_STATUS_COLOR[status]} data-status={status}>
+        <Label
+          data-testid={`promotion-row-status-${row.id}`}
+          color={PROMOTION_STATUS_COLOR[status]}
+          data-status={status}
+        >
           {translate(`promotion.status.${status}`)}
         </Label>
       );
@@ -63,7 +73,11 @@ export const columns: () => Columns<PromotionType>[] = () => [
     label: translate('promotion.columns.value'),
     sort: 'value',
     render: (row) => (
-      <Label data-promotion-value={row?.value} sx={{ textTransform: 'none' }}>
+      <Label
+        data-testid={`promotion-row-value-${row?.id}`}
+        data-promotion-value={row?.value}
+        sx={{ textTransform: 'none' }}
+      >
         {formatPromotionValue(row)}
       </Label>
     ),

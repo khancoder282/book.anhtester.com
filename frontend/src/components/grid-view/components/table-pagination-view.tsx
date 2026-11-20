@@ -4,6 +4,7 @@ import {
   TextField,
   Pagination,
   useMediaQuery,
+  PaginationItem,
   TablePagination,
 } from '@mui/material';
 
@@ -27,13 +28,17 @@ export function TablePaginationView<T>({
   rowsPerPageList,
   type = 'table',
   labelRowsPerPage,
+  testId = 'table',
 }: {
   config: UseTableReturn<T>;
   total: number;
   rowsPerPageList?: number[];
   type?: 'table' | 'grid';
   labelRowsPerPage?: string;
+  /** Tiền tố data-testid (mặc định 'table') */
+  testId?: string;
 }) {
+  const tid = `${testId}-pagination`;
   const { t } = useTranslate();
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   // Chuyển trang / đổi số dòng: giữ thanh phân trang đứng yên, không để trang bị đẩy lên đầu (2026-11-21)
@@ -44,6 +49,7 @@ export function TablePaginationView<T>({
     return (
       <TablePagination
         ref={ref}
+        data-testid={tid}
         component="div"
         size={isMobile ? 'small' : 'medium'}
         count={total}
@@ -68,6 +74,15 @@ export function TablePaginationView<T>({
         }
         getItemAriaLabel={ariaLabel}
         rowsPerPageOptions={rowsPerPageList}
+        slotProps={{
+          select: { SelectDisplayProps: { 'data-testid': `${tid}-rows-per-page` } as object },
+          actions: {
+            firstButton: { 'data-testid': `${tid}-first` } as object,
+            previousButton: { 'data-testid': `${tid}-previous` } as object,
+            nextButton: { 'data-testid': `${tid}-next` } as object,
+            lastButton: { 'data-testid': `${tid}-last` } as object,
+          },
+        }}
       />
     );
   }
@@ -75,6 +90,7 @@ export function TablePaginationView<T>({
   return (
     <Box
       ref={ref}
+      data-testid={tid}
       p={1}
       display="flex"
       alignItems="center"
@@ -88,6 +104,9 @@ export function TablePaginationView<T>({
           select
           size="small"
           color="inherit"
+          slotProps={{
+            select: { SelectDisplayProps: { 'data-testid': `${tid}-rows-per-page` } as object },
+          }}
           value={config.rowsPerPage}
           onChange={(e) => {
             keep();
@@ -116,6 +135,12 @@ export function TablePaginationView<T>({
             ? t('components.table.page', { page: page ?? '' })
             : t('components.table.goToPage', { page: page ?? '' });
         }}
+        renderItem={(item) => (
+          <PaginationItem
+            {...item}
+            data-testid={item.type === 'page' ? `${tid}-page-${item.page}` : `${tid}-${item.type}`}
+          />
+        )}
         sx={{ '& ul': { flexWrap: 'nowrap' } }}
       />
     </Box>

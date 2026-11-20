@@ -17,6 +17,8 @@ import {
 
 import { useRequest } from 'src/hooks/use-request';
 
+import { textFieldTestId } from 'src/utils/test-id';
+
 import { useTranslate } from 'src/locales';
 
 import { Label } from 'src/components/label';
@@ -54,7 +56,7 @@ export function CardProperty() {
         title={t('book.property.title')}
         subheader={t('book.property.subheader')}
         action={
-          <IconButton onClick={() => setExpen(!expen)}>
+          <IconButton data-testid="book-property-toggle" onClick={() => setExpen(!expen)}>
             <Iconify
               sx={{ transition: 'all .1s ease-in-out' }}
               style={{ rotate: !expen ? '0deg' : '90deg' }}
@@ -97,6 +99,7 @@ export function CardProperty() {
                   new Intl.NumberFormat('vi-VN').format(Number(field.value)) + ' VNĐ'
                 }
                 slotProps={{
+                  ...textFieldTestId('book-price'),
                   input: {
                     endAdornment: (
                       <InputAdornment position="end">
@@ -138,6 +141,10 @@ export function CardProperty() {
                 renderInput={(params) => (
                   <TextField
                     {...params}
+                    inputProps={{ ...params.inputProps, 'data-testid': 'book-categories' }}
+                    slotProps={{
+                      formHelperText: { 'data-testid': 'book-categories-error' } as object,
+                    }}
                     label={t('book.property.categories')}
                     error={invalid}
                     helperText={error?.message}
@@ -147,7 +154,7 @@ export function CardProperty() {
                 renderOption={(props, option) => {
                   const count = mapCategory[option]?.bookCount ?? 0;
                   return (
-                    <li {...props} key={option}>
+                    <li {...props} key={option} data-testid={`book-categories-option-${option}`}>
                       <Avatar
                         sx={{
                           bgcolor: 'primary.main',
@@ -174,6 +181,7 @@ export function CardProperty() {
                       <Chip
                         {...props}
                         key={props.key}
+                        data-testid={`book-categories-chip-${tagName}`}
                         label={
                           <Stack direction="row" alignItems="center">
                             <Label

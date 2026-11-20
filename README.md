@@ -199,6 +199,7 @@ memory/                    # ghi chú làm việc
 
 - Bug đã biết: [`docs/bugs/README.md`](docs/bugs/README.md). Xem trước khi báo bug mới để tránh trùng.
 - Giao diện có hai ngôn ngữ, đổi bằng nút **EN / VI** trên header (`#btn-language`), mặc định tiếng Anh. Mở thẳng tiếng Việt bằng `?lang=vi` (vd `http://localhost:3039/book-management?lang=vi`); lựa chọn được nhớ trong `localStorage` (khoá `lang`). Thông báo trả về từ API luôn là tiếng Anh.
+- Phần tử trên giao diện có `data-testid` để lấy bằng hàm có sẵn của Playwright: `page.getByTestId('login-email')`, `page.getByTestId('login-submit')`. Selenium dùng `By.cssSelector("[data-testid='login-submit']")`; trang Login / Register có thêm `id` cùng tên (`By.id("login-email")`). Ô nhập có `data-testid` ngay trên thẻ `<input>`, dòng lỗi dưới ô là `<tên-ô>-error` (vd `login-email-error`). Danh sách theo màn: [`memory/features/test-ids.md`](memory/features/test-ids.md).
 - Gọi API có tiếng Việt thì dùng script Bun (`fetch`) hoặc Postman. `curl` trong Git Bash trên Windows đổi chữ có dấu thành `?` trước khi gửi.
 - App mobile (repo `mobile-book.anhtester.com`) mặc định gọi API production `https://book.anhtester.com`, không gọi backend local.
 

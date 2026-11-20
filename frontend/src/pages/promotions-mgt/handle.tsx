@@ -124,6 +124,7 @@ export default function Handle() {
       >
         <Breadcrumbs sx={{ mt: 0.5 }}>
           <Link
+            data-testid="promotion-breadcrumb-list"
             component={RouterLink}
             href="/promotion-book-management"
             color="textPrimary"
@@ -158,7 +159,11 @@ export default function Handle() {
                   <FormControlLabel
                     checked={field.value}
                     onChange={(_, c) => field.onChange(c)}
-                    control={<Switch />}
+                    control={
+                      <Switch
+                        slotProps={{ input: { 'data-testid': 'promotion-active' } as object }}
+                      />
+                    }
                     label={
                       field.value ? t('promotion.handle.active') : t('promotion.handle.inactive')
                     }
@@ -170,6 +175,7 @@ export default function Handle() {
 
             <Button
               //   disabled={!isDirty || isLoading}
+              data-testid="promotion-reset"
               sx={{ ml: 'auto' }}
               size="large"
               color="inherit"
@@ -184,6 +190,7 @@ export default function Handle() {
               variant="contained"
               color="secondary"
               type="submit"
+              data-testid="promotion-submit"
             >
               {id ? t('promotion.handle.saveChanges') : t('promotion.handle.create')}
             </Button>
@@ -195,6 +202,7 @@ export default function Handle() {
                 {t('promotion.handle.deleteNote')}
               </Typography>
               <Button
+                data-testid="promotion-delete"
                 variant="outlined"
                 sx={{ alignSelf: 'end' }}
                 startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}

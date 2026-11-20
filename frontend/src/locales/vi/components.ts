@@ -6,6 +6,10 @@ export const components: Translation<typeof en> = {
     clickToDelete: 'Bấm lần nữa để xoá',
     scrollTop: 'Lên đầu trang',
   },
+  password: {
+    show: 'Hiện mật khẩu',
+    hide: 'Ẩn mật khẩu',
+  },
   dialog: {
     confirmDelete: 'Xác nhận xoá',
     message: 'Thông báo',

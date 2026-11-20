@@ -7,6 +7,8 @@ import { Box, Link, Button, TextField, Typography } from '@mui/material';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
+import { textFieldTestId } from 'src/utils/test-id';
+
 import { axios } from 'src/api/axios';
 import { useAuth } from 'src/store/auth';
 import { useTranslate } from 'src/locales';
@@ -47,7 +49,9 @@ export function ContentFieldsLogin() {
           mb: 5,
         }}
       >
-        <Typography variant="h3">{t('auth.signIn.title')}</Typography>
+        <Typography variant="h3" data-testid="login-title">
+          {t('auth.signIn.title')}
+        </Typography>
         <Typography
           variant="body2"
           sx={{
@@ -55,13 +59,22 @@ export function ContentFieldsLogin() {
           }}
         >
           {t('auth.signIn.noAccount')}
-          <Link component={RouterLink} href="/sign-up" variant="subtitle2" sx={{ ml: 0.5 }}>
+          <Link
+            component={RouterLink}
+            href="/sign-up"
+            id="login-sign-up-link"
+            data-testid="login-sign-up-link"
+            variant="subtitle2"
+            sx={{ ml: 0.5 }}
+          >
             {t('auth.signIn.getStarted')}
           </Link>
         </Typography>
       </Box>
       <Box
         component="form"
+        id="login-form"
+        data-testid="login-form"
         noValidate
         onSubmit={formControl.handleSubmit(loginHanle)}
         sx={{
@@ -92,6 +105,9 @@ export function ContentFieldsLogin() {
               error={invalid}
               helperText={error?.message}
               fullWidth
+              id="login-email"
+              autoComplete="email"
+              slotProps={textFieldTestId('login-email')}
               label={t('auth.signIn.emailLabel')}
               sx={{ mb: 3 }}
             />
@@ -116,6 +132,8 @@ export function ContentFieldsLogin() {
               error={invalid}
               helperText={error?.message}
               name="password"
+              id="login-password"
+              autoComplete="current-password"
               label={t('auth.signIn.passwordLabel')}
               sx={{ mb: 3 }}
             />
@@ -127,6 +145,8 @@ export function ContentFieldsLogin() {
           fullWidth
           size="large"
           type="submit"
+          id="login-submit"
+          data-testid="login-submit"
           color="secondary"
           variant="contained"
           sx={{ mb: -2 }}

@@ -3,6 +3,8 @@ import { Controller } from 'react-hook-form';
 
 import { Card, Grid, Divider, Collapse, TextField, CardHeader, IconButton } from '@mui/material';
 
+import { textFieldTestId } from 'src/utils/test-id';
+
 import { useTranslate } from 'src/locales';
 
 import { Iconify } from 'src/components/iconify';
@@ -45,6 +47,7 @@ export function CardMoreInfo() {
           value={field.value ?? ''}
           error={invalid}
           helperText={error?.message}
+          slotProps={textFieldTestId(`book-${name}`)}
         />
       )}
     />
@@ -56,7 +59,7 @@ export function CardMoreInfo() {
         title={t('book.moreInfo.title')}
         subheader={t('book.moreInfo.subheader')}
         action={
-          <IconButton onClick={() => setExpen(!expen)}>
+          <IconButton data-testid="book-more-info-toggle" onClick={() => setExpen(!expen)}>
             <Iconify
               sx={{ transition: 'all .1s ease-in-out' }}
               style={{ rotate: !expen ? '0deg' : '90deg' }}
@@ -99,7 +102,15 @@ export function CardMoreInfo() {
                   value={field.value ?? ''}
                   error={invalid}
                   helperText={error?.message}
-                  slotProps={{ htmlInput: { min: MIN_PUBLISH_YEAR, max: currentYear, step: 1 } }}
+                  slotProps={{
+                    ...textFieldTestId('book-publish-year'),
+                    htmlInput: {
+                      min: MIN_PUBLISH_YEAR,
+                      max: currentYear,
+                      step: 1,
+                      'data-testid': 'book-publish-year',
+                    },
+                  }}
                 />
               )}
             />
@@ -129,7 +140,15 @@ export function CardMoreInfo() {
                   value={field.value ?? ''}
                   error={invalid}
                   helperText={error?.message}
-                  slotProps={{ htmlInput: { min: 1, max: MAX_PAGE_COUNT, step: 1 } }}
+                  slotProps={{
+                    ...textFieldTestId('book-page-count'),
+                    htmlInput: {
+                      min: 1,
+                      max: MAX_PAGE_COUNT,
+                      step: 1,
+                      'data-testid': 'book-page-count',
+                    },
+                  }}
                 />
               )}
             />
@@ -156,7 +175,10 @@ export function CardMoreInfo() {
                   value={field.value ?? ''}
                   error={invalid}
                   helperText={error?.message || t('book.moreInfo.isbnHelper')}
-                  slotProps={{ htmlInput: { maxLength: 20 } }}
+                  slotProps={{
+                    ...textFieldTestId('book-isbn'),
+                    htmlInput: { maxLength: 20, 'data-testid': 'book-isbn' },
+                  }}
                 />
               )}
             />

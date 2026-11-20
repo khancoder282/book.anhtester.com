@@ -10,6 +10,7 @@ export function ButtonScrollTop({ in: show }: { in: boolean }) {
   return (
     <Zoom in={show}>
       <Fab
+        data-testid="scroll-top"
         size="medium"
         onClick={() =>
           window.scrollTo({

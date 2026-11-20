@@ -40,10 +40,18 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
           <Avatar src={formatFilePath(avatarUrl)} />
         </Badge>
         <Stack flex={1} overflow="hidden">
-          <Typography variant="subtitle2" noWrap>
-            {name} {id === user?.id && <Label>{translate('user.you')}</Label>}
+          <Typography data-testid={`user-row-name-${id}`} variant="subtitle2" noWrap>
+            {name}{' '}
+            {id === user?.id && (
+              <Label data-testid={`user-row-you-${id}`}>{translate('user.you')}</Label>
+            )}
           </Typography>
-          <Typography noWrap color="textSecondary" variant="caption">
+          <Typography
+            data-testid={`user-row-email-${id}`}
+            noWrap
+            color="textSecondary"
+            variant="caption"
+          >
             {email}
           </Typography>
         </Stack>
@@ -53,21 +61,33 @@ export const columns: (user: User | null, reload: () => void) => Columns<User>[]
   {
     label: translate('common.fields.phone'),
     sort: 'phone',
-    render: (row) => <Typography variant="body2">{row.phone}</Typography>,
+    render: (row) => (
+      <Typography data-testid={`user-row-phone-${row.id}`} variant="body2">
+        {row.phone}
+      </Typography>
+    ),
   },
   {
     label: translate('common.fields.address'),
     sort: 'address',
-    render: (row) => <Typography variant="body2">{row.address}</Typography>,
+    render: (row) => (
+      <Typography data-testid={`user-row-address-${row.id}`} variant="body2">
+        {row.address}
+      </Typography>
+    ),
   },
   {
     label: translate('user.columns.active'),
     sort: 'isActive',
     render: (row) =>
       row.isActive ? (
-        <Label color="success">{translate('user.status.active')}</Label>
+        <Label data-testid={`user-row-status-${row.id}`} color="success">
+          {translate('user.status.active')}
+        </Label>
       ) : (
-        <Label color="error">{translate('user.status.inactive')}</Label>
+        <Label data-testid={`user-row-status-${row.id}`} color="error">
+          {translate('user.status.inactive')}
+        </Label>
       ),
   },
   {

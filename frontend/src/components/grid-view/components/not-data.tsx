@@ -4,11 +4,12 @@ import { Box, Typography } from '@mui/material';
 
 import { useTranslate } from 'src/locales';
 
-export function NoData({ sx }: { sx?: Sx }) {
+export function NoData({ sx, testId = 'no-data' }: { sx?: Sx; testId?: string }) {
   const { t } = useTranslate();
 
   return (
     <Box
+      data-testid={testId}
       sx={{
         display: 'flex',
         flexDirection: 'column',

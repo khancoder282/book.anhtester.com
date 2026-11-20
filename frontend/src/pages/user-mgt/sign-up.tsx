@@ -50,7 +50,9 @@ export default function SignUp() {
           mb: 5,
         }}
       >
-        <Typography variant="h3">{t('auth.signUp.title')}</Typography>
+        <Typography variant="h3" data-testid="register-title">
+          {t('auth.signUp.title')}
+        </Typography>
         <Typography
           variant="body2"
           sx={{
@@ -58,14 +60,23 @@ export default function SignUp() {
           }}
         >
           {t('auth.signUp.haveAccount')}
-          <Link component={RouterLink} href="/sign-in" variant="subtitle2" sx={{ ml: 0.5 }}>
+          <Link
+            component={RouterLink}
+            href="/sign-in"
+            id="register-sign-in-link"
+            data-testid="register-sign-in-link"
+            variant="subtitle2"
+            sx={{ ml: 0.5 }}
+          >
             {t('auth.signUp.signInLink')}
           </Link>
         </Typography>
       </Box>
-      <ContentUser isColumn isActive={false} isAvatar={false} />
+      <ContentUser isColumn isActive={false} isAvatar={false} testIdPrefix="register" />
       <Button
         size="large"
+        id="register-submit"
+        data-testid="register-submit"
         variant="contained"
         color="secondary"
         startIcon={<Iconify icon="solar:user-plus-bold" />}

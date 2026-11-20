@@ -114,7 +114,9 @@ const ViewCard = ({
   icon,
   color,
   href,
+  testId,
 }: {
+  testId: string;
   title: string;
   total: number;
   unit: string;
@@ -127,6 +129,7 @@ const ViewCard = ({
   // để tiêu đề tiếng Việt dài không bị icon đè lên.
   return (
     <Card
+      data-testid={testId}
       component={Stack}
       gap={2}
       sx={{
@@ -141,6 +144,7 @@ const ViewCard = ({
         href={href}
         aria-label={title}
         data-action="open-page"
+        data-testid={`${testId}-icon-link`}
         sx={{
           width: 52,
           height: 52,
@@ -169,11 +173,16 @@ const ViewCard = ({
           color={color}
           underline="hover"
           data-action="open-page"
+          data-testid={`${testId}-link`}
           sx={{ display: 'inline-block' }}
         >
           <Typography variant="h6">{title}</Typography>
         </Link>
-        <Typography variant="body2" sx={{ mt: 0.5, color: 'text.secondary' }}>
+        <Typography
+          data-testid={`${testId}-total`}
+          variant="body2"
+          sx={{ mt: 0.5, color: 'text.secondary' }}
+        >
           {t('home.stats.total', { count: totalBook, unit })}
         </Typography>
       </Box>
@@ -275,7 +284,7 @@ export default function Page() {
             >
               <Iconify icon="solar:document-add-bold" />
             </Box>
-            <Link component="a" href="/swagger" target="_blank">
+            <Link data-testid="home-swagger-link" component="a" href="/swagger" target="_blank">
               <Typography variant="h6">{t('home.swagger.title')}</Typography>
             </Link>
             <Typography variant="body2" color="textSecondary">
@@ -314,6 +323,7 @@ export default function Page() {
               </Box>
             )}
             <Link
+              data-testid="home-welcome-link"
               color="info"
               underline={!auth ? 'hover' : 'none'}
               {...(!auth && {
@@ -334,6 +344,7 @@ export default function Page() {
         <Grid container spacing={3} columns={{ xs: 1, sm: 2, lg: 4 }}>
           <Grid size={1}>
             <ViewCard
+              testId="home-stat-user"
               total={totalUser}
               title={t('home.stats.user')}
               unit={t('home.stats.users')}
@@ -345,6 +356,7 @@ export default function Page() {
 
           <Grid size={1}>
             <ViewCard
+              testId="home-stat-book"
               total={totalBook}
               title={t('home.stats.book')}
               unit={t('home.stats.books')}
@@ -356,6 +368,7 @@ export default function Page() {
 
           <Grid size={1}>
             <ViewCard
+              testId="home-stat-category"
               total={totalCategory}
               title={t('home.stats.category')}
               unit={t('home.stats.categories')}
@@ -366,6 +379,7 @@ export default function Page() {
           </Grid>
           <Grid size={1}>
             <ViewCard
+              testId="home-stat-promotion"
               total={totalPromotion}
               title={t('home.stats.promotion')}
               unit={t('home.stats.promotions')}
@@ -400,6 +414,8 @@ export default function Page() {
                 defaultValue={1}
                 render={({ field }) => (
                   <Slider
+                    data-testid="home-timeout"
+                    slotProps={{ input: { 'data-testid': 'home-timeout-input' } as object }}
                     valueLabelDisplay="auto"
                     sx={{ height: 12 }}
                     min={0}
@@ -427,7 +443,7 @@ export default function Page() {
                   value={status.find((s) => s.code === field.value) || null}
                   onChange={(_, newValue) => field.onChange(newValue?.code ?? '')}
                   renderOption={(props, option) => (
-                    <li {...props}>
+                    <li {...props} data-testid={`home-status-option-${option.code}`}>
                       <Avatar
                         sx={{ bgcolor: option.color, color: 'white', mr: 1, width: 24, height: 24 }}
                       >
@@ -439,6 +455,10 @@ export default function Page() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
+                      inputProps={{ ...params.inputProps, 'data-testid': 'home-status-code' }}
+                      slotProps={{
+                        formHelperText: { 'data-testid': 'home-status-code-error' } as object,
+                      }}
                       label={t('home.testMessage.statusCode')}
                       variant="outlined"
                       error={!!error}
@@ -448,7 +468,13 @@ export default function Page() {
                 />
               )}
             />
-            <Button type="submit" size="large" variant="contained" sx={{ alignSelf: 'flex-end' }}>
+            <Button
+              data-testid="home-submit"
+              type="submit"
+              size="large"
+              variant="contained"
+              sx={{ alignSelf: 'flex-end' }}
+            >
               {t('common.actions.submit')}
             </Button>
           </Stack>

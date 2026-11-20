@@ -98,6 +98,7 @@ export default function CategoryMgt() {
 
   const openCreate = () =>
     dialog.form({
+      testId: 'category-dialog',
       title: t('category.newCategory'),
       body: {
         name: {
@@ -126,6 +127,7 @@ export default function CategoryMgt() {
 
   const openRename = (row: Categories) =>
     dialog.form({
+      testId: 'category-dialog',
       title: t('category.form.renameTitle', { name: row.name }),
       body: {
         name: {
@@ -208,6 +210,7 @@ export default function CategoryMgt() {
             auth && (
               <Button
                 id="btn-new-category"
+                data-testid="category-add"
                 variant="contained"
                 color="secondary"
                 startIcon={<Iconify icon="mingcute:add-line" />}
@@ -233,7 +236,11 @@ export default function CategoryMgt() {
               placeholder={t('category.searchPlaceholder')}
               sx={{ width: { xs: 1, sm: 320 } }}
               slotProps={{
-                htmlInput: { ...searchInputProps, id: 'search-category' },
+                htmlInput: {
+                  ...searchInputProps,
+                  id: 'search-category',
+                  'data-testid': 'category-search',
+                },
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
@@ -244,7 +251,12 @@ export default function CategoryMgt() {
               }}
             />
             <Box flexGrow={1} />
-            <Typography variant="body2" color="text.secondary" id="category-summary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              id="category-summary"
+              data-testid="category-summary"
+            >
               {search.trim()
                 ? t('category.summaryFiltered', {
                     shown: rows.length,
@@ -257,11 +269,12 @@ export default function CategoryMgt() {
           </Stack>
 
           <TableContainer>
-            <Table id="table-category">
+            <Table id="table-category" data-testid="category-table">
               <TableHead>
                 <TableRow>
                   <TableCell>
                     <TableSortLabel
+                      data-testid="category-sort-name"
                       active={sort.key === 'name'}
                       direction={sort.key === 'name' ? sort.dir : 'asc'}
                       onClick={() => toggleSort('name')}
@@ -272,6 +285,7 @@ export default function CategoryMgt() {
                   <TableCell width={160}>
                     <Tooltip title={t('category.statusHint')}>
                       <TableSortLabel
+                        data-testid="category-sort-isActive"
                         active={sort.key === 'isActive'}
                         direction={sort.key === 'isActive' ? sort.dir : 'asc'}
                         onClick={() => toggleSort('isActive')}
@@ -282,6 +296,7 @@ export default function CategoryMgt() {
                   </TableCell>
                   <TableCell align="right" width={160}>
                     <TableSortLabel
+                      data-testid="category-sort-bookCount"
                       active={sort.key === 'bookCount'}
                       direction={sort.key === 'bookCount' ? sort.dir : 'asc'}
                       onClick={() => toggleSort('bookCount')}
@@ -297,11 +312,13 @@ export default function CategoryMgt() {
                   <TableRow
                     hover
                     key={row.name}
+                    data-testid={`category-row-${row.name}`}
                     data-category={row.name}
                     data-active={row.isActive}
                   >
                     <TableCell>
                       <Typography
+                        data-testid={`category-row-name-${row.name}`}
                         variant="subtitle2"
                         color={row.isActive ? 'text.primary' : 'text.disabled'}
                       >
@@ -317,12 +334,14 @@ export default function CategoryMgt() {
                             slotProps={{
                               input: {
                                 id: `status-${row.name}`,
+                                'data-testid': `category-row-status-${row.name}`,
                                 role: 'switch',
                                 'aria-label': t('category.statusToggle', { name: row.name }),
-                              },
+                              } as object,
                             }}
                           />
                           <Typography
+                            data-testid={`category-row-status-label-${row.name}`}
                             variant="body2"
                             color={row.isActive ? 'success.main' : 'text.disabled'}
                           >
@@ -332,7 +351,10 @@ export default function CategoryMgt() {
                           </Typography>
                         </Stack>
                       ) : (
-                        <Label color={row.isActive ? 'success' : 'default'}>
+                        <Label
+                          data-testid={`category-row-status-label-${row.name}`}
+                          color={row.isActive ? 'success' : 'default'}
+                        >
                           {t(row.isActive ? 'category.status.active' : 'category.status.inactive')}
                         </Label>
                       )}
@@ -345,6 +367,7 @@ export default function CategoryMgt() {
                           component={RouterLink}
                           href={bookLink(row.name)}
                           data-action="view-books"
+                          data-testid={`category-row-books-${row.name}`}
                           aria-label={t('category.viewBooks', {
                             count: row.bookCount,
                             name: row.name,
@@ -372,6 +395,7 @@ export default function CategoryMgt() {
                         <Tooltip title={t('common.actions.rename')}>
                           <IconButton
                             data-action="rename"
+                            data-testid={`category-row-rename-${row.name}`}
                             aria-label={`${t('common.actions.rename')} ${row.name}`}
                             onClick={() => openRename(row)}
                           >
@@ -381,6 +405,7 @@ export default function CategoryMgt() {
                         <Tooltip title={t('common.actions.delete')}>
                           <IconButton
                             data-action="delete"
+                            data-testid={`category-row-delete-${row.name}`}
                             aria-label={`${t('common.actions.delete')} ${row.name}`}
                             color="error"
                             onClick={() => openDelete(row)}
@@ -395,7 +420,7 @@ export default function CategoryMgt() {
                 {!loading && rows.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={auth ? 4 : 3} sx={{ py: 3 }}>
-                      <NoData sx={{ py: 3 }} />
+                      <NoData testId="category-no-data" sx={{ py: 3 }} />
                     </TableCell>
                   </TableRow>
                 )}

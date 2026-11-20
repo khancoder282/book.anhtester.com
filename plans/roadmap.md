@@ -48,6 +48,7 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 2.19 | Mục **Liên hệ** ghim ở đáy sidebar, mở trang `/contact` trong dashboard (cùng nội dung trang `/help`) | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-08](mobile-sync.md#2026-11-21-08) |
 | 2.20 | Swagger: mọi API có tên ở menu trái (`summary`, tiếng Anh), dòng `METHOD /api/...` ngay dưới tên | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-10](mobile-sync.md#2026-11-21-10) |
 | 2.21 | Sửa 5 lỗi web do repo mobile báo (W21–W25): cột bảng khuyến mãi trong form sách đổi theo ngôn ngữ, mất mạng có toast, lỗi ảnh 422 hiện ở ô ảnh + upload timeout 60s, tab thể loại / dải ảnh nhỏ không xén quầng sáng, dialog toàn màn hình chừa safe area | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-11](mobile-sync.md#2026-11-21-11) |
+| 2.22 | Swagger có **favicon**; gắn `data-testid` (Playwright `getByTestId`) cho phần tử tương tác ở mọi màn, Login / Register có thêm `id` | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-12](mobile-sync.md#2026-11-21-12) |
 
 ## Đợt 3: Tính năng mới
 

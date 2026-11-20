@@ -78,7 +78,13 @@ export default function Setting() {
       <Title>{`${t('user.setting.title')} - ${CONFIG.appName}`}</Title>
       <PageHeader icon="solar:settings-bold-duotone" tone="slate" title={t('user.setting.title')}>
         <Breadcrumbs sx={{ mt: 0.5 }}>
-          <Link component={RouterLink} href="/user-management" color="textPrimary" variant="body2">
+          <Link
+            data-testid="setting-breadcrumb-users"
+            component={RouterLink}
+            href="/user-management"
+            color="textPrimary"
+            variant="body2"
+          >
             {t('user.breadcrumb.userManagement')}
           </Link>
           <Typography variant="body2">{t('user.setting.title')}</Typography>
@@ -97,6 +103,7 @@ export default function Setting() {
               defaultValue="system"
               render={({ field }) => (
                 <Tabs
+                  data-testid="setting-theme-tabs"
                   sx={{ borderRadius: 1, width: 'fit-content' }}
                   type="button"
                   value={field.value}
@@ -105,6 +112,7 @@ export default function Setting() {
                   {tabsTheme.map((tab) => (
                     <Tab
                       key={tab.key}
+                      data-testid={`setting-theme-${tab.key}`}
                       label={t(tab.label)}
                       value={tab.key}
                       iconPosition="start"
@@ -138,9 +146,10 @@ export default function Setting() {
                     <Stack key={key}>
                       {Object.entries(value)
                         .filter(([x]) => Number(x) >= 300 && Number(x) <= 900)
-                        .map(([, color]) => (
+                        .map(([shade, color]) => (
                           <Box
                             key={color}
+                            data-testid={`setting-color-${key}-${shade}`}
                             sx={{
                               aspectRatio: '1 / 1',
                               bgcolor: color,
@@ -172,6 +181,7 @@ export default function Setting() {
         </Card>
         <Box display="flex" justifyContent="flex-end" gap={2}>
           <Button
+            data-testid="setting-reset"
             size="large"
             color="inherit"
             onClick={() => {
@@ -181,6 +191,7 @@ export default function Setting() {
             {t('user.setting.reset')}
           </Button>
           <Button
+            data-testid="setting-save"
             startIcon={<Iconify icon="solar:diskette-bold" />}
             size="large"
             color="inherit"

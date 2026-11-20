@@ -63,16 +63,23 @@ export default function Profile() {
       <Title>{`${t('user.profile.pageTitle')} - ${CONFIG.appName}`}</Title>
       <PageHeader icon="solar:user-rounded-bold" tone="blue" title={t('user.profile.title')}>
         <Breadcrumbs sx={{ mt: 0.5 }}>
-          <Link component={RouterLink} href="/user-management" color="textPrimary" variant="body2">
+          <Link
+            data-testid="profile-breadcrumb-users"
+            component={RouterLink}
+            href="/user-management"
+            color="textPrimary"
+            variant="body2"
+          >
             {t('user.breadcrumb.userManagement')}
           </Link>
           <Typography variant="body2">{t('user.profile.breadcrumb')}</Typography>
         </Breadcrumbs>
       </PageHeader>
       <Card sx={{ p: 3, pt: 4, display: 'flex', flexDirection: 'column' }}>
-        <ContentUser isActive={false} oldPassword />
+        <ContentUser isActive={false} oldPassword testIdPrefix="profile" />
         <Box display="flex" justifyContent="end" mt={3} gap={2}>
           <Button
+            data-testid="profile-reset"
             size="large"
             color="inherit"
             disabled={!isDirty}
@@ -81,6 +88,7 @@ export default function Profile() {
             {t('user.profile.reset')}
           </Button>
           <Button
+            data-testid="profile-save"
             size="large"
             color="secondary"
             variant="contained"

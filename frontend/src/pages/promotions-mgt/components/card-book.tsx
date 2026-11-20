@@ -74,7 +74,7 @@ export function CardBook() {
         title={t('promotion.books.title')}
         subheader={t('promotion.books.subheader')}
         action={
-          <IconButton onClick={() => setExpen(!expen)}>
+          <IconButton data-testid="promotion-books-toggle" onClick={() => setExpen(!expen)}>
             <Iconify
               sx={{ transition: 'all .1s ease-in-out' }}
               style={{ rotate: !expen ? '0deg' : '90deg' }}
@@ -87,8 +87,9 @@ export function CardBook() {
       <Collapse in={expen}>
         <Divider />
         <Stack>
-          <TableFilterView config={config} filter={filter} />
+          <TableFilterView testId="promotion-book" config={config} filter={filter} />
           <TableView
+            testId="promotion-book"
             filter={filter}
             config={config}
             columns={columns()}
@@ -99,6 +100,7 @@ export function CardBook() {
             }}
           />
           <TablePaginationView
+            testId="promotion-book"
             rowsPerPageList={[5, 10, 15, 20, 25]}
             config={config}
             total={total}
@@ -118,6 +120,7 @@ export function CardBook() {
               >
                 {selected.map((item) => (
                   <Chip
+                    data-testid={`selected-book-${item.id}`}
                     title={item.name}
                     sx={{ maxWidth: { xs: 1, sm: 360 } }}
                     avatar={
@@ -132,6 +135,7 @@ export function CardBook() {
                 ))}
                 {selected.length > 1 && (
                   <Chip
+                    data-testid="selected-books-remove-all"
                     onClick={() => setSelected([])}
                     variant="outlined"
                     label={t('promotion.books.removeAll', { count: selected.length })}

@@ -17,6 +17,7 @@ export function LanguagePopover() {
       <Tooltip title={t('common.language')}>
         <Button
           id="btn-language"
+          data-testid="language-button"
           color="inherit"
           size="small"
           aria-label={`${t('common.language')}: ${current.label}`}
@@ -36,11 +37,12 @@ export function LanguagePopover() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuList id="menu-language" sx={{ p: 0.5, minWidth: 160 }}>
+        <MenuList id="menu-language" data-testid="language-menu" sx={{ p: 0.5, minWidth: 160 }}>
           {LANGS.map((option) => (
             <MenuItem
               key={option.value}
               data-lang={option.value}
+              data-testid={`language-option-${option.value}`}
               selected={option.value === lang}
               onClick={() => {
                 setLang(option.value);

@@ -25,7 +25,7 @@ export default function ConfigDialog() {
   }, [setOpen]);
 
   return (
-    <Dialog fullWidth maxWidth="sm" open={open} {...config}>
+    <Dialog data-testid="confirm-dialog" fullWidth maxWidth="sm" open={open} {...config}>
       {content && content.content()}
     </Dialog>
   );

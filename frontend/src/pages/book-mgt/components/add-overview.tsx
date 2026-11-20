@@ -116,7 +116,13 @@ export function AddOverview() {
         title={id ? t('book.form.modifyTitle') : t('book.form.createTitle')}
       >
         <Breadcrumbs sx={{ mt: 0.5 }}>
-          <Link component={RouterLink} href="/book-management" color="textPrimary" variant="body2">
+          <Link
+            data-testid="book-form-breadcrumb-list"
+            component={RouterLink}
+            href="/book-management"
+            color="textPrimary"
+            variant="body2"
+          >
             {t('book.form.breadcrumb')}
           </Link>
           <Typography variant="body2">
@@ -141,7 +147,11 @@ export function AddOverview() {
                 <FormControlLabel
                   checked={field.value === 'AVAILABLE'}
                   onChange={(_, c) => field.onChange(c ? 'AVAILABLE' : 'UNAVAILABLE')}
-                  control={<Switch />}
+                  control={
+                    <Switch
+                      slotProps={{ input: { 'data-testid': 'book-form-available' } as object }}
+                    />
+                  }
                   label={
                     field.value === 'AVAILABLE'
                       ? t('book.form.available')
@@ -153,6 +163,7 @@ export function AddOverview() {
             />
 
             <Button
+              data-testid="book-form-reset"
               disabled={!isDirty || isLoading}
               sx={{ ml: 'auto' }}
               size="large"
@@ -162,6 +173,7 @@ export function AddOverview() {
               {t('book.form.reset')}
             </Button>
             <Button
+              data-testid="book-form-submit"
               size="large"
               loading={isLoading}
               disabled={!isDirty}
@@ -181,6 +193,7 @@ export function AddOverview() {
                 {t('book.form.deleteNote')}
               </Typography>
               <Button
+                data-testid="book-form-delete"
                 variant="outlined"
                 sx={{ alignSelf: 'end' }}
                 startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}

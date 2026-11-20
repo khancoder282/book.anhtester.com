@@ -73,6 +73,7 @@ export function ViewUser() {
         action={
           auth && (
             <Button
+              data-testid="user-add"
               variant="contained"
               color="secondary"
               startIcon={<Iconify icon="solar:user-plus-bold" />}
@@ -90,11 +91,13 @@ export function ViewUser() {
       />
       <Card>
         <TableFilterView
+          testId="user"
           placeholder={t('user.searchPlaceholder')}
           filter={fieldOptions()}
           config={config}
         />
         <TableView
+          testId="user"
           filter={fieldOptions()}
           sticky={{
             isStickyAction: true,
@@ -116,6 +119,7 @@ export function ViewUser() {
                     <Stack>
                       {/* Mỗi user chỉ sửa / xoá được chính mình (API trả 403 với user khác) */}
                       <MenuItem
+                        data-testid={`user-row-edit-${row.id}`}
                         disabled={row?.id !== auth?.id}
                         onClick={() => router.push('/user-management/my-profile')}
                       >
@@ -124,6 +128,7 @@ export function ViewUser() {
                       </MenuItem>
 
                       <MenuItem
+                        data-testid={`user-row-delete-${row.id}`}
                         sx={{ color: 'error.main' }}
                         disabled={row?.id !== auth?.id}
                         onClick={() =>
@@ -149,6 +154,7 @@ export function ViewUser() {
           }
         />
         <TablePaginationView
+          testId="user"
           rowsPerPageList={[5, 10, 15, 20, 25, 50, 100]}
           type="grid"
           total={total}

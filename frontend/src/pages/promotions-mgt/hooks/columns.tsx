@@ -11,7 +11,7 @@ export const columns: () => Columns<BookView>[] = () => [
   {
     label: translate('promotion.books.columns.name'),
     sort: 'name',
-    render: ({ name, picture, description }) => (
+    render: ({ id, name, picture, description }) => (
       <Stack overflow="hidden" direction="row" gap={2} alignItems="center">
         {/* Bìa dọc 2:3 như bìa sách thật, giống dòng sách trong giỏ hàng */}
         <Box
@@ -35,7 +35,7 @@ export const columns: () => Columns<BookView>[] = () => [
           />
         </Box>
         <Stack flex={1} overflow="hidden">
-          <Typography variant="body2" noWrap>
+          <Typography data-testid={`promotion-book-row-name-${id}`} variant="body2" noWrap>
             {name}
           </Typography>
           <Typography
@@ -58,8 +58,8 @@ export const columns: () => Columns<BookView>[] = () => [
   {
     label: translate('promotion.books.columns.price'),
     sort: 'price',
-    render: ({ price }) => (
-      <Typography variant="body2">
+    render: ({ id, price }) => (
+      <Typography data-testid={`promotion-book-row-price-${id}`} variant="body2">
         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}
       </Typography>
     ),

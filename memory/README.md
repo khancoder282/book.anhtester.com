@@ -20,6 +20,7 @@ Cập nhật lần cuối: 2026-11-21, nhánh `deploy-vps`.
 | [features/ui-theme.md](features/ui-theme.md) | Giao diện theo AT UI kit: quy ước màu, tone phụ, font, cỡ chữ, PageHeader, sidebar thu gọn, con trỏ / thanh cuộn |
 | [features/i18n.md](features/i18n.md) | Đa ngôn ngữ vi/en: `src/locales`, `useTranslate`, nút chuyển, tiêu đề tab |
 | [features/help.md](features/help.md) | Trang `/help` (Cần trợ giúp?): thông tin liên hệ Anh Tester, locator |
+| [features/test-ids.md](features/test-ids.md) | Locator cho tester: quy ước `data-testid` / `id`, helper `textFieldTestId`, danh sách testid theo màn |
 | [features/system.md](features/system.md) | `/api/status`, `/api/db/table`, Swagger, route tĩnh |
 
 ## Lưu ý (`notes/`)

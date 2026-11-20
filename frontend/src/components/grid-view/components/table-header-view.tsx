@@ -30,7 +30,8 @@ export function TableHeaderView<T>({
   isStickyAction = false,
   select,
   allRow,
-  keyName
+  keyName,
+  testId = 'table',
 }: {
   columns: Columns<T>[];
   config: UseTableReturn<T>;
@@ -38,6 +39,7 @@ export function TableHeaderView<T>({
   isAction: boolean;
   isStickyAction?: boolean;
   keyName: keyof T
+  testId?: string;
   select?: {
     selected: T[];
     setSelected: (row: T[]) => void;
@@ -98,6 +100,7 @@ export function TableHeaderView<T>({
         {select && (
           <TableCell padding="checkbox">
             <Checkbox
+              slotProps={{ input: { 'data-testid': `${testId}-select-all` } as object }}
               onClick={handleSelect}
               indeterminate={isSelect && !isSelectAll}
               checked={isSelectAll}
@@ -109,6 +112,7 @@ export function TableHeaderView<T>({
             {column.sort ? (
               <Stack direction="row">
                 <TableSortLabel
+                  data-testid={`${testId}-sort-${String(column.sort)}`}
                   sx={{ flex: 1 }}
                   IconComponent={IconSort}
                   active={config.order === column.sort}
@@ -119,6 +123,7 @@ export function TableHeaderView<T>({
                 </TableSortLabel>
                 {filterList.some((f) => f.name === column.sort) && (
                   <IconButton
+                    data-testid={`${testId}-header-filter-${String(column.sort)}`}
                     size="small"
                     sx={{
                       color: filter?.some((f) => f.key === column.sort)

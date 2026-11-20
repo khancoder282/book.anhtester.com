@@ -32,15 +32,18 @@ export function AddUserDialog({ callback }: AddUserDialogProps) {
 
   return (
     <>
-      <DialogTitle>{id ? t('user.dialog.updateTitle') : t('user.dialog.addTitle')}</DialogTitle>
+      <DialogTitle data-testid="user-dialog-title">
+        {id ? t('user.dialog.updateTitle') : t('user.dialog.addTitle')}
+      </DialogTitle>
       <DialogContent dividers>
         <ContentUser />
       </DialogContent>
       <DialogActions>
-        <Button color="inherit" onClick={() => setOpen(false)}>
+        <Button data-testid="user-dialog-cancel" color="inherit" onClick={() => setOpen(false)}>
           {t('common.actions.cancel')}
         </Button>
         <Button
+          data-testid="user-dialog-save"
           loading={isLoading}
           onClick={formControl.handleSubmit((d) =>
             id ? handleUpdateUser(id, d) : handleCreateUser(d)

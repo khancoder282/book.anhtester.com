@@ -81,6 +81,8 @@ type UploadFieldProps = {
   helperText?: string;
   viewMode?: 'list' | 'grid';
   showMode?: boolean;
+  /** Tiền tố data-testid (mặc định 'upload'): <testId>-input, -dropzone, -error, -view-grid|list */
+  testId?: string;
 };
 
 export const checkType = (
@@ -107,6 +109,7 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
       onFocus,
       disabled,
       showMode = false,
+      testId = 'upload',
     },
     ref
   ) => {
@@ -147,9 +150,10 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
 
     return (
       <Stack ref={ref} onBlur={onBlur} onFocus={onFocus} tabIndex={0} position="relative">
-        <input {...getInputProps({ name })} />
+        <input {...getInputProps({ name })} data-testid={`${testId}-input`} />
         <Box
           {...getRootProps()}
+          data-testid={`${testId}-dropzone`}
           tabIndex={0}
           sx={{
             p: 3,
@@ -185,7 +189,7 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
         </Box>
 
         {helperText && (
-          <FormHelperText sx={{ mx: 1 }} error={error}>
+          <FormHelperText data-testid={`${testId}-error`} sx={{ mx: 1 }} error={error}>
             {helperText}
           </FormHelperText>
         )}
@@ -234,10 +238,10 @@ export const UploadField = forwardRef<HTMLDivElement, UploadFieldProps>(
             value={viewMode}
             onChange={(e, v) => setMode(v)}
           >
-            <ToggleButton value="grid">
+            <ToggleButton data-testid={`${testId}-view-grid`} value="grid">
               <Iconify icon="mynaui:grid" />
             </ToggleButton>
-            <ToggleButton value="list">
+            <ToggleButton data-testid={`${testId}-view-list`} value="list">
               <Iconify icon="solar:checklist-minimalistic-linear" />
             </ToggleButton>
           </ToggleButtonGroup>

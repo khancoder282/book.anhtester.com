@@ -27,11 +27,14 @@ type TableFilterViewProps<T> = {
   config: UseTableReturn<T>;
   filter: FieldType<T>[];
   placeholder?: string;
+  /** Tiền tố data-testid (mặc định 'table') */
+  testId?: string;
 };
 export function TableFilterView<T>({
   config: { filter: filters, setFilter: setFilters },
   filter: fields,
   placeholder,
+  testId = 'table',
 }: TableFilterViewProps<T>) {
   const { t } = useTranslate();
   const [isFilter] = useWatch({
@@ -106,7 +109,7 @@ export function TableFilterView<T>({
           <Stack direction="row" spacing={1} alignItems="center">
             <OutlinedInput
               fullWidth
-              inputProps={searchInputProps}
+              inputProps={{ ...searchInputProps, 'data-testid': `${testId}-search` }}
               placeholder={placeholder ?? t('components.filter.searchPlaceholder')}
               value={search}
               onChange={(e) => {
@@ -120,6 +123,7 @@ export function TableFilterView<T>({
               }
             />
             <IconButton
+              data-testid={`${testId}-filter-toggle`}
               onClick={() => {
                 if (fieldsControl.length === 0) {
                   reset({
@@ -150,6 +154,7 @@ export function TableFilterView<T>({
                 index={index}
                 fields={fields}
                 setValue={setValue}
+                testId={testId}
                 remove={
                   fieldsControl.length === 1
                     ? () => {
@@ -165,6 +170,7 @@ export function TableFilterView<T>({
             <Box display="flex" justifyContent="flex-end" gap={2}>
               <Button
                 id="add-filter"
+                data-testid={`${testId}-filter-add`}
                 color="inherit"
                 startIcon={<Iconify icon="mingcute:add-line" />}
                 variant="outlined"
@@ -181,6 +187,7 @@ export function TableFilterView<T>({
               </Button>
               <Button
                 id="clear-filter"
+                data-testid={`${testId}-filter-clear`}
                 color="error"
                 onClick={() => {
                   setIsFilter(false);

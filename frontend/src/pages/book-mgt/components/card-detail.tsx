@@ -16,6 +16,8 @@ import {
   InputAdornment,
 } from '@mui/material';
 
+import { textFieldTestId } from 'src/utils/test-id';
+
 import { useTranslate } from 'src/locales';
 
 import { Iconify } from 'src/components/iconify';
@@ -43,7 +45,7 @@ export function CardDetail() {
         title={t('book.detail.title')}
         subheader={t('book.detail.subheader')}
         action={
-          <IconButton onClick={() => setExpen(!expen)}>
+          <IconButton data-testid="book-detail-toggle" onClick={() => setExpen(!expen)}>
             <Iconify
               sx={{ transition: 'all .1s ease-in-out' }}
               style={{ rotate: !expen ? '0deg' : '90deg' }}
@@ -73,6 +75,7 @@ export function CardDetail() {
                 fullWidth
                 label={t('book.detail.name')}
                 {...field}
+                slotProps={textFieldTestId('book-name')}
                 error={invalid}
                 helperText={error?.message}
                 required
@@ -100,10 +103,12 @@ export function CardDetail() {
                 {...field}
                 required
                 slotProps={{
+                  ...textFieldTestId('book-slug'),
                   input: {
                     endAdornment: (
                       <InputAdornment position="end">
                         <Button
+                          data-testid="book-slug-toggle"
                           variant="outlined"
                           color="inherit"
                           size="small"
@@ -138,6 +143,7 @@ export function CardDetail() {
                 fullWidth
                 label={t('common.fields.description')}
                 {...field}
+                slotProps={textFieldTestId('book-description')}
                 error={invalid}
                 helperText={error?.message}
               />
@@ -166,6 +172,7 @@ export function CardDetail() {
               render={({ field, fieldState: { invalid, error } }) => (
                 <>
                   <UploadField
+                    testId="book-picture"
                     viewMode="grid"
                     showMode
                     {...field}
@@ -180,6 +187,7 @@ export function CardDetail() {
                   />
                   {field.value.length > 0 && (
                     <Button
+                      data-testid="book-picture-remove-all"
                       size="small"
                       color="inherit"
                       variant="outlined"

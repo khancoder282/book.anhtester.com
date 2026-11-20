@@ -162,6 +162,7 @@ export function NavContent({ data, slots, sx, mini }: NavContentProps) {
         href={item.path}
         aria-label={mini ? t(item.title) : undefined}
         data-active={isActived}
+        data-testid={`nav-item-${item.path === '/' ? 'home' : item.path.replace(/^\//, '')}`}
         sx={[
           (theme) => ({
             pl: mini ? 0 : 2,

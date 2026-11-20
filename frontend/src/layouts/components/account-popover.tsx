@@ -67,6 +67,8 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
   return (
     <>
       <IconButton
+        id="account-button"
+        data-testid="account-button"
         onClick={handleOpenPopover}
         sx={{
           p: '2px',
@@ -90,6 +92,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
         open={!!openPopover}
         anchorEl={openPopover}
         onClose={handleClosePopover}
+        data-testid="account-menu"
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         slotProps={{
@@ -99,11 +102,16 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
         }}
       >
         <Box sx={{ p: 2, pb: 1.5 }}>
-          <Typography variant="subtitle2" noWrap>
+          <Typography variant="subtitle2" noWrap data-testid="account-name">
             {auth?.name}
           </Typography>
 
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+          <Typography
+            variant="body2"
+            sx={{ color: 'text.secondary' }}
+            noWrap
+            data-testid="account-email"
+          >
             {auth?.email}
           </Typography>
         </Box>
@@ -135,6 +143,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
             <MenuItem
               key={option.label}
               selected={option.href === pathname}
+              data-testid={`account-menu-${option.label.split('.').pop()}`}
               onClick={() => handleClickItem(option.href)}
             >
               {option.icon}
@@ -148,6 +157,8 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
         <Box sx={{ p: 1 }}>
           <Button
             fullWidth
+            id="account-logout"
+            data-testid="account-logout"
             color="error"
             size="medium"
             variant="text"

@@ -14,6 +14,13 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
+// 'Price: Low to High' → 'price-low-to-high' (hậu tố data-testid)
+const slug = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
 type ProductSortProps = ButtonProps & {
   sortBy: string;
   onSort: (newSort: string) => void;
@@ -35,6 +42,7 @@ export function BookSort({ options, sortBy, onSort, sx, ...other }: ProductSortP
   return (
     <>
       <Button
+        data-testid="book-sort"
         disableRipple
         color="inherit"
         onClick={handleOpenPopover}
@@ -47,7 +55,12 @@ export function BookSort({ options, sortBy, onSort, sx, ...other }: ProductSortP
         {...other}
       >
         {t('book.sort.label')}&nbsp;
-        <Typography component="span" variant="subtitle2" sx={{ color: 'text.secondary' }}>
+        <Typography
+          data-testid="book-sort-value"
+          component="span"
+          variant="subtitle2"
+          sx={{ color: 'text.secondary' }}
+        >
           {options.find((option) => option.value === sortBy)?.label}
         </Typography>
       </Button>
@@ -60,6 +73,7 @@ export function BookSort({ options, sortBy, onSort, sx, ...other }: ProductSortP
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <MenuList
+          data-testid="book-sort-menu"
           disablePadding
           sx={{
             p: 0.5,
@@ -78,6 +92,7 @@ export function BookSort({ options, sortBy, onSort, sx, ...other }: ProductSortP
           {options.map((option) => (
             <MenuItem
               key={option.value}
+              data-testid={`book-sort-option-${slug(option.value)}`}
               selected={option.value === sortBy}
               onClick={() => {
                 onSort(option.value);

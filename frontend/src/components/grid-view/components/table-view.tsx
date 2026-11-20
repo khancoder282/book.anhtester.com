@@ -40,6 +40,8 @@ type GridViewTableProps<T> = {
     isStickyHeader?: boolean;
   };
   filter?: FieldType<T>[];
+  /** Tiền tố data-testid của bảng (mặc định 'table') */
+  testId?: string;
 };
 
 export function TableView<T>({
@@ -56,6 +58,7 @@ export function TableView<T>({
   keyName = 'id' as keyof T,
   sticky,
   filter = [],
+  testId = 'table',
 }: GridViewTableProps<T>) {
   const { anchorEl, open, setOpen, row: dataRow } = usePopupAction();
 
@@ -63,7 +66,12 @@ export function TableView<T>({
     <>
       <Scrollbar>
         <TableContainer sx={{ overflow: 'unset', ...sx }}>
-          <Table stickyHeader={sticky?.isStickyHeader} sx={{ minWidth }} size={size}>
+          <Table
+            data-testid={testId}
+            stickyHeader={sticky?.isStickyHeader}
+            sx={{ minWidth }}
+            size={size}
+          >
             <TableHeaderView
               isAction={!!renderAction}
               filter={filter}
@@ -73,6 +81,7 @@ export function TableView<T>({
               allRow={data}
               keyName={keyName}
               isStickyAction={sticky?.isStickyAction}
+              testId={testId}
             />
             <TableBody>
               {(data.length > 0 && (
@@ -88,6 +97,7 @@ export function TableView<T>({
                       onClickRow={() => onClickRow?.(row, i)}
                       select={select}
                       isStickyAction={sticky?.isStickyAction}
+                      testId={testId}
                     />
                   ))}
                   {data.length < config.rowsPerPage && (
@@ -106,6 +116,7 @@ export function TableView<T>({
                 </>
               )) || (
                 <TableRowNoTableView
+                  testId={testId}
                   col={columns.length + (renderAction ? 1 : 0) + (select ? 1 : 0)}
                   height={(minRowHeight || size === 'small' ? 48 : 76) * config.rowsPerPage}
                 />
@@ -123,6 +134,7 @@ export function TableView<T>({
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
           <MenuList
+            data-testid={`${testId}-row-actions`}
             disablePadding
             onClick={() => setOpen(false)}
             sx={{

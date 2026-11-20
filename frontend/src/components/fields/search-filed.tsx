@@ -11,9 +11,17 @@ import { searchInputProps } from './search-input-props';
 type SearchFieldProps = Omit<TextFieldProps, 'onChange' | 'value'> & {
   value: string;
   onChange: (value: string) => void;
+  /** data-testid của ô tìm (mặc định 'search'); nút xoá có `<testId>-clear` */
+  testId?: string;
 };
 
-export function SearchField({ value, onChange, sx, ...props }: SearchFieldProps) {
+export function SearchField({
+  value,
+  onChange,
+  sx,
+  testId = 'search',
+  ...props
+}: SearchFieldProps) {
   const flag = useRef(false);
   const [s, setS] = useState('');
 
@@ -45,7 +53,11 @@ export function SearchField({ value, onChange, sx, ...props }: SearchFieldProps)
       }}
       slotProps={{
         ...props.slotProps,
-        htmlInput: { ...searchInputProps, ...(props.slotProps?.htmlInput as object) },
+        htmlInput: {
+          ...searchInputProps,
+          'data-testid': testId,
+          ...(props.slotProps?.htmlInput as object),
+        },
         input: {
           startAdornment: (
             <InputAdornment position="start">
@@ -54,7 +66,7 @@ export function SearchField({ value, onChange, sx, ...props }: SearchFieldProps)
           ),
           endAdornment: s && (
             <InputAdornment position="end">
-              <IconButton onClick={() => onChange('')}>
+              <IconButton data-testid={`${testId}-clear`} onClick={() => onChange('')}>
                 <Iconify icon="mingcute:close-line" />
               </IconButton>
             </InputAdornment>

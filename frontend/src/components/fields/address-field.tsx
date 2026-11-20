@@ -41,7 +41,7 @@ const encodeAddress = (address: string, ward: string, div: string) =>
   [address, ward, div].filter((x) => x.trim()).join(', ');
 
 export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
-  ({ value, onChange, disabled, error, helperText }, ref) => {
+  ({ value, onChange, disabled, error, helperText, id: testIdPrefix = 'address' }, ref) => {
     const [div, setDiv] = useState<string>('');
     const [ward, setWard] = useState<string>('');
     const [address, setAddress] = useState<string>('');
@@ -114,6 +114,7 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
               <TextField
                 error={error}
                 {...params}
+                inputProps={{ ...params.inputProps, 'data-testid': `${testIdPrefix}-division` }}
                 fullWidth
                 label={t('components.address.division')}
               />
@@ -132,7 +133,13 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
             loading={isLoadingWard}
             disabled={!div}
             renderInput={(params) => (
-              <TextField error={error} {...params} fullWidth label={t('components.address.ward')} />
+              <TextField
+                error={error}
+                {...params}
+                inputProps={{ ...params.inputProps, 'data-testid': `${testIdPrefix}-ward` }}
+                fullWidth
+                label={t('components.address.ward')}
+              />
             )}
           />
 
@@ -148,11 +155,12 @@ export const AddressField = forwardRef<HTMLDivElement, AddressFieldProps>(
             multiline
             minRows={2}
             fullWidth
+            slotProps={{ htmlInput: { 'data-testid': `${testIdPrefix}-detail` } }}
             label={t('components.address.detail')}
           />
         </Stack>
         {helperText && (
-          <FormHelperText error={error} sx={{ px: 2 }}>
+          <FormHelperText data-testid={`${testIdPrefix}-error`} error={error} sx={{ px: 2 }}>
             {helperText}
           </FormHelperText>
         )}

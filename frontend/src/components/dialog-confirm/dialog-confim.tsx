@@ -33,13 +33,14 @@ export function DialogConfirm({ onConfirm, message }: DialogConfirm) {
   };
   return (
     <>
-      <DialogTitle>{t('common.actions.confirm')}</DialogTitle>
+      <DialogTitle data-testid="confirm-dialog-title">{t('common.actions.confirm')}</DialogTitle>
       <DialogContent>
-        <DialogContentText>{message}</DialogContentText>
+        <DialogContentText data-testid="confirm-dialog-message">{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button
           id="dialog-confirm-cancel"
+          data-testid="confirm-dialog-cancel"
           disabled={isConfirm}
           color="inherit"
           onClick={() => setOpen(false)}
@@ -48,6 +49,7 @@ export function DialogConfirm({ onConfirm, message }: DialogConfirm) {
         </Button>
         <Button
           id="dialog-confirm-action"
+          data-testid="confirm-dialog-ok"
           loading={isConfirm}
           variant="contained"
           onClick={handleConfirm}

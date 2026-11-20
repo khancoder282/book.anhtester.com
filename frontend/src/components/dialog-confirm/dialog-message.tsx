@@ -15,12 +15,12 @@ export function DialogMessage({ message }: { message: string }) {
   const { setOpen } = useDialog();
   return (
     <>
-      <DialogTitle>{t('components.dialog.message')}</DialogTitle>
+      <DialogTitle data-testid="message-dialog-title">{t('components.dialog.message')}</DialogTitle>
       <DialogContent>
-        <DialogContentText>{message}</DialogContentText>
+        <DialogContentText data-testid="message-dialog-message">{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button color="inherit" onClick={() => setOpen(false)}>
+        <Button data-testid="message-dialog-close" color="inherit" onClick={() => setOpen(false)}>
           {t('common.actions.close')}
         </Button>
       </DialogActions>

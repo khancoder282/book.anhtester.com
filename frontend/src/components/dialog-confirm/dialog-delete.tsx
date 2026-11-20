@@ -34,13 +34,16 @@ export function DialogDelete({ onDelete, message }: DialogConfirm) {
   };
   return (
     <>
-      <DialogTitle>{t('components.dialog.confirmDelete')}</DialogTitle>
+      <DialogTitle data-testid="delete-dialog-title">
+        {t('components.dialog.confirmDelete')}
+      </DialogTitle>
       <DialogContent>
-        <DialogContentText>{message}</DialogContentText>
+        <DialogContentText data-testid="delete-dialog-message">{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button
           id="dialog-delete-cancel"
+          data-testid="delete-dialog-cancel"
           disabled={isConfirm}
           color="inherit"
           onClick={() => setOpen(false)}
@@ -49,6 +52,7 @@ export function DialogDelete({ onDelete, message }: DialogConfirm) {
         </Button>
         <Button
           id="dialog-delete-action"
+          data-testid="delete-dialog-confirm"
           loading={isConfirm}
           variant="contained"
           onClick={handleConfirm}

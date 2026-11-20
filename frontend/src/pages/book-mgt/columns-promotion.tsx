@@ -17,7 +17,11 @@ export const columns = (t: TFn): Columns<PromotionType>[] => [
     label: t('book.promotion.columns.code'),
     sort: 'code',
     render: (row) => (
-      <Typography variant="body2" textTransform="uppercase">
+      <Typography
+        data-testid={`book-promotion-row-code-${row?.id}`}
+        variant="body2"
+        textTransform="uppercase"
+      >
         {row?.code}
       </Typography>
     ),
@@ -25,9 +29,9 @@ export const columns = (t: TFn): Columns<PromotionType>[] => [
   {
     label: t('book.promotion.columns.name'),
     sort: 'name',
-    render: ({ name, description }) => (
+    render: ({ id, name, description }) => (
       <Stack overflow="hidden">
-        <Typography variant="body2" noWrap>
+        <Typography data-testid={`book-promotion-row-name-${id}`} variant="body2" noWrap>
           {name}
         </Typography>
         <Typography color="textSecondary" variant="caption">
@@ -41,6 +45,7 @@ export const columns = (t: TFn): Columns<PromotionType>[] => [
     sort: 'type',
     render: (row) => (
       <Label
+        data-testid={`book-promotion-row-type-${row?.id}`}
         color={MappingType[row?.type]?.color}
         startIcon={<Iconify icon={MappingType[row?.type]?.icon} />}
         sx={{ mr: 1 }}
@@ -53,7 +58,11 @@ export const columns = (t: TFn): Columns<PromotionType>[] => [
     label: t('book.promotion.columns.value'),
     sort: 'value',
     render: (row) => (
-      <Label data-promotion-value={row?.value} sx={{ textTransform: 'none' }}>
+      <Label
+        data-testid={`book-promotion-row-value-${row?.id}`}
+        data-promotion-value={row?.value}
+        sx={{ textTransform: 'none' }}
+      >
         {formatPromotionValue(row)}
       </Label>
     ),

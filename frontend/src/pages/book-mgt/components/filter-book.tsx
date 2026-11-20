@@ -116,6 +116,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
         flexWrap="wrap-reverse"
       >
         <Button
+          data-testid="book-filter-toggle"
           color="inherit"
           startIcon={<Iconify icon="ic:round-filter-list" />}
           endIcon={
@@ -153,6 +154,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
         >
           <Stack flex={1}>
             <SearchField
+              testId="book-filter-search"
               color="inherit"
               value={searchName}
               onChange={setSearchName}
@@ -162,13 +164,16 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
           </Stack>
           <Stack flex={1}>
             <FromToField value={price} onChange={setPrice} options={priceOptions} />
-            <FormHelperText sx={{ textAlign: 'right' }}>{getPriceLabel(price)}</FormHelperText>
+            <FormHelperText data-testid="book-filter-price-label" sx={{ textAlign: 'right' }}>
+              {getPriceLabel(price)}
+            </FormHelperText>
           </Stack>
         </Box>
       </Collapse>
 
       <Stack direction="row" alignItems="center">
         <Tabs
+          data-testid="book-category-tabs"
           textColor="inherit"
           variant="scrollable"
           scrollButtons="auto"
@@ -210,18 +215,22 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
           value={!category || data.some((c) => c.name === category) ? category : false}
           onChange={(_, value) => setCategory(value)}
         >
-          <Tab value="" label={t('book.filter.all')} />
+          <Tab data-testid="book-category-tab-all" value="" label={t('book.filter.all')} />
           {data
             // Ẩn category đã tắt / chưa có sách, trừ category đang chọn (link từ trang Category)
             .filter((c) => (c.bookCount > 0 && c.isActive) || c.name === category)
             .map((item) => (
               <Tab
                 key={item.name}
+                data-testid={`book-category-tab-${item.name}`}
                 value={item.name}
                 ref={item.name === category ? selectedTabRef : undefined}
                 label={
                   <Box display="flex" gap={0.5} alignItems="center">
-                    {item.name} <Label>{item.bookCount}</Label>
+                    {item.name}{' '}
+                    <Label data-testid={`book-category-tab-count-${item.name}`}>
+                      {item.bookCount}
+                    </Label>
                   </Box>
                 }
               />
@@ -230,6 +239,7 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
         {auth && (
           <IconButton
             id="setting-category"
+            data-testid="book-category-settings"
             aria-label={t('book.category.title')}
             onClick={() => setOpen(true)}
             sx={{ ml: 0.5, flexShrink: 0 }}
@@ -241,9 +251,10 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
 
       <Divider sx={{ mt: 1, mb: 2, borderStyle: 'dashed' }} />
 
-      <Dialog open={open} fullWidth maxWidth="xs">
+      <Dialog data-testid="book-category-dialog" open={open} fullWidth maxWidth="xs">
         <DialogTitle>
-          {t('book.category.title')} <Label>{data.length}</Label>
+          {t('book.category.title')}{' '}
+          <Label data-testid="book-category-dialog-total">{data.length}</Label>
         </DialogTitle>
         <DialogContent dividers sx={{ borderStyle: 'dashed none' }}>
           <OutlinedInput
@@ -253,12 +264,14 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
               if (id) setId('');
             }}
             fullWidth
+            inputProps={{ 'data-testid': 'book-category-dialog-search' }}
             placeholder={t('book.category.addPlaceholder')}
           />
           <Stack sx={{ height: 52 * 6, mt: 1 }}>
             {search && (
               <Box textAlign="center" mt={1}>
                 <Button
+                  data-testid="book-category-dialog-add"
                   onClick={() => {
                     toast.loading(() => Category.create(search), {
                       loading: t('book.category.saving'),
@@ -288,7 +301,11 @@ export function FilterBook({ config }: { config: ReturnUseFileterBook }) {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button color="inherit" onClick={() => setOpen(false)}>
+          <Button
+            data-testid="book-category-dialog-close"
+            color="inherit"
+            onClick={() => setOpen(false)}
+          >
             {t('common.actions.close')}
           </Button>
         </DialogActions>
@@ -339,15 +356,18 @@ const Row = ({
   return (
     <Box
       key={item.name}
+      data-testid={`book-category-item-${item.name}`}
       style={style}
       sx={{ gap: 1, scrollSnapAlign: 'start', display: 'flex', alignItems: 'center' }}
     >
       {id !== item.name ? (
         <>
-          <Typography pl={1.5} noWrap>
+          <Typography data-testid={`book-category-item-name-${item.name}`} pl={1.5} noWrap>
             {item.name}
           </Typography>
-          <Label sx={{ mr: 'auto' }}>{item.bookCount}</Label>
+          <Label data-testid={`book-category-item-count-${item.name}`} sx={{ mr: 'auto' }}>
+            {item.bookCount}
+          </Label>
         </>
       ) : (
         <TextField
@@ -356,6 +376,7 @@ const Row = ({
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           name={`edit-${item.name}`}
+          slotProps={{ htmlInput: { 'data-testid': `book-category-item-input-${item.name}` } }}
           onKeyUp={(e) => {
             if (e.key === 'Enter') {
               if (newName === item.name) {
@@ -389,6 +410,7 @@ const Row = ({
 
       <Button
         id={`edit-${item.name}`}
+        data-testid={`book-category-item-edit-${item.name}`}
         onClick={() => setId(id !== item.name ? item.name : '')}
         color="inherit"
         sx={{ minWidth: 'unset' }}
@@ -397,6 +419,7 @@ const Row = ({
       </Button>
       <ButtonDelete
         id={`del-${item.name}`}
+        data-testid={`book-category-item-delete-${item.name}`}
         onDelete={() =>
           toast.loading(() => Category.delete(item.name), {
             loading: translate('book.category.deleting'),

@@ -22,7 +22,7 @@ export function CardStatus() {
         title={t('promotion.status.label')}
         subheader={t('promotion.statusCard.subheader')}
         action={
-          <IconButton onClick={() => setExpen(!expen)}>
+          <IconButton data-testid="promotion-status-toggle" onClick={() => setExpen(!expen)}>
             <Iconify
               sx={{ transition: 'all .1s ease-in-out' }}
               style={{ rotate: !expen ? '0deg' : '90deg' }}
@@ -60,6 +60,7 @@ export function CardStatus() {
               render={({ field, fieldState: { invalid, error } }) => (
                 <DatePickerField
                   label={t('promotion.statusCard.startDate')}
+                  testId="promotion-start-date"
                   {...field}
                   error={invalid}
                   helperText={error?.message}
@@ -77,6 +78,7 @@ export function CardStatus() {
               render={({ field, fieldState: { invalid, error } }) => (
                 <DatePickerField
                   label={t('promotion.statusCard.endDate')}
+                  testId="promotion-end-date"
                   {...field}
                   minDate={startDate}
                   error={invalid}

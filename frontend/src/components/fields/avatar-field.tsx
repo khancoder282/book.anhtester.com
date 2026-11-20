@@ -22,10 +22,12 @@ type AvatarFieldProps = {
   helperText?: string;
   opt?: Omit<DropzoneOptions, 'multiple'>;
   name?: string;
+  /** Tiền tố data-testid (mặc định 'avatar'): <testId>-input, -dropzone, -preview */
+  testId?: string;
 };
 export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props, ref) => {
   const { t } = useTranslate();
-  const { opt, onChange, name, onBlur, onFocus, value, error } = props;
+  const { opt, onChange, name, onBlur, onFocus, value, error, testId = 'avatar' } = props;
   const flagUserHandle = useRef<boolean>(false);
   const [preview, setPreview] = useState('');
   // Ảnh không tải được (file đã bị xoá, VD sau khi seed lại) → coi như chưa có ảnh, hiện lại ô chọn ảnh
@@ -65,9 +67,10 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
 
   return (
     <Stack tabIndex={0} position="relative" onBlur={onBlur} onFocus={onFocus} alignItems="center">
-      <input {...getInputProps({ name })} />
+      <input {...getInputProps({ name })} data-testid={`${testId}-input`} />
       <Box
         {...getRootProps()}
+        data-testid={`${testId}-dropzone`}
         sx={{
           border: 1,
           width: 144,
@@ -87,6 +90,7 @@ export const AvatarField = forwardRef<HTMLInputElement, AvatarFieldProps>((props
           <Box p={1} position="absolute" width={1} height={1}>
             <Box
               component="img"
+              data-testid={`${testId}-preview`}
               src={preview}
               sx={{
                 width: 1,

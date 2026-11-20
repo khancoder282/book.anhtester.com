@@ -20,12 +20,14 @@ export type BookCoverProps = {
   src?: string;
   name: string;
   sx?: Sx;
+  /** data-testid cho ảnh bìa (cả ảnh thật lẫn bìa mặc định) */
+  testId?: string;
 };
 
 /**
  * Ảnh bìa sách. Không có ảnh hoặc ảnh lỗi thì hiện bìa mặc định (màu theo tên + tên sách).
  */
-export function BookCover({ src, name, sx }: BookCoverProps) {
+export function BookCover({ src, name, sx, testId }: BookCoverProps) {
   const { t } = useTranslate();
   const [failed, setFailed] = useState(false);
 
@@ -35,6 +37,7 @@ export function BookCover({ src, name, sx }: BookCoverProps) {
     return (
       <Box
         component="img"
+        data-testid={testId}
         loading="lazy"
         alt={name}
         src={formatFilePath(src)}
@@ -54,6 +57,7 @@ export function BookCover({ src, name, sx }: BookCoverProps) {
   return (
     <Box
       role="img"
+      data-testid={testId}
       aria-label={t('book.noCover', { name })}
       data-cover="placeholder"
       sx={{

@@ -12,6 +12,8 @@ import {
   IconButton,
 } from '@mui/material';
 
+import { textFieldTestId } from 'src/utils/test-id';
+
 import { useTranslate } from 'src/locales';
 
 import { Iconify } from 'src/components/iconify';
@@ -34,7 +36,7 @@ export function CardDetail({ originalCode }: { originalCode?: string }) {
         title={t('promotion.detail.title')}
         subheader={t('promotion.detail.subheader')}
         action={
-          <IconButton onClick={() => setExpen(!expen)}>
+          <IconButton data-testid="promotion-detail-toggle" onClick={() => setExpen(!expen)}>
             <Iconify
               sx={{ transition: 'all .1s ease-in-out' }}
               style={{ rotate: !expen ? '0deg' : '90deg' }}
@@ -63,6 +65,7 @@ export function CardDetail({ originalCode }: { originalCode?: string }) {
                 fullWidth
                 label={t('promotion.detail.name')}
                 {...field}
+                slotProps={textFieldTestId('promotion-name')}
                 error={invalid}
                 helperText={error?.message}
                 required
@@ -89,6 +92,7 @@ export function CardDetail({ originalCode }: { originalCode?: string }) {
                 required
                 {...field}
                 slotProps={{
+                  ...textFieldTestId('promotion-code'),
                   input: {
                     sx: { textTransform: 'uppercase' },
                   },
@@ -113,6 +117,7 @@ export function CardDetail({ originalCode }: { originalCode?: string }) {
                 fullWidth
                 label={t('promotion.detail.description')}
                 {...field}
+                slotProps={textFieldTestId('promotion-description')}
                 error={invalid}
                 helperText={error?.message}
               />
@@ -132,11 +137,20 @@ export function CardDetail({ originalCode }: { originalCode?: string }) {
                   label={t('promotion.detail.type')}
                   required
                   {...field}
+                  slotProps={{
+                    select: { SelectDisplayProps: { 'data-testid': 'promotion-type' } as object },
+                    formHelperText: { 'data-testid': 'promotion-type-error' } as object,
+                  }}
                   error={invalid}
                   helperText={error?.message}
                 >
                   {TypePromotion.map((option) => (
-                    <MenuItem key={option} value={option} sx={{ textTransform: typeTextTransform }}>
+                    <MenuItem
+                      key={option}
+                      value={option}
+                      data-testid={`promotion-type-option-${option}`}
+                      sx={{ textTransform: typeTextTransform }}
+                    >
                       {t(`promotion.detail.typeOption.${option}`)}
                     </MenuItem>
                   ))}
@@ -168,6 +182,7 @@ export function CardDetail({ originalCode }: { originalCode?: string }) {
                   label={t('promotion.detail.value')}
                   required={type !== 'FREE_SHIPPING'}
                   {...field}
+                  slotProps={textFieldTestId('promotion-value')}
                   error={invalid}
                   helperText={error?.message}
                 />

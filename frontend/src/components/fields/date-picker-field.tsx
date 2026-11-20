@@ -29,10 +29,12 @@ type DatePickerFieldProps = {
   helperText?: string;
   size?: 'small' | 'medium';
   fullWidth?: boolean;
+  /** data-testid của ô ngày (gốc field); thẻ <input> ẩn có `<testId>-input` */
+  testId?: string;
 } & DatePickerProps;
 
 export const DatePickerField = forwardRef<HTMLInputElement, DatePickerFieldProps>(
-  ({ error, helperText, size, fullWidth, ...props }, ref) => {
+  ({ error, helperText, size, fullWidth, testId, ...props }, ref) => {
     const { t } = useTranslate();
     return (
       <DatePicker
@@ -49,6 +51,11 @@ export const DatePickerField = forwardRef<HTMLInputElement, DatePickerFieldProps
             size,
             fullWidth,
             helperText,
+            ...(testId && {
+              'data-testid': testId,
+              inputProps: { 'data-testid': `${testId}-input` },
+              FormHelperTextProps: { 'data-testid': `${testId}-error` } as object,
+            }),
           },
         }}
       />

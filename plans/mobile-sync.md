@@ -36,6 +36,7 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-21-08](#2026-11-21-08) | 2026-11-21 | Web: mục Liên hệ ở đáy sidebar, trang `/contact` | Không | Không | Không cần (mobile đã có tab Liên hệ) |
 | [2026-11-21-09](#2026-11-21-09) | 2026-11-21 | Giỏ hàng trên server (`/api/cart`), web đồng bộ giỏ theo tài khoản | **Có**: thêm nhóm `/api/cart` (6 endpoint); `POST /api/order` bỏ sách đã đặt khỏi giỏ | **Có** (+ `prisma db push` thêm bảng `CartItem`) | ⏳ Chưa làm |
 | [2026-11-21-10](#2026-11-21-10) | 2026-11-21 | Swagger: tên API ở menu trái, endpoint dưới tên | Không đổi hành vi (chỉ tài liệu) | Có (để Swagger production có thay đổi) | Không cần làm |
+| [2026-11-21-12](#2026-11-21-12) | 2026-11-21 | Swagger favicon; `data-testid` cho mọi màn, `id` cho Login / Register | Không | Có (để Swagger production có favicon) | ⏳ Tuỳ chọn (locator giống web) |
 
 ---
 
@@ -722,3 +723,18 @@ Tone màu lấy từ AT UI kit của repo `anhtester_lms` (`public/build/css/at-
 | các file trên | cùng đường dẫn | Đã sửa trước bên mobile. Lần chép sau giữ phần riêng mobile (`deleteFiles` xoá từng file, `onPointerEnter` ở `book-gallery`, căn trái chương đọc thử ở màn hẹp) — web chưa lấy các phần này |
 
 **Mobile cần**: không. Không cần deploy backend.
+
+---
+
+<a id="2026-11-21-12"></a>
+## 2026-11-21-12 · Swagger favicon, `data-testid` cho tester
+
+**API**: không đổi. Swagger (Scalar) có favicon `/assets/icon.png` (`backend/src/regis.ts`, `scalar.favicon`).
+
+**Web**: thêm `data-testid` (Playwright `page.getByTestId()` đọc mặc định) cho nút, ô nhập, switch, tab, hàng bảng, dialog ở Login, Register, header / sidebar, Dashboard, User, Profile, Setting, Category, Book, Promotion, 404. Login / Register còn có `id` cùng tên (`#login-email`, `#login-password`, `#login-submit`, `#register-name`…). Ô nhập gắn trên thẻ `<input>` qua `textFieldTestId()` (`frontend/src/utils/test-id.ts`), dòng lỗi `<id>-error`. Nút ẩn / hiện mật khẩu có `aria-label` (khoá dịch mới `components.password.show|hide`). **Không đổi / xoá `id` nào đã có.** Danh sách đầy đủ: `memory/features/test-ids.md`.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/utils/test-id.ts` (mới), `components/fields/*`, `components/grid-view/components/*`, `components/dialog-confirm/*`, `layouts/components/*`, `layouts/dashboard/nav.tsx`, `pages/{sign-in,user-mgt,category-mgt,book-mgt,promotions-mgt,home,not-found-view}/**`, `locales/{en,vi}/components.ts` | cùng đường dẫn | Chép để locator WebView / mobile web giống web. Component dùng chung có prop mới (`testId`, `testIdPrefix`) nhưng đều có mặc định, không bắt buộc sửa chỗ gọi |
+
+**Mobile cần**: tuỳ chọn (không ảnh hưởng chức năng). Deploy backend chỉ để Swagger production có favicon.

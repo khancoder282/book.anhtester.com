@@ -85,21 +85,45 @@ export type DialogConfirmFormProps<T = any> = {
   } & ButtonProps;
 
   props?: DialogProps;
+  /** Tiền tố data-testid (mặc định 'form-dialog'): <testId>-<field>, -save, -cancel */
+  testId?: string;
 };
+
+const htmlInputWithTestId = (props: TextFieldProps | undefined, tid: string) => ({
+  ...props?.slotProps,
+  htmlInput: {
+    'data-testid': tid,
+    ...props?.inputProps,
+    ...(props?.slotProps?.htmlInput as object),
+  },
+});
 
 const mapping = {
   checkbox: (
     opt: ObjectField,
     field: ControllerRenderProps<FieldValues, string>,
     inValid: boolean,
-    helperText?: string
+    helperText: string | undefined,
+    tid: string
   ) => (
     <Stack spacing={1}>
       <FormControlLabel
         required={!!opt.rules?.required}
         color={inValid ? 'error.main' : 'inherit'}
         {...field}
-        control={<Switch {...(opt.props as SwitchProps)} color={inValid ? 'error' : 'primary'} />}
+        control={
+          <Switch
+            {...(opt.props as SwitchProps)}
+            slotProps={{
+              ...(opt.props as SwitchProps)?.slotProps,
+              input: {
+                'data-testid': tid,
+                ...((opt.props as SwitchProps)?.slotProps?.input as object),
+              } as object,
+            }}
+            color={inValid ? 'error' : 'primary'}
+          />
+        }
         label={opt.label}
       />
       {helperText && (
@@ -113,11 +137,13 @@ const mapping = {
     opt: ObjectField,
     field: ControllerRenderProps<FieldValues, string>,
     inValid: boolean,
-    helperText?: string
+    helperText: string | undefined,
+    tid: string
   ) => (
     <TextField
       {...field}
       {...(opt.props as TextFieldProps)}
+      slotProps={htmlInputWithTestId(opt.props as TextFieldProps, tid)}
       label={opt.label}
       error={inValid}
       helperText={helperText}
@@ -128,11 +154,19 @@ const mapping = {
     opt: ObjectField,
     field: ControllerRenderProps<FieldValues, string>,
     inValid: boolean,
-    helperText?: string
+    helperText: string | undefined,
+    tid: string
   ) => (
     <TextField
       {...field}
       {...(opt.props as TextFieldProps)}
+      slotProps={{
+        ...(opt.props as TextFieldProps)?.slotProps,
+        select: {
+          ...((opt.props as TextFieldProps)?.slotProps?.select as object),
+          SelectDisplayProps: { 'data-testid': tid } as object,
+        },
+      }}
       select
       label={opt.label}
       error={inValid}
@@ -150,7 +184,8 @@ const mapping = {
     opt: ObjectField,
     field: ControllerRenderProps<FieldValues, string>,
     inValid: boolean,
-    helperText?: string
+    helperText: string | undefined,
+    _tid: string
   ) => opt.render?.(opt, field, inValid, helperText),
 };
 
@@ -158,6 +193,7 @@ export function DialogConfirmForm<T>({
   body,
   action: { onAction, ...actionProps },
   title,
+  testId = 'form-dialog',
 }: DialogConfirmFormProps<T>) {
   const { t } = useTranslate();
   const { setOpen, open } = useDialog();
@@ -180,7 +216,7 @@ export function DialogConfirmForm<T>({
 
   return (
     <>
-      <DialogTitle>{title}</DialogTitle>
+      <DialogTitle data-testid={`${testId}-title`}>{title}</DialogTitle>
       <DialogContent dividers>
         <Stack spacing={2}>
           {(
@@ -199,7 +235,8 @@ export function DialogConfirmForm<T>({
                       value as ObjectField,
                       field,
                       invalid,
-                      error?.message
+                      error?.message,
+                      `${testId}-${key}`
                     )}
                   </>
                 )}
@@ -213,6 +250,7 @@ export function DialogConfirmForm<T>({
       <DialogActions>
         <Button
           id="dialog-form-cancel"
+          data-testid={`${testId}-cancel`}
           disabled={isLoading}
           color="inherit"
           onClick={() => setOpen(false)}
@@ -223,6 +261,7 @@ export function DialogConfirmForm<T>({
           variant="contained"
           disabled={!isDirty}
           id="dialog-form-action"
+          data-testid={`${testId}-save`}
           color="inherit"
           children={actionProps.label}
           {...actionProps}
