@@ -25,5 +25,6 @@ export const auth: Translation<typeof en> = {
   },
   toast: {
     networkError: 'Không kết nối được máy chủ. Vui lòng thử lại.',
+    loadAccountFailed: 'Đã đăng nhập nhưng không tải được tài khoản. Vui lòng thử lại.',
   },
 };

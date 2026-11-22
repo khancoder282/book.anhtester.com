@@ -30,6 +30,7 @@ Frontend: `src/pages/sign-in/`, `src/pages/user-mgt/sign-up.tsx`, `profile.tsx`,
 
 - `src/api/axios.ts`: gặp 401 thì gọi `/refetch-token` rồi thử lại, **trừ** `/login`, `/register`, `/refetch-token` (401 của login là sai mật khẩu, không phải hết hạn token).
 - Store `useAuth` (`src/store/auth.ts`) có `checked`: bật khi lần gọi `/me` đầu tiên của `CheckAuth` xong. `useAuthCheck()` chỉ đẩy sang Sign in khi `checked && !auth`, nên mở thẳng URL/F5 trang Setting, My profile không bị đẩy về Sign in.
+- Đăng nhập (2026-11-22): `content-fields-login.tsx` chỉ chuyển trang khi `GET /me` sau login thành công; `/me` lỗi thì xoá token, ở lại `/sign-in`, toast `auth.toast.loadAccountFailed`. `formControl` (react-hook-form) sống ở cấp module nên luôn `reset()` khi mở trang và sau mỗi lần submit — trước đây cờ `isSubmitSuccessful` còn sót làm `/sign-in` tự đẩy về `/` (bấm avatar khi `auth` rỗng thì trang giật qua lại, không hiện menu).
 - Trang My profile: đổi email/mật khẩu thành công thì chỉ xoá token phía client rồi về Sign in (backend đã thu hồi phiên, không gọi `/logout`).
 - Lỗi mạng (không có `err.response`) hiện toast `auth.toast.networkError` / `user.toast.networkError`.
 

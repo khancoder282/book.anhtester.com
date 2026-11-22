@@ -37,6 +37,7 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-21-09](#2026-11-21-09) | 2026-11-21 | Giỏ hàng trên server (`/api/cart`), web đồng bộ giỏ theo tài khoản | **Có**: thêm nhóm `/api/cart` (6 endpoint); `POST /api/order` bỏ sách đã đặt khỏi giỏ | **Có** (+ `prisma db push` thêm bảng `CartItem`) | ⏳ Chưa làm |
 | [2026-11-21-10](#2026-11-21-10) | 2026-11-21 | Swagger: tên API ở menu trái, endpoint dưới tên | Không đổi hành vi (chỉ tài liệu) | Có (để Swagger production có thay đổi) | Không cần làm |
 | [2026-11-21-12](#2026-11-21-12) | 2026-11-21 | Swagger favicon; `data-testid` cho mọi màn, `id` cho Login / Register | Không | Có (để Swagger production có favicon) | ⏳ Tuỳ chọn (locator giống web) |
+| [2026-11-22-01](#2026-11-22-01) | 2026-11-22 | Login: chỉ chuyển trang khi `/me` thành công, hết giật khi bấm avatar | Không | Không (nhưng production đang 500 ở route có guard, xem mục) | ⏳ Kiểm tra bên mobile |
 
 ---
 
@@ -738,3 +739,22 @@ Tone màu lấy từ AT UI kit của repo `anhtester_lms` (`public/build/css/at-
 | `frontend/src/utils/test-id.ts` (mới), `components/fields/*`, `components/grid-view/components/*`, `components/dialog-confirm/*`, `layouts/components/*`, `layouts/dashboard/nav.tsx`, `pages/{sign-in,user-mgt,category-mgt,book-mgt,promotions-mgt,home,not-found-view}/**`, `locales/{en,vi}/components.ts` | cùng đường dẫn | Chép để locator WebView / mobile web giống web. Component dùng chung có prop mới (`testId`, `testIdPrefix`) nhưng đều có mặc định, không bắt buộc sửa chỗ gọi |
 
 **Mobile cần**: tuỳ chọn (không ảnh hưởng chức năng). Deploy backend chỉ để Swagger production có favicon.
+
+---
+
+<a id="2026-11-22-01"></a>
+## 2026-11-22-01 · Login: hết giật trang khi bấm avatar
+
+**Triệu chứng (production)**: đăng nhập báo thành công nhưng avatar không có chữ cái đầu tên; bấm avatar không hiện menu mà trang giật (đi `/sign-in` rồi bật ngay về `/`).
+
+**Nguyên nhân**
+- Backend production: mọi route có guard `auth` (`GET /api/me`, `/api/cart`, `/api/order`…) trả **500** `Internal server error.`, kể cả khi không gửi token (đáng lẽ 401). Local cùng code trả 401 đúng. `GET /api/file` (gọi `verifyAccessToken` trong handler) vẫn 401 đúng. Cần xem log server production (đang tìm nguyên nhân, chưa sửa).
+- Web: `/me` lỗi thì `auth` = null nhưng form login vẫn chuyển về `/`; cờ `isSubmitSuccessful` của `formControl` (cấp module) không được reset, nên mỗi lần mở `/sign-in` trang tự đẩy về `/` → giật.
+
+**Web đã sửa**: `pages/sign-in/components/content-fields-login.tsx` — reset form khi mở trang và sau mỗi lần submit; chỉ `router.replace` khi `/me` thành công; `/me` lỗi thì xoá `accessToken`, ở lại Sign in, toast `auth.toast.loadAccountFailed` (khoá mới en + vi). Locator không đổi.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `frontend/src/pages/sign-in/components/content-fields-login.tsx`, `frontend/src/locales/{en,vi}/auth.ts` | cùng đường dẫn | Chép nếu mobile còn đoạn `router.replace` chạy trước khi `/me` xong |
+
+**Mobile cần**: kiểm tra màn Login của app. App gọi API production nên **đang bị ảnh hưởng** bởi lỗi 500 của `/api/me` cho tới khi backend production được sửa. Không cần deploy backend cho phần web này.

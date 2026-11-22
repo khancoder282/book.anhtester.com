@@ -28,3 +28,10 @@ cd frontend && bun run build
 - Trước khi deploy thay đổi schema: dựng DB tạm theo schema của bản đang chạy production, thêm dữ liệu, rồi `prisma migrate diff --from-schema-datasource ... --to-schema-datamodel ... --script` để xem SQL. Chỉ có `ADD COLUMN` nullable / có default và `CREATE TABLE` thì an toàn; có `DROP`, `MODIFY` thu hẹp, thêm `UNIQUE` hay cột bắt buộc không default thì phải viết bước chuyển dữ liệu riêng. Cách dựng DB tạm trên WAMP: `setup-local.md`.
 - Lần soát 2026-11-21 (schema `ba42c0e` → `HEAD`): chỉ thêm, không mất dữ liệu. Sửa thêm `OrderItem.picture` thành `TEXT`.
 - Server tự xoá ảnh mồ côi trong `upload/$book-image/` lúc khởi động, nên luôn sao lưu `upload/` trước lần chạy đầu của bản mới.
+
+## Production: route có guard `auth` trả 500 (phát hiện 2026-11-22, chưa rõ nguyên nhân)
+
+- `curl https://book.anhtester.com/api/me` (không token / token sai) → **500** `{"msg":"Internal server error."}`; `/api/cart`, `/api/order` cũng vậy. Local cùng code (Elysia 1.4.32, Bun 1.4.5, kể cả `NODE_ENV=production`) trả **401** đúng.
+- `GET /api/file` (gọi `verifyAccessToken` trong handler, không qua `onBeforeHandle`) trên production vẫn 401 đúng → lỗi nằm ở đường guard `auth` (`plugins/auth.ts`, `app.onBeforeHandle`) hoặc môi trường server (phiên bản Bun / `node_modules` trên VPS).
+- Swagger production khớp 25/25 endpoint với `docs/api/openapi.json` → server đang chạy đúng code mới nhất.
+- Hệ quả: đăng nhập báo thành công nhưng `/me` lỗi → web ở trạng thái khách. Cần log server (`console.error` trong `onError` của `src/index.ts` in `code` + message) để biết lỗi gốc.

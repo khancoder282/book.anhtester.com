@@ -24,5 +24,6 @@ export const auth = {
   },
   toast: {
     networkError: 'Cannot connect to the server. Please try again.',
+    loadAccountFailed: 'Signed in, but your account could not be loaded. Please try again.',
   },
 };
