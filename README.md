@@ -164,12 +164,41 @@ bunx prisma db push
 bun run start
 ```
 
-- **Không** chạy `bun run seed` trên production: lệnh này xoá toàn bộ dữ liệu.
+- Bước cập nhật thường **không** chạy `bun run seed`: lệnh này xoá toàn bộ dữ liệu. Chỉ chạy khi được yêu cầu đưa production về dữ liệu mẫu (mục dưới).
 - `prisma db push` ở bước 3 không được hỏi *"data loss"*. Nếu nó hỏi thì **dừng lại**, không thêm `--accept-data-loss`, báo lại cho dev.
 - Đợt cập nhật 2026-11-20 → 2026-11-21 chỉ **thêm**, không xoá hay đổi kiểu cột nào (đã chạy thử trên bản sao DB cũ có dữ liệu): sách thêm 8 cột không bắt buộc (`author`, `publisher`, `publishYear`, `pageCount`, `isbn`, `language`, `previewTitle`, `previewContent`), category thêm `isActive` (mặc định bật), thêm 3 bảng `Order`, `OrderItem`, `CartItem` (giỏ hàng) và 2 enum `OrderStatus`, `PaymentMethod`.
 - Bảng Address: production còn dữ liệu cũ (có cấp huyện, khác 34 tỉnh/thành) thì nạp lại: `bun run seed:address --yes --allow-remote`. Lệnh chỉ thay bảng Address, không đụng user, sách, đơn hàng.
 - Lần khởi động đầu, server tự **xoá ảnh không sách nào dùng** trong `upload/$book-image/` (cũ hơn 24 giờ), sau đó lặp lại mỗi giờ. Vì thế cần sao lưu `upload/` ở bước 0.
 - MySQL nên chạy chế độ strict (mặc định của MySQL 8) và engine mặc định **InnoDB**. Tạo DB mới mà `db push` báo `Specified key was too long; max key length is 1000 bytes` là do engine mặc định đang là MyISAM (hay gặp ở WAMP): đặt `default_storage_engine=InnoDB` trong `my.ini` / `my.cnf`, khởi động lại MySQL rồi chạy lại.
+
+### Đưa production về dữ liệu mẫu (VPS)
+
+Dùng khi được yêu cầu dọn sạch production về bộ dữ liệu mẫu. Dữ liệu mẫu nằm sẵn trong repo (`backend/prisma/seed/`: `data.json`, `vn-address.json`, ảnh trong `assets/`), nên chỉ cần pull code rồi chạy lệnh.
+
+```bash
+cd <thư mục repo>
+
+# 0. Sao lưu (seed không hoàn tác được)
+mysqldump -u <user> -p <tên_db> > backup_$(date +%F).sql
+tar czf upload_$(date +%F).tgz -C backend upload   # thư mục FILEDIR
+
+# 1. Lấy code mới, cài thư viện, đồng bộ cấu trúc DB
+git pull origin deploy-vps
+cd backend
+bun install
+bunx prisma generate
+bunx prisma db push        # hỏi "data loss" thì DỪNG, báo dev
+
+# 2. Nạp dữ liệu mẫu
+bun run seed --yes         # DATABASE_URL không phải localhost: thêm --allow-remote
+
+# 3. Khởi động lại backend (pm2 / systemd / cách đang dùng)
+```
+
+- Giữ tài khoản `admin@example.com` **và mật khẩu đang dùng** (chưa có thì tạo với mật khẩu `123456`). Avatar của admin bị bỏ vì thư mục upload bị dọn.
+- Xoá mọi user khác (kèm đơn hàng, giỏ hàng, phiên đăng nhập của họ), sách, khuyến mãi, category, địa chỉ và mọi file trong thư mục upload. Đơn hàng của admin còn lại, nhưng dòng sách trong đơn mất liên kết với sách.
+- Tạo lại sách, category, khuyến mãi, 34 tỉnh / 3.321 phường xã, cùng 8 user mẫu `*@example.com` (mật khẩu `123456`), xem mục *Dữ liệu mẫu*.
+- App mobile gọi API production, nên dữ liệu trên app đổi theo ngay.
 
 ## Cấu trúc thư mục
 

@@ -37,3 +37,5 @@ cd backend && bun run seed --yes
 - Ảnh `product-*.webp` (giày) của template đã bị xoá khỏi repo ngày 2026-11-20 theo yêu cầu, vì app là quản lý **sách**. Đừng dùng lại ảnh không liên quan tới sách.
 - Thẻ sách trên web là khung ngang nên bìa dọc bị cắt phần giữa; trang chi tiết hiện đủ.
 - Đường dẫn ảnh lưu dạng `/$book-image/<slug>/bia-truoc.jpg` (dấu `/`). Upload qua app trên Windows thì `path.relative` trả về dấu `\`, nên dữ liệu do app tạo trên Windows có thể khác định dạng với dữ liệu seed.
+
+- Production (2026-11-22): user yêu cầu devops đưa production về dữ liệu mẫu. Quy trình (sao lưu → pull → `db push` → `bun run seed --yes` → khởi động lại) ở README mục *Đưa production về dữ liệu mẫu (VPS)*. Dữ liệu mẫu đã nằm trong Git, không cần đẩy thêm file DB/dump nào.
