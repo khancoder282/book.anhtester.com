@@ -35,3 +35,9 @@ cd frontend && bun run build
 - `GET /api/file` (gọi `verifyAccessToken` trong handler, không qua `onBeforeHandle`) trên production vẫn 401 đúng → lỗi nằm ở đường guard `auth` (`plugins/auth.ts`, `app.onBeforeHandle`) hoặc môi trường server (phiên bản Bun / `node_modules` trên VPS).
 - Swagger production khớp 25/25 endpoint với `docs/api/openapi.json` → server đang chạy đúng code mới nhất.
 - Hệ quả: đăng nhập báo thành công nhưng `/me` lỗi → web ở trạng thái khách. Cần log server (`console.error` trong `onError` của `src/index.ts` in `code` + message) để biết lỗi gốc.
+
+## CORS: nginx và backend cùng thêm header (sửa 2026-11-23)
+
+- nginx trên VPS (không nằm trong repo) có cấu hình CORS riêng cho origin `https://localhost` (app Android Capacitor): trả lời preflight `OPTIONS` 204 và thêm `Allow-Origin: https://localhost` + `Allow-Credentials: true`. Backend (`corsHeaders`, 2026-11-20) lại thêm `*` ⇒ 2 dòng `Allow-Origin` ⇒ WebView chặn, app release toàn số 0.
+- Sửa: `PROXY_CORS_ORIGINS` trong `src/index.ts` (env, mặc định `https://localhost`): backend bỏ header CORS cho các origin này. Bỏ CORS trong nginx thì đặt `PROXY_CORS_ORIGINS=""`. Chi tiết: `plans/mobile-sync.md` mục 2026-11-23-01.
+- Kiểm production: `curl -s -D - -o /dev/null -H "Origin: https://localhost" https://book.anhtester.com/api/book?limit=1 | grep -i allow-origin` phải ra 1 dòng. Trình duyệt ở origin khác (VD `localhost:3040`) gọi production vẫn được **dù lỗi còn**, nên đừng dùng trình duyệt để kết luận app mobile ổn.

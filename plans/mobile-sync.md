@@ -38,6 +38,7 @@ Repo mobile: `../mobile-book.anhtester.com`. Đây là app Capacitor dùng **g�
 | [2026-11-21-10](#2026-11-21-10) | 2026-11-21 | Swagger: tên API ở menu trái, endpoint dưới tên | Không đổi hành vi (chỉ tài liệu) | Có (để Swagger production có thay đổi) | Không cần làm |
 | [2026-11-21-12](#2026-11-21-12) | 2026-11-21 | Swagger favicon; `data-testid` cho mọi màn, `id` cho Login / Register | Không | Có (để Swagger production có favicon) | ⏳ Tuỳ chọn (locator giống web) |
 | [2026-11-22-01](#2026-11-22-01) | 2026-11-22 | Login: chỉ chuyển trang khi `/me` thành công, hết giật khi bấm avatar | Không | Không (nhưng production đang 500 ở route có guard, xem mục) | ⏳ Kiểm tra bên mobile |
+| [2026-11-23-01](#2026-11-23-01) | 2026-11-23 | Sửa header CORS bị lặp cho app Android (`Origin: https://localhost`) | Không đổi endpoint; bỏ header CORS của backend cho origin nginx đã lo | **Có** | Không cần sửa code (APK 1.0.0 chạy được sau deploy) |
 
 ---
 
@@ -758,3 +759,25 @@ Tone màu lấy từ AT UI kit của repo `anhtester_lms` (`public/build/css/at-
 | `frontend/src/pages/sign-in/components/content-fields-login.tsx`, `frontend/src/locales/{en,vi}/auth.ts` | cùng đường dẫn | Chép nếu mobile còn đoạn `router.replace` chạy trước khi `/me` xong |
 
 **Mobile cần**: kiểm tra màn Login của app. App gọi API production nên **đang bị ảnh hưởng** bởi lỗi 500 của `/api/me` cho tới khi backend production được sửa. Không cần deploy backend cho phần web này.
+
+---
+
+<a id="2026-11-23-01"></a>
+## 2026-11-23-01 · Header CORS bị lặp làm app Android không tải được dữ liệu
+
+**Triệu chứng (production)**: app mobile bản release (gọi `https://book.anhtester.com`) mở được nhưng Dashboard toàn số 0, danh sách trống. Web không bị.
+
+**Nguyên nhân**: WebView Capacitor Android có origin `https://localhost`. Với origin này response có **2 dòng** `Access-Control-Allow-Origin`:
+- backend (`src/index.ts`, `corsHeaders`, từ 2026-11-20) luôn thêm `*` + `Max-Age: 600`;
+- nginx trên VPS có cấu hình riêng cho `https://localhost`: tự trả lời preflight `OPTIONS` (204) và thêm `Allow-Origin: https://localhost` + `Allow-Credentials: true`.
+Trình duyệt / WebView từ chối response có nhiều giá trị `Allow-Origin` ⇒ mọi request của app bị chặn. Origin khác (web, Swagger, `capacitor://localhost` của iOS) chỉ nhận `*` nên không bị.
+
+**Sửa (backend)**: `PROXY_CORS_ORIGINS` (env, mặc định `https://localhost`): request có `Origin` thuộc danh sách thì backend **không** thêm header CORS (cả preflight), để nginx lo. Đã kiểm local: `https://localhost` không có header của backend; `http://localhost:3039`, `capacitor://localhost`, không có `Origin` vẫn nhận `*` như cũ.
+
+**Deploy**: `git pull origin deploy-vps` → khởi động lại backend (không đổi DB, không cần `db push`). Kiểm: `curl -s -D - -o /dev/null -H "Origin: https://localhost" https://book.anhtester.com/api/book?limit=1 | grep -i allow-origin` ra **1 dòng**.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `backend/src/index.ts`, `backend/.env.example`, `README.md` | — | Không cần sửa code mobile. APK `v1.0.0` (GitHub Release của repo mobile) chạy được ngay sau khi deploy |
+
+**Mobile cần**: không. Sau deploy mở lại app bản release, Dashboard phải ra số liệu production.

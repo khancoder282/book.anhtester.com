@@ -170,6 +170,7 @@ bun run start
 - Bảng Address: production còn dữ liệu cũ (có cấp huyện, khác 34 tỉnh/thành) thì nạp lại: `bun run seed:address --yes --allow-remote`. Lệnh chỉ thay bảng Address, không đụng user, sách, đơn hàng.
 - Lần khởi động đầu, server tự **xoá ảnh không sách nào dùng** trong `upload/$book-image/` (cũ hơn 24 giờ), sau đó lặp lại mỗi giờ. Vì thế cần sao lưu `upload/` ở bước 0.
 - MySQL nên chạy chế độ strict (mặc định của MySQL 8) và engine mặc định **InnoDB**. Tạo DB mới mà `db push` báo `Specified key was too long; max key length is 1000 bytes` là do engine mặc định đang là MyISAM (hay gặp ở WAMP): đặt `default_storage_engine=InnoDB` trong `my.ini` / `my.cnf`, khởi động lại MySQL rồi chạy lại.
+- **CORS cho app Android** (2026-11-23): nginx trên VPS đang tự thêm header CORS cho origin `https://localhost` (app mobile Capacitor). Backend **không** thêm header CORS cho các origin trong `PROXY_CORS_ORIGINS` (mặc định `https://localhost`), để response chỉ có một dòng `Access-Control-Allow-Origin`. Kiểm sau khi cập nhật: `curl -s -D - -o /dev/null -H "Origin: https://localhost" https://book.anhtester.com/api/book?limit=1 | grep -i allow-origin` phải ra **đúng 1 dòng**. Nếu sau này bỏ cấu hình CORS trong nginx thì đặt `PROXY_CORS_ORIGINS=""` trong `backend/.env`.
 
 ### Đưa production về dữ liệu mẫu (VPS)
 

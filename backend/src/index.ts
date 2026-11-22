@@ -47,6 +47,21 @@ const decodeOnce = (s: string) => {
  * `Allow-Origin: *` nên trình duyệt KHÔNG gửi cookie cross-origin: cookie `refetchToken` không lộ cho site khác,
  * gọi API bằng header `Authorization: Bearer` vẫn chạy.
  */
+/**
+ * Origin mà reverse proxy (nginx trên VPS) đã tự trả lời CORS (2026-11-23).
+ * nginx production có cấu hình riêng cho app Android Capacitor (origin `https://localhost`): tự trả lời
+ * preflight và thêm `Allow-Origin: https://localhost` + `Allow-Credentials: true` vào mọi response.
+ * Backend mà thêm `Allow-Origin: *` nữa thì response có 2 dòng `Access-Control-Allow-Origin`, WebView
+ * từ chối ⇒ app mobile bản release không tải được dữ liệu. Với các origin này backend để nginx lo.
+ * Bỏ cấu hình CORS trong nginx thì đặt `PROXY_CORS_ORIGINS=""` trong `.env`.
+ */
+const PROXY_CORS_ORIGINS = new Set(
+  (Bun.env.PROXY_CORS_ORIGINS ?? "https://localhost")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean)
+);
+
 function corsHeaders(request: Request): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": "*",
@@ -61,9 +76,13 @@ const app = new Elysia()
   .onRequest(({ request, set }) => {
     const url = new URL(request.url)
     if (url.pathname.startsWith("/api")) {
-      Object.assign(set.headers, corsHeaders(request));
+      const proxyHandlesCors = PROXY_CORS_ORIGINS.has(request.headers.get("origin") ?? "");
+      if (!proxyHandlesCors) Object.assign(set.headers, corsHeaders(request));
       if (request.method === "OPTIONS") {
-        return new Response(null, { status: 204, headers: corsHeaders(request) });
+        return new Response(null, {
+          status: 204,
+          headers: proxyHandlesCors ? {} : corsHeaders(request),
+        });
       }
       console.log(`[${dayjs().format("DD/MM/YYYY HH:mm:ss")}] ${request.method.padEnd(6)}: ${url.pathname} `);
     }

@@ -50,6 +50,7 @@ Ký hiệu trạng thái: xem [README.md](README.md).
 | 2.21 | Sửa 5 lỗi web do repo mobile báo (W21–W25): cột bảng khuyến mãi trong form sách đổi theo ngôn ngữ, mất mạng có toast, lỗi ảnh 422 hiện ở ô ảnh + upload timeout 60s, tab thể loại / dải ảnh nhỏ không xén quầng sáng, dialog toàn màn hình chừa safe area | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-11](mobile-sync.md#2026-11-21-11) |
 | 2.22 | Swagger có **favicon**; gắn `data-testid` (Playwright `getByTestId`) cho phần tử tương tác ở mọi màn, Login / Register có thêm `id` | ✅ 2026-11-21 | Chi tiết: [mobile-sync.md#2026-11-21-12](mobile-sync.md#2026-11-21-12) |
 | 2.23 | Sau khi đăng nhập bấm avatar không hiện menu mà trang giật (sign-in ↔ `/`): chỉ chuyển trang khi `/me` thành công, reset form login; `/me` lỗi thì báo rõ và ở lại Sign in | ✅ 2026-11-22 | Nguyên nhân gốc trên production: route có guard `auth` trả 500 (xem mobile-sync). Chi tiết: [mobile-sync.md#2026-11-22-01](mobile-sync.md#2026-11-22-01) |
+| 2.24 | App mobile bản release không tải được dữ liệu: response cho origin `https://localhost` có 2 dòng `Access-Control-Allow-Origin` (backend `*` + nginx). Backend bỏ header CORS cho origin nginx đã lo (`PROXY_CORS_ORIGINS`) | ✅ 2026-11-23 (chờ deploy) | Chi tiết: [mobile-sync.md#2026-11-23-01](mobile-sync.md#2026-11-23-01) |
 
 ## Đợt 3: Tính năng mới
 
