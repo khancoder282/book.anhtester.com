@@ -781,3 +781,24 @@ Trình duyệt / WebView từ chối response có nhiều giá trị `Allow-Orig
 | `backend/src/index.ts`, `backend/.env.example`, `README.md` | — | Không cần sửa code mobile. APK `v1.0.0` (GitHub Release của repo mobile) chạy được ngay sau khi deploy |
 
 **Mobile cần**: không. Sau deploy mở lại app bản release, Dashboard phải ra số liệu production.
+
+---
+
+<a id="2026-11-25-01"></a>
+## 2026-11-25-01 · App iOS không đăng nhập được vì CORS `*` với credentials
+
+**Triệu chứng (production, suy từ header, chưa chạy trên iPhone thật)**: WKWebView của app iOS Capacitor có origin `capacitor://localhost`. Production trả cho origin này `Access-Control-Allow-Origin: *` (của backend), không có `Allow-Credentials`. App mobile gửi `withCredentials: true` ở `POST /api/login` (`src/pages/sign-in/api/login.ts`), `POST /api/refetch-token` (`src/api/axios.ts`), `DELETE /api/logout` (`src/api/logout.ts`). Trình duyệt từ chối `*` cho request có credentials ⇒ đăng nhập trên iOS bị chặn. Android (`https://localhost`) không bị vì nginx trả đúng origin + credentials (mục 2026-11-23-01).
+
+**Sửa (backend)**: `APP_CORS_ORIGINS` (env, mặc định `capacitor://localhost`) trong `src/index.ts`: request có `Origin` thuộc danh sách nhận `Allow-Origin: <origin>`, `Allow-Credentials: true`, `Vary: Origin` (cả preflight `OPTIONS` 204). Origin khác giữ nguyên (`*`; `https://localhost` vẫn để nginx lo). Không trang web nào có origin `capacitor://` nên không mở cookie cho site lạ.
+
+Đã kiểm local: `capacitor://localhost` GET + preflight `/api/login` ra đúng origin + credentials; `POST /api/login` (admin@example.com) 200 kèm header; `https://localhost` không có header của backend; `http://localhost:3039`, origin lạ vẫn `*`.
+
+**Deploy**: `git pull origin deploy-vps` → khởi động lại backend (không đổi DB). Không cần đặt `.env` (dùng mặc định). Kiểm: `curl -s -D - -o /dev/null -H "Origin: capacitor://localhost" https://book.anhtester.com/api/book?limit=1 | grep -i allow-` có đúng 1 dòng `Allow-Origin: capacitor://localhost` + `Allow-Credentials: true`.
+
+**Lưu ý**: cookie `refetchToken` là `SameSite=Strict` nên không được gửi từ app (cả Android lẫn iOS, origin khác site). Làm mới token trong app vì vậy không chạy, hết hạn access token thì phải đăng nhập lại. Không thuộc phạm vi mục này.
+
+| Web | Mobile | Việc |
+|---|---|---|
+| `backend/src/index.ts`, `backend/.env.example`, `README.md` | — | Không cần sửa code mobile, không cần build lại app iOS |
+
+**Mobile cần**: không. Sau deploy, chạy app iOS (Xcode) và đăng nhập thử.

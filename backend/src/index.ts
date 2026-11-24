@@ -62,14 +62,37 @@ const PROXY_CORS_ORIGINS = new Set(
     .filter(Boolean)
 );
 
+/**
+ * Origin của app mobile được CORS kèm credentials (2026-11-25), mặc định `capacitor://localhost` = app iOS
+ * Capacitor (WKWebView). App gửi `withCredentials` ở `/login`, `/refetch-token`, `/logout`; trình duyệt từ chối
+ * `Allow-Origin: *` cho request có credentials ⇒ app iOS không đăng nhập được. Với các origin này backend trả
+ * đúng origin + `Allow-Credentials: true`. Không web nào có origin `capacitor://...` nên không mở cookie cho site lạ.
+ * nginx production không đụng tới origin này (khác `https://localhost` của Android ở `PROXY_CORS_ORIGINS`).
+ */
+const APP_CORS_ORIGINS = new Set(
+  (Bun.env.APP_CORS_ORIGINS ?? "capacitor://localhost")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean)
+);
+
 function corsHeaders(request: Request): Record<string, string> {
-  return {
-    "Access-Control-Allow-Origin": "*",
+  const origin = request.headers.get("origin") ?? "";
+  const common = {
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers":
       request.headers.get("access-control-request-headers") ?? "Content-Type, Authorization, Accept",
     "Access-Control-Max-Age": "600",
   };
+  if (APP_CORS_ORIGINS.has(origin)) {
+    return {
+      ...common,
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Credentials": "true",
+      Vary: "Origin",
+    };
+  }
+  return { ...common, "Access-Control-Allow-Origin": "*" };
 }
 
 const app = new Elysia()
