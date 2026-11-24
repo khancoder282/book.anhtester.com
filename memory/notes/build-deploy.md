@@ -43,3 +43,10 @@ cd frontend && bun run build
 - **2026-11-25, app iOS**: origin `capacitor://localhost` không nằm trong cấu hình nginx, backend trả `*` ⇒ request `withCredentials` (đăng nhập) bị WKWebView chặn. Sửa: `APP_CORS_ORIGINS` (env, mặc định `capacitor://localhost`): backend trả đúng origin + `Allow-Credentials: true`. Kiểm production: `curl -s -D - -o /dev/null -H "Origin: capacitor://localhost" https://book.anhtester.com/api/book?limit=1 | grep -i -E "allow-(origin|credentials)"` phải ra `capacitor://localhost` + `true`, đúng 1 dòng `Allow-Origin`.
 - Còn lại (chưa sửa, 2026-11-25): nginx cũng thêm CORS cho `http://localhost:3039` trong khi backend thêm `*` ⇒ 2 dòng `Allow-Origin`, trình duyệt ở `localhost:3039` gọi production bị chặn. Không thêm vào `PROXY_CORS_ORIGINS` mặc định được vì ở local (không nginx) Swagger `localhost:3039` gọi `localhost:4566` cần header của backend; muốn sửa thì đặt `PROXY_CORS_ORIGINS="https://localhost,http://localhost:3039"` trong `.env` **trên VPS**.
 - Kiểm production: `curl -s -D - -o /dev/null -H "Origin: https://localhost" https://book.anhtester.com/api/book?limit=1 | grep -i allow-origin` phải ra 1 dòng. Trình duyệt ở origin khác (VD `localhost:3040`) gọi production vẫn được **dù lỗi còn**, nên đừng dùng trình duyệt để kết luận app mobile ổn.
+
+## Workflow "Deploy to VPS" lỗi SSH (từ 2026-11-22)
+
+- Mọi lần chạy từ 2026-11-22 (push `deploy-vps`) đều lỗi ở bước "SSH and Deploy": `Permission denied (publickey,password)`, exit 255. Secret SSH trong GitHub Actions không còn được VPS chấp nhận. Lần gần nhất: run `45506170851` (commit `3737e73`, CORS iOS, 2026-11-25).
+- Bản sửa 2026-11-23 (`fb2aa15`) vẫn lên production ngày 2026-11-24 ⇒ có người deploy tay trên VPS.
+- Deploy tay (giống các bước của workflow): `cd /var/www/book.anhtester.com/backend && git pull origin deploy-vps && bun i && bun run build && pm2 restart book.anhtester.com`.
+- Sửa lâu dài: tạo lại cặp khoá, thêm public key vào `~/.ssh/authorized_keys` trên VPS và cập nhật secret của workflow. Việc của người có quyền vào VPS; Claude không làm được.
